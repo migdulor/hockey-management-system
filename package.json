@@ -1,0 +1,67 @@
+{
+  "name": "hockey-management-system",
+  "version": "1.0.0",
+  "description": "Sistema integral de gestión de equipos de hockey con arquitectura hexagonal",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "install:all": "npm install && npm install --prefix frontend && npm install --prefix backend",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm start --prefix frontend",
+    "build:backend": "npm run build --prefix backend",
+    "build:frontend": "npm run build --prefix frontend",
+    "test:all": "npm test --prefix backend && npm test --prefix frontend",
+    "start:backend": "npm start --prefix backend",
+    "migrate": "npm run migrate --prefix backend",
+    "seed": "npm run seed --prefix backend",
+    "deploy:vercel": "vercel --prod",
+    "deploy:railway": "railway up"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/migdulor/hockey-management-system.git"
+  },
+  "keywords": [
+    "hockey",
+    "sports",
+    "management",
+    "react",
+    "nodejs",
+    "postgresql",
+    "hexagonal-architecture",
+    "argentina",
+    "mercadopago",
+    "afip"
+  ],
+  "author": {
+    "name": "Miguel Dulor",
+    "email": "migdulor@hotmail.com",
+    "url": "https://github.com/migdulor"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/migdulor/hockey-management-system/issues"
+  },
+  "homepage": "https://github.com/migdulor/hockey-management-system#readme",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.2"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{md,json}": [
+      "prettier --write"
+    ]
+  }
+}
