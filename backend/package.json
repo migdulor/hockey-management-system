@@ -1,0 +1,80 @@
+{
+  "name": "hockey-backend-hexagonal",
+  "version": "1.0.0",
+  "description": "Backend del sistema de hockey con arquitectura hexagonal",
+  "main": "src/app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration",
+    "test:e2e": "jest tests/e2e",
+    "migrate": "node src/infrastructure/database/migrate.js",
+    "seed": "node src/infrastructure/database/seed.js",
+    "build": "echo 'No build step required for Node.js'",
+    "lint": "eslint src/ --ext .js",
+    "lint:fix": "eslint src/ --ext .js --fix",
+    "format": "prettier --write 'src/**/*.js'",
+    "check": "npm run lint && npm run test"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.11.0",
+    "cors": "^2.8.5",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
+    "dotenv": "^16.0.3",
+    "joi": "^17.9.2",
+    "helmet": "^7.0.0",
+    "express-rate-limit": "^6.7.0",
+    "compression": "^1.7.4",
+    "winston": "^3.8.2",
+    "cloudinary": "^1.37.3",
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^9.0.0",
+    "moment": "^2.29.4",
+    "axios": "^1.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22",
+    "jest": "^29.5.0",
+    "supertest": "^6.3.3",
+    "@types/jest": "^29.5.1",
+    "eslint": "^8.42.0",
+    "prettier": "^2.8.8"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/app.js",
+      "!src/config/*.js"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": ["text", "lcov", "html"],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "keywords": [
+    "hockey",
+    "hexagonal-architecture",
+    "clean-architecture",
+    "nodejs",
+    "express",
+    "postgresql"
+  ],
+  "author": {
+    "name": "Miguel Dulor",
+    "email": "migdulor@hotmail.com"
+  },
+  "license": "MIT"
+}
