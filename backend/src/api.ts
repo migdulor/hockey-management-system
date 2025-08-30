@@ -41,7 +41,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const { url, method } = req;
-  const path = url?.replace('/api', '') || '';
+  // Extract pathname without query parameters
+  const urlObj = new URL(url || '', 'http://localhost');
+  const path = urlObj.pathname.replace('/api', '') || '';
 
   try {
     // Health check endpoint
