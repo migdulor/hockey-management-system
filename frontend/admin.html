@@ -525,7 +525,8 @@
         async function toggleUser(userId) {
             try {
                 const response = await fetch(getApiUrl(`${API_BASE}/${userId}/toggle`), {
-                    method: 'PATCH'
+                    method: 'PATCH',
+                    headers: getAuthHeaders()
                 });
                 
                 const data = await response.json();
@@ -534,7 +535,7 @@
                     showMessage(data.message, 'success');
                     loadUsers();
                 } else {
-                    showMessage(`Error: ${data.error}`, 'error');
+                    showMessage(`Error: ${data.message || data.error}`, 'error');
                 }
             } catch (error) {
                 showMessage(`Error de conexión: ${error.message}`, 'error');
@@ -553,9 +554,7 @@
             try {
                 const response = await fetch(getApiUrl(`${API_BASE}/${userId}/password`), {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: getAuthHeaders(),
                     body: JSON.stringify({ new_password: newPassword })
                 });
                 
@@ -564,7 +563,7 @@
                 if (data.success) {
                     showMessage('Contraseña actualizada exitosamente', 'success');
                 } else {
-                    showMessage(`Error: ${data.error}`, 'error');
+                    showMessage(`Error: ${data.message || data.error}`, 'error');
                 }
             } catch (error) {
                 showMessage(`Error de conexión: ${error.message}`, 'error');

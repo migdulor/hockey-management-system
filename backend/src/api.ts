@@ -821,6 +821,174 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    // Admin users endpoint - Toggle user active status
+    if (path.match(/^\/admin\/users\/[^\/]+\/toggle$/) && method === 'PATCH') {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({
+          success: false,
+          message: 'Token de autorización requerido'
+        });
+      }
+
+      const token = authHeader.substring(7);
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+        
+        if (decoded.role !== 'admin') {
+          return res.status(403).json({
+            success: false,
+            message: 'Acceso denegado. Solo administradores.'
+          });
+        }
+
+        // Extract user ID from path
+        const userIdMatch = path.match(/^\/admin\/users\/([^\/]+)\/toggle$/);
+        const userId = userIdMatch ? userIdMatch[1] : null;
+
+        if (!userId) {
+          return res.status(400).json({
+            success: false,
+            message: 'ID de usuario requerido'
+          });
+        }
+
+        if (!process.env.POSTGRES_URL) {
+          return res.status(200).json({
+            success: true,
+            message: 'Usuario actualizado (demo)',
+            data: { id: userId, is_active: true }
+          });
+        }
+
+        // Get current user status
+        const currentUser = await sql`
+          SELECT id, is_active, email, first_name, last_name
+          FROM users 
+          WHERE id = ${userId}
+        `;
+
+        if (currentUser.rows.length === 0) {
+          return res.status(404).json({
+            success: false,
+            message: 'Usuario no encontrado'
+          });
+        }
+
+        const newStatus = !currentUser.rows[0].is_active;
+
+        // Update user status
+        const updatedUser = await sql`
+          UPDATE users 
+          SET is_active = ${newStatus}, updated_at = NOW()
+          WHERE id = ${userId}
+          RETURNING id, email, first_name, last_name, is_active
+        `;
+
+        return res.status(200).json({
+          success: true,
+          message: `Usuario ${newStatus ? 'activado' : 'desactivado'} exitosamente`,
+          data: updatedUser.rows[0]
+        });
+
+      } catch (error) {
+        console.error('Error toggling user:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Error interno del servidor'
+        });
+      }
+    }
+
+    // Admin users endpoint - Reset user password
+    if (path.match(/^\/admin\/users\/[^\/]+\/password$/) && method === 'PUT') {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({
+          success: false,
+          message: 'Token de autorización requerido'
+        });
+      }
+
+      const token = authHeader.substring(7);
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+        
+        if (decoded.role !== 'admin') {
+          return res.status(403).json({
+            success: false,
+            message: 'Acceso denegado. Solo administradores.'
+          });
+        }
+
+        // Extract user ID from path
+        const userIdMatch = path.match(/^\/admin\/users\/([^\/]+)\/password$/);
+        const userId = userIdMatch ? userIdMatch[1] : null;
+
+        if (!userId) {
+          return res.status(400).json({
+            success: false,
+            message: 'ID de usuario requerido'
+          });
+        }
+
+        const body = await parseBody(req);
+        const { new_password } = body;
+
+        if (!new_password || new_password.length < 6) {
+          return res.status(400).json({
+            success: false,
+            message: 'Nueva contraseña debe tener al menos 6 caracteres'
+          });
+        }
+
+        if (!process.env.POSTGRES_URL) {
+          return res.status(200).json({
+            success: true,
+            message: 'Contraseña actualizada (demo)',
+            data: { id: userId }
+          });
+        }
+
+        // Check if user exists
+        const userExists = await sql`
+          SELECT id, email, first_name, last_name
+          FROM users 
+          WHERE id = ${userId}
+        `;
+
+        if (userExists.rows.length === 0) {
+          return res.status(404).json({
+            success: false,
+            message: 'Usuario no encontrado'
+          });
+        }
+
+        // Hash new password
+        const saltRounds = 12;
+        const passwordHash = await bcrypt.hash(new_password, saltRounds);
+
+        // Update password
+        await sql`
+          UPDATE users 
+          SET password_hash = ${passwordHash}, updated_at = NOW()
+          WHERE id = ${userId}
+        `;
+
+        return res.status(200).json({
+          success: true,
+          message: 'Contraseña actualizada exitosamente'
+        });
+
+      } catch (error) {
+        console.error('Error updating password:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Error interno del servidor'
+        });
+      }
+    }
+
     // Route not found
     return res.status(404).json({
       success: false,
