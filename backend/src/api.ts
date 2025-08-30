@@ -63,42 +63,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // Debug endpoint - List users in database (temporary)
-    if (path === '/debug/users' && method === 'GET') {
-      try {
-        // Check if database is configured
-        if (!process.env.POSTGRES_URL && !process.env.hockeymanager_POSTGRES_URL) {
-          return res.status(200).json({
-            success: true,
-            message: 'Base de datos no configurada - usando datos mock'
-          });
-        }
-
-        const usersResult = await sql`
-          SELECT id, email, first_name, last_name, role, plan, club_name, is_active, created_at, last_login
-          FROM users 
-          ORDER BY created_at DESC
-        `;
-
-        return res.status(200).json({
-          success: true,
-          message: 'Usuarios encontrados en la base de datos',
-          total: usersResult.rows.length,
-          users: usersResult.rows,
-          config: {
-            postgres_configured: !!process.env.POSTGRES_URL,
-            jwt_secret_configured: !!process.env.JWT_SECRET
-          }
-        });
-      } catch (error) {
-        return res.status(500).json({
-          success: false,
-          message: 'Error al consultar la base de datos',
-          error: error instanceof Error ? error.message : 'Unknown error'
-        });
-      }
-    }
-
     // Login endpoint
     if (path === '/auth/login' && method === 'POST') {
       const body = await parseBody(req);
