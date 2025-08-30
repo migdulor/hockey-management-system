@@ -64,7 +64,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Debug endpoint - List users in database (temporary)
     if (path === '/debug/users' && method === 'GET') {
       try {
-        if (!process.env.POSTGRES_URL) {
+        // Check if database is configured
+        if (!process.env.POSTGRES_URL && !process.env.hockeymanager_POSTGRES_URL) {
           return res.status(200).json({
             success: true,
             message: 'Base de datos no configurada - usando datos mock'
@@ -110,7 +111,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       try {
         // Check if database is configured
-        if (!process.env.POSTGRES_URL) {
+        if (!process.env.POSTGRES_URL && !process.env.hockeymanager_POSTGRES_URL) {
           // Fallback to mock users for demo
           const mockUsers = [
             { id: 1, email: 'test@hockey.com', password: 'test123', role: 'coach' },
