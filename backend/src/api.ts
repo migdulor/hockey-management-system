@@ -186,6 +186,58 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    // Profile endpoint
+    if (path === '/profile' && method === 'GET') {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({
+          success: false,
+          message: 'Token de autorización requerido'
+        });
+      }
+
+      const token = authHeader.substring(7);
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+        
+        // Get user info from database
+        const userResult = await sql`
+          SELECT id, email, first_name, last_name, role, plan, club_name, is_active, created_at
+          FROM users 
+          WHERE id = ${decoded.userId} AND is_active = true
+        `;
+
+        if (userResult.rows.length === 0) {
+          return res.status(404).json({
+            success: false,
+            message: 'Usuario no encontrado'
+          });
+        }
+
+        const user = userResult.rows[0];
+
+        return res.status(200).json({
+          success: true,
+          data: {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            firstName: user.first_name,
+            lastName: user.last_name,
+            plan: user.plan,
+            clubName: user.club_name,
+            createdAt: user.created_at
+          }
+        });
+
+      } catch (error) {
+        return res.status(401).json({
+          success: false,
+          message: 'Token inválido'
+        });
+      }
+    }
+
     // Register endpoint
     if (path === '/auth/register' && method === 'POST') {
       const body = await parseBody(req);

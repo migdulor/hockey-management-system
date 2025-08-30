@@ -163,6 +163,15 @@
                     localStorage.setItem('hockey_token', data.token);
                     localStorage.setItem('hockey_user', JSON.stringify(data.user));
                     
+                    // Redirección automática basada en rol
+                    setTimeout(() => {
+                        if (data.user.role === 'admin') {
+                            window.location.href = 'admin.html';
+                        } else {
+                            window.location.href = 'dashboard.html';
+                        }
+                    }, 2000);
+                    
                 } else {
                     resultDiv.className = 'result error';
                     resultDiv.innerHTML = `
