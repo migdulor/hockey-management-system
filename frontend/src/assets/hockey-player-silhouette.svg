@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="currentColor">
+  <!-- Cabeza -->
+  <circle cx="100" cy="30" r="18"/>
+  
+  <!-- Cuello -->
+  <rect x="95" y="45" width="10" height="8" rx="5"/>
+  
+  <!-- Torso -->
+  <ellipse cx="100" cy="80" rx="25" ry="35"/>
+  
+  <!-- Brazo izquierdo con palo -->
+  <ellipse cx="70" cy="70" rx="8" ry="20" transform="rotate(-20 70 70)"/>
+  <ellipse cx="55" cy="95" rx="6" ry="18" transform="rotate(-35 55 95)"/>
+  
+  <!-- Brazo derecho con palo -->
+  <ellipse cx="130" cy="70" rx="8" ry="20" transform="rotate(20 130 70)"/>
+  <ellipse cx="145" cy="95" rx="6" ry="18" transform="rotate(35 145 95)"/>
+  
+  <!-- Palo de hockey -->
+  <rect x="45" y="95" width="5" height="80" transform="rotate(-10 47.5 135)" rx="2.5"/>
+  <ellipse cx="40" cy="170" rx="12" ry="6" transform="rotate(-10 40 170)"/>
+  
+  <!-- Cintura -->
+  <ellipse cx="100" cy="115" rx="20" ry="8"/>
+  
+  <!-- Pierna izquierda -->
+  <ellipse cx="85" cy="145" rx="12" ry="30"/>
+  <ellipse cx="80" cy="185" rx="10" ry="15"/>
+  
+  <!-- Pierna derecha -->
+  <ellipse cx="115" cy="145" rx="12" ry="30"/>
+  <ellipse cx="120" cy="185" rx="10" ry="15"/>
+  
+  <!-- Pies -->
+  <ellipse cx="75" cy="195" rx="15" ry="6"/>
+  <ellipse cx="125" cy="195" rx="15" ry="6"/>
+</svg>

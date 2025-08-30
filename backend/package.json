@@ -1,0 +1,116 @@
+{
+  "name": "hockey-backend-hexagonal",
+  "version": "1.0.0",
+  "description": "Backend del sistema de hockey con arquitectura hexagonal",
+  "main": "src/app.js",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/server-fixed.ts",
+    "start:auth": "tsx src/server-auth.ts",
+    "start:test": "tsx src/server-test.ts",
+    "start:stable": "tsx src/server-ultra-stable.ts",
+    "dev": "tsx src/server-fixed.ts",
+    "dev:auth": "tsx src/server-auth.ts",
+    "dev:test": "tsx src/server-test.ts",
+    "dev:stable": "tsx src/server-ultra-stable.ts",
+    "build": "tsc",
+    "start:prod": "node dist/server-fixed.js",
+    "start:prod:auth": "node dist/server-auth.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration",
+    "test:e2e": "jest tests/e2e",
+    "migrate": "node src/infrastructure/database/migrate.js",
+    "seed": "node src/infrastructure/database/seed.js",
+    "migrate:create": "node-pg-migrate create",
+    "migrate:up": "node-pg-migrate up",
+    "migrate:down": "node-pg-migrate down",
+    "migrate:reset": "node-pg-migrate reset",
+    "migrate:vercel": "tsx scripts/migrate-to-vercel.ts",
+    "check:config": "tsx scripts/check-config.ts",
+    "check:connection": "tsx scripts/check-config.ts --test-connection",
+    "setup:vercel": "node ../scripts/vercel-setup.js",
+    "lint": "eslint src/ --ext .js",
+    "lint:fix": "eslint src/ --ext .js --fix",
+    "format": "prettier --write 'src/**/*.js'",
+    "check": "npm run lint && npm run test"
+  },
+  "dependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/multer": "^2.0.0",
+    "@types/pg": "^8.15.5",
+    "@types/uuid": "^10.0.0",
+    "@vercel/blob": "^1.1.1",
+    "@vercel/kv": "^3.0.0",
+    "@vercel/postgres": "^0.10.0",
+    "axios": "^1.4.0",
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^1.37.3",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.7.0",
+    "helmet": "^7.0.0",
+    "joi": "^17.9.2",
+    "jsonwebtoken": "^9.0.2",
+    "moment": "^2.29.4",
+    "multer": "^1.4.5-lts.1",
+    "node-fetch": "^3.3.2",
+    "pg": "^8.16.3",
+    "uuid": "^9.0.0",
+    "winston": "^3.8.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/compression": "^1.8.1",
+    "@types/cors": "^2.8.19",
+    "@types/helmet": "^0.0.48",
+    "@types/jest": "^29.5.1",
+    "@types/jsonwebtoken": "^9.0.10",
+    "eslint": "^8.42.0",
+    "jest": "^29.5.0",
+    "node-pg-migrate": "^8.0.3",
+    "nodemon": "^2.0.22",
+    "prettier": "^2.8.8",
+    "supertest": "^6.3.3",
+    "tsx": "^4.20.4"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/app.js",
+      "!src/config/*.js"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "keywords": [
+    "hockey",
+    "hexagonal-architecture",
+    "clean-architecture",
+    "nodejs",
+    "express",
+    "postgresql"
+  ],
+  "author": {
+    "name": "Miguel Dulor",
+    "email": "migdulor@hotmail.com"
+  },
+  "license": "MIT"
+}

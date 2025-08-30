@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hockey Management - Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .login-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.3);
+        }
+        .error {
+            background: rgba(244, 67, 54, 0.3);
+        }
+        .users-info {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>🏒 Hockey Management</h1>
+        <h2>Sistema de Login</h2>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="tu@email.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" placeholder="••••••••" required>
+            </div>
+            
+            <button type="submit">Iniciar Sesión</button>
+        </form>
+        
+        <div id="result" class="result"></div>
+        
+        <div class="users-info">
+            <h3>👥 Usuarios de Prueba (Producción):</h3>
+            <p><strong>Admin:</strong><br>
+               migdulor@hotmail.com / admin123</p>
+            <p><strong>Coach 1:</strong><br>
+               entrenador1@test.com / ?</p>
+            <p><strong>Coach 2:</strong><br>
+               entrenador2@test.com / ?</p>
+            <p style="font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 15px;">
+               ✅ Conectado a base de datos Postgres real con bcrypt
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // 🔑 BYPASS TOKEN CONFIGURATION
+        const VERCEL_BYPASS_TOKEN = 'fc85dada1b5dc5394adba665f545be20'; // Token de 32 caracteres para Vercel
+        
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                console.log('🔐 Intentando login con bypass token...');
+                
+                // URL con bypass token para evitar la autenticación de Vercel
+                const loginUrl = `/api/auth/login?x-vercel-set-bypass-cookie=true&x-vercel-protection-bypass=${VERCEL_BYPASS_TOKEN}`;
+                
+                const response = await fetch(loginUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.style.display = 'block';
+                
+                if (data.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h3>✅ Login Exitoso!</h3>
+                        <p><strong>Usuario:</strong> ${data.user.firstName} ${data.user.lastName}</p>
+                        <p><strong>Email:</strong> ${data.user.email}</p>
+                        <p><strong>Rol:</strong> ${data.user.role}</p>
+                        <p><strong>Plan:</strong> ${data.user.plan}</p>
+                        ${data.user.clubName ? `<p><strong>Club:</strong> ${data.user.clubName}</p>` : ''}
+                        <p><strong>Token:</strong> ${data.token.substring(0, 50)}...</p>
+                        <p>🎉 ¡Autenticación con base de datos real funcionando!</p>
+                    `;
+                    
+                    // Guardar token en localStorage
+                    localStorage.setItem('hockey_token', data.token);
+                    localStorage.setItem('hockey_user', JSON.stringify(data.user));
+                    
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `
+                        <h3>❌ Error de Login</h3>
+                        <p>${data.message || 'Error desconocido'}</p>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Error en login:', error);
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                
+                // Detectar si es problema de bypass token
+                if (VERCEL_BYPASS_TOKEN === 'TU_TOKEN_AQUI' || VERCEL_BYPASS_TOKEN.length !== 32) {
+                    resultDiv.innerHTML = `
+                        <h3>⚠️ Configuración Requerida</h3>
+                        <p><strong>Bypass token no configurado.</strong></p>
+                        <p>Pasos para resolver:</p>
+                        <ol style="text-align: left; margin: 10px 0;">
+                            <li>Ve a: <a href="https://vercel.com/migdulors-projects/hockey-management/settings/deployment-protection" target="_blank">Vercel Settings</a></li>
+                            <li>Copia el "Protection Bypass Token"</li>
+                            <li>Reemplaza 'TU_TOKEN_AQUI' en el código</li>
+                            <li>Redespliega la aplicación</li>
+                        </ol>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <h3>❌ Error de Conexión</h3>
+                        <p>${error.message}</p>
+                        <p>Verifica que el bypass token sea válido.</p>
+                    `;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

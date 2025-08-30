@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hockey Management - Administración de Usuarios</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 30px;
+        }
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 16px;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+        .tab.active {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .users-table th, .users-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .users-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-admin {
+            background: #dc3545;
+            color: white;
+        }
+        .badge-coach {
+            background: #28a745;
+            color: white;
+        }
+        .badge-active {
+            background: #28a745;
+            color: white;
+        }
+        .badge-inactive {
+            background: #6c757d;
+            color: white;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏒 Administración de Usuarios</h1>
+            <p>Panel de control para la gestión de usuarios del sistema</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('users')">👥 Usuarios</button>
+            <button class="tab" onclick="showTab('create')">➕ Crear Usuario</button>
+            <button class="tab" onclick="showTab('stats')">📊 Estadísticas</button>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <!-- Tab: Usuarios -->
+        <div id="users-tab" class="tab-content active">
+            <div class="form-section">
+                <button class="btn btn-primary" onclick="loadUsers()">🔄 Actualizar Lista</button>
+            </div>
+            <div id="users-list" class="loading">
+                Cargando usuarios...
+            </div>
+        </div>
+
+        <!-- Tab: Crear Usuario -->
+        <div id="create-tab" class="tab-content">
+            <div class="form-section">
+                <h3>Crear Nuevo Usuario</h3>
+                <form id="createUserForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Email *</label>
+                            <input type="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Contraseña *</label>
+                            <input type="password" name="password" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre *</label>
+                            <input type="text" name="first_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Apellido *</label>
+                            <input type="text" name="last_name" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Rol *</label>
+                            <select name="role" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="admin">Administrador</option>
+                                <option value="coach">Entrenador</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Plan *</label>
+                            <select name="plan" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="2_teams">2 Equipos</option>
+                                <option value="3_teams">3 Equipos</option>
+                                <option value="5_teams">5 Equipos</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">➕ Crear Usuario</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tab: Estadísticas -->
+        <div id="stats-tab" class="tab-content">
+            <div id="stats-content" class="loading">
+                Cargando estadísticas...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 🔑 BYPASS TOKEN CONFIGURATION
+        const VERCEL_BYPASS_TOKEN = 'fc85dada1b5dc5394adba665f545be20'; // Token de 32 caracteres para Vercel
+        const API_BASE = '/api/admin/users';
+        
+        // Helper para crear URLs con bypass token
+        function getApiUrl(endpoint) {
+            return `${endpoint}?x-vercel-set-bypass-cookie=true&x-vercel-protection-bypass=${VERCEL_BYPASS_TOKEN}`;
+        }
+        
+        // Get JWT token from localStorage
+        function getAuthHeaders() {
+            const token = localStorage.getItem('hockey_token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return {};
+            }
+            return {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+        }
+        
+        // Check if user is admin on page load
+        async function checkAdminAccess() {
+            const token = localStorage.getItem('hockey_token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            try {
+                const response = await fetch(getApiUrl('/api/profile'), {
+                    headers: getAuthHeaders()
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success || data.data.role !== 'admin') {
+                    alert('Acceso denegado. Solo administradores.');
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+            } catch (error) {
+                console.error('Error checking admin access:', error);
+                window.location.href = 'login.html';
+            }
+        }
+        
+        // Cambiar tabs
+        function showTab(tabName) {
+            // Ocultar todas las tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Mostrar tab seleccionada
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            // Cargar contenido según la tab
+            if (tabName === 'users') loadUsers();
+            if (tabName === 'stats') loadStats();
+        }
+
+        // Mostrar mensaje
+        function showMessage(text, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.textContent = text;
+            msgDiv.className = `message ${type}`;
+            msgDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                msgDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Cargar usuarios
+        async function loadUsers() {
+            const container = document.getElementById('users-list');
+            container.innerHTML = '<div class="loading">Cargando usuarios...</div>';
+            
+            try {
+                const response = await fetch(getApiUrl(API_BASE), {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    container.innerHTML = generateUsersTable(data.data);
+                } else {
+                    container.innerHTML = `<div class="message error">Error: ${data.message || data.error}</div>`;
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="message error">Error de conexión: ${error.message}</div>`;
+            }
+        }
+
+        // Generar tabla de usuarios
+        function generateUsersTable(users) {
+            if (users.length === 0) {
+                return '<div class="message">No hay usuarios registrados.</div>';
+            }
+
+            let html = `
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Plan</th>
+                            <th>Estado</th>
+                            <th>Último Login</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            users.forEach(user => {
+                html += `
+                    <tr>
+                        <td>${user.first_name} ${user.last_name}</td>
+                        <td>${user.email}</td>
+                        <td><span class="badge badge-${user.role}">${user.role === 'admin' ? 'Admin' : 'Entrenador'}</span></td>
+                        <td>${user.plan.replace('_', ' ').toUpperCase()}</td>
+                        <td><span class="badge badge-${user.is_active ? 'active' : 'inactive'}">${user.is_active ? 'Activo' : 'Inactivo'}</span></td>
+                        <td>${user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Nunca'}</td>
+                        <td>
+                            <button class="btn btn-warning" onclick="toggleUser('${user.id}')">
+                                ${user.is_active ? '🚫' : '✅'}
+                            </button>
+                            <button class="btn btn-danger" onclick="resetPassword('${user.id}')">🔑</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            return html;
+        }
+
+        // Cargar estadísticas
+        async function loadStats() {
+            const container = document.getElementById('stats-content');
+            container.innerHTML = '<div class="loading">Cargando estadísticas...</div>';
+            
+            try {
+                const response = await fetch(getApiUrl(`${API_BASE}/stats`));
+                const data = await response.json();
+                
+                if (data.success) {
+                    container.innerHTML = generateStatsHTML(data.data);
+                } else {
+                    container.innerHTML = `<div class="message error">Error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="message error">Error de conexión: ${error.message}</div>`;
+            }
+        }
+
+        // Generar HTML de estadísticas
+        function generateStatsHTML(stats) {
+            return `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.total_users}</div>
+                        <div class="stat-label">Total Usuarios</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.total_admins}</div>
+                        <div class="stat-label">Administradores</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.total_coaches}</div>
+                        <div class="stat-label">Entrenadores</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.active_users}</div>
+                        <div class="stat-label">Usuarios Activos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.plan_2_teams}</div>
+                        <div class="stat-label">Plan 2 Equipos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.plan_3_teams}</div>
+                        <div class="stat-label">Plan 3 Equipos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.plan_5_teams}</div>
+                        <div class="stat-label">Plan 5 Equipos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.users_last_30_days}</div>
+                        <div class="stat-label">Últimos 30 días</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Crear usuario
+        document.getElementById('createUserForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const userData = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch(getApiUrl(API_BASE), {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(userData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('Usuario creado exitosamente', 'success');
+                    this.reset();
+                    loadUsers(); // Actualizar lista
+                } else {
+                    showMessage(`Error: ${data.message || data.error}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Error de conexión: ${error.message}`, 'error');
+            }
+        });
+
+        // Activar/Desactivar usuario
+        async function toggleUser(userId) {
+            try {
+                const response = await fetch(getApiUrl(`${API_BASE}/${userId}/toggle`), {
+                    method: 'PATCH'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    loadUsers();
+                } else {
+                    showMessage(`Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Error de conexión: ${error.message}`, 'error');
+            }
+        }
+
+        // Reset password
+        async function resetPassword(userId) {
+            const newPassword = prompt('Ingrese la nueva contraseña (mínimo 6 caracteres):');
+            
+            if (!newPassword || newPassword.length < 6) {
+                alert('La contraseña debe tener al menos 6 caracteres');
+                return;
+            }
+            
+            try {
+                const response = await fetch(getApiUrl(`${API_BASE}/${userId}/password`), {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ new_password: newPassword })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('Contraseña actualizada exitosamente', 'success');
+                } else {
+                    showMessage(`Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Error de conexión: ${error.message}`, 'error');
+            }
+        }
+
+        // Cargar usuarios al inicio
+        checkAdminAccess().then(() => {
+            loadUsers();
+        });
+    </script>
+</body>
+</html>

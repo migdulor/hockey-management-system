@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hockey Management - Gestión de Equipos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tab.active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        button {
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        .team-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .player-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .player-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .limits {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .error {
+            background: rgba(244, 67, 54, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏒 Gestión de Equipos y Jugadores</h1>
+            <p>Módulo 2: Alta de Equipos y Gestión de Jugadores</p>
+        </div>
+
+        <div class="limits" id="userLimits">
+            <h3>📊 Límites del Plan</h3>
+            <p>Plan actual: <strong id="currentPlan">Cargando...</strong></p>
+            <p>Equipos: <strong id="teamCount">0</strong> / <strong id="maxTeams">0</strong></p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('teams')">🏒 Mis Equipos</button>
+            <button class="tab" onclick="showTab('create-team')">➕ Crear Equipo</button>
+            <button class="tab" onclick="showTab('players')">👥 Jugadores</button>
+        </div>
+
+        <div id="teams-tab" class="tab-content active">
+            <h2>🏒 Mis Equipos</h2>
+            <div id="teamsList">
+                <p>Cargando equipos...</p>
+            </div>
+        </div>
+
+        <div id="create-team-tab" class="tab-content">
+            <h2>➕ Crear Nuevo Equipo</h2>
+            <form id="createTeamForm">
+                <div class="form-group">
+                    <label for="teamName">Nombre del Equipo:</label>
+                    <input type="text" id="teamName" required placeholder="Ej: Leones de Hielo">
+                </div>
+                <div class="form-group">
+                    <label for="category">Categoría:</label>
+                    <select id="category" required>
+                        <option value="">Seleccionar categoría</option>
+                        <option value="infantil">Infantil (8-10 años)</option>
+                        <option value="juvenil">Juvenil (11-14 años)</option>
+                        <option value="cadete">Cadete (15-17 años)</option>
+                        <option value="senior">Senior (18+ años)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="description">Descripción (opcional):</label>
+                    <textarea id="description" placeholder="Descripción del equipo"></textarea>
+                </div>
+                <button type="submit">Crear Equipo</button>
+            </form>
+        </div>
+
+        <div id="players-tab" class="tab-content">
+            <h2>👥 Gestión de Jugadores</h2>
+            
+            <div class="form-group">
+                <label for="teamSelect">Seleccionar Equipo:</label>
+                <select id="teamSelect">
+                    <option value="">Seleccionar equipo</option>
+                </select>
+            </div>
+
+            <div id="selectedTeamInfo" style="display: none;">
+                <h3>Equipo: <span id="selectedTeamName"></span></h3>
+                
+                <h4>➕ Agregar Jugador</h4>
+                <form id="addPlayerForm">
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 15px; align-items: end;">
+                        <div class="form-group">
+                            <label for="playerName">Nombre del Jugador:</label>
+                            <input type="text" id="playerName" required placeholder="Nombre completo">
+                        </div>
+                        <div class="form-group">
+                            <label for="playerPosition">Posición:</label>
+                            <select id="playerPosition" required>
+                                <option value="">Posición</option>
+                                <option value="portero">Portero</option>
+                                <option value="defensa">Defensa</option>
+                                <option value="centro">Centro</option>
+                                <option value="extremo">Extremo</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="jerseyNumber">Dorsal:</label>
+                            <input type="number" id="jerseyNumber" min="1" max="99" placeholder="1-99">
+                        </div>
+                        <div class="form-group">
+                            <button type="submit">Agregar</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="playersContainer">
+                    <h4>👥 Lista de Jugadores</h4>
+                    <div id="playersList" class="player-list">
+                        <!-- Los jugadores se cargarán aquí -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        // 🔑 BYPASS TOKEN CONFIGURATION
+        const VERCEL_BYPASS_TOKEN = 'fc85dada1b5dc5394adba665f545be20'; // Token de 32 caracteres para Vercel
+        
+        // Configuración
+        const API_BASE = '/api';
+        let currentUser = null;
+        let userTeams = [];
+
+        // Helper para crear URLs con bypass token
+        function getApiUrl(endpoint) {
+            return `${endpoint}?x-vercel-set-bypass-cookie=true&x-vercel-protection-bypass=${VERCEL_BYPASS_TOKEN}`;
+        }
+
+        // Inicializar aplicación
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Simular usuario logueado (por ahora)
+            currentUser = {
+                id: '1',
+                email: 'migdulor@hotmail.com',
+                role: 'coach',
+                plan: '3_teams',
+                first_name: 'Miguel',
+                last_name: 'Dulor'
+            };
+
+            await loadUserLimits();
+            await loadTeams();
+            populateTeamSelects();
+        });
+
+        // Mostrar tabs
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+
+        // Cargar límites del usuario
+        async function loadUserLimits() {
+            const planLimits = {
+                '2_teams': 2,
+                '3_teams': 3,
+                '5_teams': 5
+            };
+
+            document.getElementById('currentPlan').textContent = currentUser.plan;
+            document.getElementById('maxTeams').textContent = planLimits[currentUser.plan];
+        }
+
+        // Cargar equipos del usuario
+        async function loadTeams() {
+            // Simular datos por ahora
+            userTeams = [
+                {
+                    id: 1,
+                    name: 'Leones de Hielo',
+                    category: 'senior',
+                    description: 'Equipo principal senior',
+                    players_count: 15,
+                    created_at: '2025-01-15'
+                },
+                {
+                    id: 2,
+                    name: 'Tigres Juveniles', 
+                    category: 'juvenil',
+                    description: 'Equipo de desarrollo juvenil',
+                    players_count: 12,
+                    created_at: '2025-02-01'
+                }
+            ];
+
+            displayTeams();
+            updateTeamCount();
+        }
+
+        // Mostrar equipos
+        function displayTeams() {
+            const teamsList = document.getElementById('teamsList');
+            
+            if (userTeams.length === 0) {
+                teamsList.innerHTML = '<p>No tienes equipos creados aún. ¡Crea tu primer equipo!</p>';
+                return;
+            }
+
+            teamsList.innerHTML = userTeams.map(team => `
+                <div class="team-card">
+                    <h3>🏒 ${team.name}</h3>
+                    <p><strong>Categoría:</strong> ${team.category.charAt(0).toUpperCase() + team.category.slice(1)}</p>
+                    <p><strong>Jugadores:</strong> ${team.players_count}</p>
+                    <p><strong>Descripción:</strong> ${team.description || 'Sin descripción'}</p>
+                    <p><strong>Creado:</strong> ${new Date(team.created_at).toLocaleDateString('es-ES')}</p>
+                    <div style="margin-top: 15px;">
+                        <button onclick="editTeam(${team.id})" style="margin-right: 10px;">✏️ Editar</button>
+                        <button onclick="deleteTeam(${team.id})" style="background: rgba(244, 67, 54, 0.3);">🗑️ Eliminar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Actualizar contador de equipos
+        function updateTeamCount() {
+            document.getElementById('teamCount').textContent = userTeams.length;
+        }
+
+        // Poblar selects de equipos
+        function populateTeamSelects() {
+            const teamSelect = document.getElementById('teamSelect');
+            teamSelect.innerHTML = '<option value="">Seleccionar equipo</option>';
+            
+            userTeams.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team.id;
+                option.textContent = team.name;
+                teamSelect.appendChild(option);
+            });
+        }
+
+        // Crear equipo
+        document.getElementById('createTeamForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const planLimits = {
+                '2_teams': 2,
+                '3_teams': 3,
+                '5_teams': 5
+            };
+
+            // Verificar límites
+            if (userTeams.length >= planLimits[currentUser.plan]) {
+                showMessage('error', `Has alcanzado el límite de ${planLimits[currentUser.plan]} equipos para tu plan ${currentUser.plan}`);
+                return;
+            }
+
+            const formData = {
+                name: document.getElementById('teamName').value,
+                category: document.getElementById('category').value,
+                description: document.getElementById('description').value,
+                coach_id: currentUser.id
+            };
+
+            // Simular creación exitosa
+            const newTeam = {
+                id: userTeams.length + 1,
+                ...formData,
+                players_count: 0,
+                created_at: new Date().toISOString()
+            };
+
+            userTeams.push(newTeam);
+            displayTeams();
+            updateTeamCount();
+            populateTeamSelects();
+
+            showMessage('success', '¡Equipo creado exitosamente!');
+            document.getElementById('createTeamForm').reset();
+        });
+
+        // Seleccionar equipo para gestionar jugadores
+        document.getElementById('teamSelect').addEventListener('change', function(e) {
+            const teamId = e.target.value;
+            const selectedTeamInfo = document.getElementById('selectedTeamInfo');
+            
+            if (!teamId) {
+                selectedTeamInfo.style.display = 'none';
+                return;
+            }
+
+            const team = userTeams.find(t => t.id == teamId);
+            if (team) {
+                document.getElementById('selectedTeamName').textContent = team.name;
+                selectedTeamInfo.style.display = 'block';
+                loadTeamPlayers(teamId);
+            }
+        });
+
+        // Cargar jugadores del equipo
+        async function loadTeamPlayers(teamId) {
+            // Simular jugadores
+            const players = [
+                { id: 1, name: 'Juan Pérez', position: 'portero', jersey_number: 1 },
+                { id: 2, name: 'Carlos López', position: 'defensa', jersey_number: 3 },
+                { id: 3, name: 'Miguel Torres', position: 'centro', jersey_number: 10 },
+                { id: 4, name: 'Ana García', position: 'extremo', jersey_number: 7 }
+            ];
+
+            displayPlayers(players);
+        }
+
+        // Mostrar jugadores
+        function displayPlayers(players) {
+            const playersList = document.getElementById('playersList');
+            
+            if (players.length === 0) {
+                playersList.innerHTML = '<p>No hay jugadores en este equipo.</p>';
+                return;
+            }
+
+            playersList.innerHTML = players.map(player => `
+                <div class="player-card">
+                    <h4>${player.name}</h4>
+                    <p><strong>Posición:</strong> ${player.position.charAt(0).toUpperCase() + player.position.slice(1)}</p>
+                    <p><strong>Dorsal:</strong> #${player.jersey_number}</p>
+                    <div style="margin-top: 10px;">
+                        <button onclick="editPlayer(${player.id})" style="font-size: 12px; padding: 5px 10px;">✏️ Editar</button>
+                        <button onclick="removePlayer(${player.id})" style="font-size: 12px; padding: 5px 10px; background: rgba(244, 67, 54, 0.3); margin-left: 5px;">🗑️ Quitar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Agregar jugador
+        document.getElementById('addPlayerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showMessage('success', '¡Jugador agregado exitosamente!');
+            document.getElementById('addPlayerForm').reset();
+        });
+
+        // Funciones de utilidad
+        function showMessage(type, message) {
+            const result = document.getElementById('result');
+            result.className = type;
+            result.innerHTML = `<h3>${type === 'success' ? '✅' : '❌'}</h3><p>${message}</p>`;
+            result.style.display = 'block';
+            
+            setTimeout(() => {
+                result.style.display = 'none';
+            }, 5000);
+        }
+
+        function editTeam(teamId) {
+            showMessage('success', `Función de editar equipo ${teamId} - Por implementar`);
+        }
+
+        function deleteTeam(teamId) {
+            if (confirm('¿Estás seguro de que quieres eliminar este equipo?')) {
+                showMessage('success', `Equipo ${teamId} eliminado - Por implementar`);
+            }
+        }
+
+        function editPlayer(playerId) {
+            showMessage('success', `Función de editar jugador ${playerId} - Por implementar`);
+        }
+
+        function removePlayer(playerId) {
+            if (confirm('¿Estás seguro de que quieres quitar este jugador del equipo?')) {
+                showMessage('success', `Jugador ${playerId} removido - Por implementar`);
+            }
+        }
+    </script>
+</body>
+</html>

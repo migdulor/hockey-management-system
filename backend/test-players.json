@@ -1,0 +1,29 @@
+[
+  {
+    "name": "Isabella Castro",
+    "nickname": "Isa",
+    "email": "isabella.castro@hockey.com",
+    "phone": "+5552468135",
+    "birthDate": "1993-09-15",
+    "position": "Forward",
+    "active": true
+  },
+  {
+    "name": "Camila Herrera",
+    "nickname": "Cami",
+    "email": "camila.herrera@hockey.com",
+    "phone": "+5558642097",
+    "birthDate": "1995-04-28",
+    "position": "Midfielder",
+    "active": true
+  },
+  {
+    "name": "Daniela López",
+    "nickname": "Dani",
+    "email": "daniela.lopez@hockey.com",
+    "phone": "+5553691472",
+    "birthDate": "1991-12-03",
+    "position": "Defender",
+    "active": true
+  }
+]

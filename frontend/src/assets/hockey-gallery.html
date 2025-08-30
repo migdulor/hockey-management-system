@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería de Siluetas de Hockey sobre Césped</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 3px solid transparent;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border-color: #667eea;
+        }
+        
+        .svg-container {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .svg-container svg {
+            width: 80px;
+            height: 80px;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover .svg-container svg {
+            color: #667eea;
+            transform: scale(1.1);
+        }
+        
+        .card-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .card-description {
+            color: #666;
+            text-align: center;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .usage-tag {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin: 2px;
+        }
+        
+        .usage-tags {
+            text-align: center;
+        }
+        
+        .recommended {
+            border-color: #27ae60 !important;
+            background: linear-gradient(135deg, #fff 0%, #f8fff8 100%);
+        }
+        
+        .recommended .card-title::after {
+            content: " ⭐";
+        }
+        
+        .instructions {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .instructions h3 {
+            margin-top: 0;
+            color: #ffeb3b;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏑 Galería de Siluetas de Hockey sobre Césped</h1>
+        <p>Selecciona las mejores siluetas para tu aplicación</p>
+    </div>
+    
+    <div class="instructions">
+        <h3>📋 Instrucciones</h3>
+        <p>Estas son siluetas mejoradas y más realistas de hockey sobre césped. Las marcadas con ⭐ son las recomendadas para diferentes usos.</p>
+        <p><strong>Para Login:</strong> Elige una silueta dinámica y elegante | <strong>Para Dashboards:</strong> Elige una silueta clara y profesional</p>
+    </div>
+    
+    <div class="gallery">
+        <div class="card recommended">
+            <div class="svg-container">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M45 15 Q50 10 55 15 Q58 18 55 22 Q52 25 48 23 Q45 20 45 15 Z M48 25 Q52 23 55 28 L60 45 Q62 50 58 52 L55 50 L52 35 Q50 32 48 35 L45 48 Q43 52 40 50 Q38 47 42 45 L48 25 Z M35 48 Q40 45 45 50 L50 65 Q52 70 48 72 L45 70 L42 58 Q40 55 38 58 L32 70 Q30 75 25 72 Q22 68 28 65 L35 48 Z M60 48 Q65 45 70 50 L75 65 Q77 70 73 72 L70 70 L67 58 Q65 55 63 58 L57 70 Q55 75 50 72 Q47 68 53 65 L60 48 Z M25 70 Q30 68 35 73 L40 85 Q42 90 38 92 L35 90 L32 82 Q30 80 28 82 L22 90 Q20 95 15 92 Q12 88 18 85 L25 70 Z M73 70 Q78 68 83 73 L88 85 Q90 90 86 92 L83 90 L80 82 Q78 80 76 82 L70 90 Q68 95 63 92 Q60 88 66 85 L73 70 Z"/>
+                </svg>
+            </div>
+            <div class="card-title">Jugador Corriendo</div>
+            <div class="card-description">Silueta dinámica de un jugador en movimiento con el stick</div>
+            <div class="usage-tags">
+                <span class="usage-tag">Login</span>
+                <span class="usage-tag">Dashboard</span>
+            </div>
+        </div>
+        
+        <div class="card recommended">
+            <div class="svg-container">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M48 12 Q50 8 52 12 Q54 16 52 18 Q50 20 48 18 Q46 16 48 12 Z M50 20 L52 25 L58 28 Q62 30 60 35 L55 40 L50 45 Q48 50 45 48 L40 45 L35 40 Q33 35 37 30 L42 28 L48 25 L50 20 Z M45 50 L48 55 L52 60 Q55 65 52 68 L48 70 L45 65 Q43 60 40 62 L35 68 Q32 72 28 70 Q25 67 30 62 L35 55 L40 50 Q43 48 45 50 Z M52 68 L55 72 L60 78 Q63 82 60 85 L55 88 L50 85 Q48 82 45 85 L40 88 Q37 85 40 82 L45 78 L50 72 L52 68 Z M28 70 L32 75 L38 82 Q41 87 38 90 L33 93 L28 90 Q25 87 22 90 L17 93 Q14 90 17 87 L22 82 L28 75 L28 70 Z"/>
+                </svg>
+            </div>
+            <div class="card-title">Jugador Dribbling</div>
+            <div class="card-description">Jugador controlando la pelota con habilidad técnica</div>
+            <div class="usage-tags">
+                <span class="usage-tag">Login</span>
+                <span class="usage-tag">Entrenadores</span>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="svg-container">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M47 10 Q50 6 53 10 Q55 14 53 17 Q50 19 47 17 Q45 14 47 10 Z M50 19 L52 24 L58 27 Q65 30 68 35 L72 45 Q75 52 70 55 L65 50 L60 40 Q55 35 52 38 L48 42 Q45 45 42 42 L38 38 Q35 35 40 30 L45 27 L48 24 L50 19 Z M42 42 L38 48 L32 55 Q28 60 25 58 Q22 55 28 50 L35 42 L42 42 Z M70 55 L75 60 L82 67 Q86 72 83 75 L78 78 L72 75 Q68 72 65 75 L60 78 Q57 75 60 72 L65 67 L70 60 L70 55 Z M25 58 L22 65 L18 72 Q15 77 12 75 Q9 72 15 67 L22 58 L25 58 Z"/>
+                </svg>
+            </div>
+            <div class="card-title">Jugador Disparando</div>
+            <div class="card-description">Momento de tiro hacia la portería con gran potencia</div>
+            <div class="usage-tags">
+                <span class="usage-tag">Dashboard</span>
+                <span class="usage-tag">Estadísticas</span>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="svg-container">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M48 8 Q51 4 54 8 Q56 12 54 15 Q51 17 48 15 Q46 12 48 8 Z M51 17 L53 22 L48 25 Q45 28 42 25 L38 22 Q35 18 40 15 L45 18 L48 20 L51 17 Z M40 15 L35 20 L28 28 Q22 35 18 32 Q15 28 22 22 L30 15 L40 15 Z M53 22 L58 27 L65 35 Q70 42 75 45 L82 50 Q87 55 83 58 L78 55 L70 48 Q65 42 62 45 L58 48 Q55 52 52 48 L48 45 Q45 42 50 38 L53 35 L56 30 L53 22 Z M18 32 L15 40 L12 48 Q10 55 7 52 Q4 48 10 42 L15 32 L18 32 Z M83 58 L88 65 L92 72 Q95 78 92 82 L88 85 L83 82 Q80 78 77 82 L72 85 Q68 82 72 78 L77 72 L83 65 L83 58 Z M7 52 L4 60 L2 68 Q0 75 3 78 L7 82 L12 78 Q15 75 18 78 L22 82 Q25 78 22 75 L18 68 L12 60 L7 52 Z"/>
+                </svg>
+            </div>
+            <div class="card-title">Jugador Pasando</div>
+            <div class="card-description">Pase preciso entre compañeros de equipo</div>
+            <div class="usage-tags">
+                <span class="usage-tag">Dashboard</span>
+                <span class="usage-tag">Tácticas</span>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="svg-container">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M48 12 Q50 8 52 12 Q54 16 52 18 Q50 20 48 18 Q46 16 48 12 Z M50 20 L52 25 L58 28 Q65 32 70 38 L75 48 Q78 55 73 58 L68 55 L62 45 Q58 38 55 42 L50 48 Q47 52 44 48 L40 42 Q37 38 42 32 L48 28 L50 25 L50 20 Z M73 58 L78 65 L85 72 Q90 78 87 82 L82 85 L75 82 Q70 78 67 82 L62 85 Q58 82 62 78 L67 72 L73 65 L73 58 Z M44 48 L40 55 L35 62 Q30 68 25 65 Q22 62 28 58 L35 48 L44 48 Z M25 65 L20 72 L15 78 Q10 85 7 82 Q4 78 10 72 L18 65 L25 65 Z M20 25 Q25 22 30 27 L35 38 Q37 45 32 48 L27 45 L22 35 Q20 30 20 25 Z"/>
+                </svg>
+            </div>
+            <div class="card-title">Jugador Defendiendo</div>
+            <div class="card-description">Posición defensiva interceptando el juego rival</div>
+            <div class="usage-tags">
+                <span class="usage-tag">Dashboard</span>
+                <span class="usage-tag">Defensa</span>
+            </div>
+        </div>
+        
+        <div class="card recommended">
+            <div class="svg-container">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M47 10 Q50 6 53 10 Q55 14 53 17 Q50 19 47 17 Q45 14 47 10 Z M50 19 L52 24 L48 30 Q45 35 42 32 L38 28 Q35 24 40 21 L45 24 L48 26 L50 19 Z M40 21 L35 26 L28 33 Q20 40 15 37 Q10 33 18 28 L28 21 L40 21 Z M52 24 L57 29 L65 36 Q72 43 78 48 L85 55 Q92 62 88 66 L83 63 L75 55 Q68 48 65 52 L60 58 Q55 62 50 58 L45 52 Q40 48 47 43 L55 36 L57 29 L52 24 Z M15 37 L12 45 L8 53 Q5 60 2 57 Q-1 53 5 48 L12 37 L15 37 Z M88 66 L93 73 L98 80 Q100 87 97 90 L93 93 L88 90 Q85 87 82 90 L77 93 Q73 90 77 87 L82 80 L88 73 L88 66 Z"/>
+                </svg>
+            </div>
+            <div class="card-title">Portero</div>
+            <div class="card-description">Guardameta en posición para realizar una parada</div>
+            <div class="usage-tags">
+                <span class="usage-tag">Dashboard</span>
+                <span class="usage-tag">Porteros</span>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="svg-container">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M48 12 Q50 8 52 12 Q54 16 52 18 Q50 20 48 18 Q46 16 48 12 Z M50 20 L52 25 L58 28 Q62 30 65 35 L70 45 Q73 52 68 55 L63 52 L58 42 Q55 35 52 38 L48 42 Q45 45 42 42 L38 38 Q35 35 40 30 L45 28 L48 25 L50 20 Z M68 55 L73 60 L80 67 Q85 72 82 75 L77 78 L70 75 Q65 72 62 75 L57 78 Q54 75 57 72 L62 67 L68 60 L68 55 Z M42 42 L38 48 L32 55 Q27 60 24 58 Q21 55 27 50 L35 42 L42 42 Z M24 58 L21 65 L18 72 Q15 77 12 75 Q9 72 15 67 L21 58 L24 58 Z M15 25 L20 30 L25 38 Q28 45 23 48 L18 45 L13 35 Q10 28 15 25 Z"/>
+                </svg>
+            </div>
+            <div class="card-title">Tackle</div>
+            <div class="card-description">Entrada táctica para recuperar la posesión</div>
+            <div class="usage-tags">
+                <span class="usage-tag">Entrenadores</span>
+                <span class="usage-tag">Tácticas</span>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="svg-container">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M48 8 Q51 4 54 8 Q56 12 54 15 Q51 17 48 15 Q46 12 48 8 Z M51 17 L53 22 L48 25 Q45 28 42 25 L38 22 Q35 18 40 15 L45 18 L48 20 L51 17 Z M40 15 L35 20 L28 28 Q22 35 18 32 Q15 28 22 22 L30 15 L40 15 Z M53 22 L58 27 L65 35 Q70 42 67 45 L62 48 Q58 52 55 48 L52 45 Q48 42 53 38 L56 35 L58 30 L53 22 Z M18 32 L15 40 L12 48 Q10 55 7 52 Q4 48 10 42 L15 32 L18 32 Z M67 45 L72 50 L78 58 Q83 65 80 68 L75 71 Q70 75 67 71 L64 68 Q60 65 65 60 L70 58 L72 55 L67 45 Z M7 52 L4 60 L2 68 Q0 75 3 78 L7 82 L12 78 Q15 75 18 78 L22 82 Q25 78 22 75 L18 68 L12 60 L7 52 Z M80 68 L85 75 L90 82 Q95 88 92 92 L87 95 L80 92 Q75 88 72 92 L67 95 Q63 92 67 88 L72 82 L80 75 L80 68 Z"/>
+                </svg>
+            </div>
+            <div class="card-title">Celebración</div>
+            <div class="card-description">Jugador celebrando un gol o victoria</div>
+            <div class="usage-tags">
+                <span class="usage-tag">Eventos</span>
+                <span class="usage-tag">Victorias</span>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="svg-container">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M47 12 Q50 8 53 12 Q55 16 53 18 Q50 20 47 18 Q45 16 47 12 Z M50 20 L52 25 L58 28 Q62 30 60 35 L55 40 L50 45 Q48 50 45 48 L40 45 L35 40 Q33 35 37 30 L42 28 L48 25 L50 20 Z M45 50 L48 55 L52 60 Q55 65 52 68 L48 70 L45 65 Q43 60 40 62 L35 68 Q32 72 28 70 Q25 67 30 62 L35 55 L40 50 Q43 48 45 50 Z M52 68 L55 72 L60 78 Q63 82 60 85 L55 88 L50 85 Q48 82 45 85 L40 88 Q37 85 40 82 L45 78 L50 72 L52 68 Z M28 70 L32 75 L38 82 Q41 87 38 90 L33 93 L28 90 Q25 87 22 90 L17 93 Q14 90 17 87 L22 82 L28 75 L28 70 Z M60 85 L65 90 L72 95 Q77 99 74 102 L69 105 L62 102 Q57 99 54 102 L49 105 Q46 102 49 99 L54 95 L60 90 L60 85 Z"/>
+                </svg>
+            </div>
+            <div class="card-title">Sprint</div>
+            <div class="card-description">Jugador en carrera rápida por el campo</div>
+            <div class="usage-tags">
+                <span class="usage-tag">Velocidad</span>
+                <span class="usage-tag">Atletismo</span>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 40px; color: white;">
+        <p><strong>⭐ Recomendaciones:</strong></p>
+        <p>Para <strong>Login</strong>: "Jugador Corriendo" o "Jugador Dribbling" - Son dinámicas y atractivas</p>
+        <p>Para <strong>Dashboard</strong>: "Jugador Corriendo" o "Portero" - Son profesionales y claras</p>
+        <p style="margin-top: 30px; opacity: 0.8; font-size: 0.9em;">
+            Haz clic en las siluetas que más te gusten y me dices cuáles quieres implementar
+        </p>
+    </div>
+</body>
+</html>

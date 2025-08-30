@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="currentColor">
+  <!-- Pelota principal -->
+  <circle cx="100" cy="100" r="35"/>
+  
+  <!-- Textura de la pelota con pequeños hoyos -->
+  <circle cx="85" cy="85" r="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+  <circle cx="115" cy="85" r="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+  <circle cx="85" cy="115" r="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+  <circle cx="115" cy="115" r="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+  <circle cx="100" cy="75" r="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+  <circle cx="100" cy="125" r="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+  <circle cx="75" cy="100" r="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+  <circle cx="125" cy="100" r="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+  
+  <!-- Patrón de círculos adicionales -->
+  <circle cx="92" cy="92" r="2" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+  <circle cx="108" cy="92" r="2" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+  <circle cx="92" cy="108" r="2" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+  <circle cx="108" cy="108" r="2" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+  
+  <!-- Líneas características de hockey -->
+  <circle cx="100" cy="100" r="20" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+  
+  <!-- Sombra/relieve -->
+  <path d="M75 85 Q100 70 125 85 Q115 100 100 100 Q85 100 75 85" opacity="0.2"/>
+</svg>

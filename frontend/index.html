@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema de Gestión de Hockey - Administra equipos, jugadores, partidos y torneos" />
+    <meta name="keywords" content="hockey, gestión, equipos, jugadores, partidos, torneos, deporte" />
+    <meta name="author" content="Miguel Dulor" />
+    <title>Hockey Management System</title>
+    
+    <!-- Preload critical fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+      /* Loading screen styles */
+      #loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        color: white;
+        font-family: 'Inter', sans-serif;
+      }
+      
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top: 4px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      .loading-text {
+        font-size: 18px;
+        font-weight: 500;
+        margin-bottom: 10px;
+      }
+      
+      .loading-subtext {
+        font-size: 14px;
+        opacity: 0.8;
+      }
+    </style>
+  <script type="module" crossorigin src="/assets/index-CHTu2vUa.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CngnIcXv.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading">
+      <div class="spinner"></div>
+      <div class="loading-text">Hockey Management System</div>
+      <div class="loading-subtext">Cargando aplicación...</div>
+    </div>
+
+    <!-- React Root -->
+    <div id="root"></div>
+
+    
+    <script>
+      // Hide loading screen when React app is ready
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          const loading = document.getElementById('loading');
+          if (loading) {
+            loading.style.opacity = '0';
+            loading.style.transition = 'opacity 0.5s ease-out';
+            setTimeout(() => {
+              loading.remove();
+            }, 500);
+          }
+        }, 1000);
+      });
+    </script>
+</body>
+</html>

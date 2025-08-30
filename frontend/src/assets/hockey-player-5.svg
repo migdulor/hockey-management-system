@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="currentColor">
+  <!-- Cabeza -->
+  <circle cx="100" cy="24" r="13"/>
+  
+  <!-- Cuerpo en carrera -->
+  <ellipse cx="100" cy="60" rx="14" ry="26" transform="rotate(5 100 60)"/>
+  
+  <!-- Brazo izquierdo en movimiento de carrera -->
+  <ellipse cx="85" cy="52" rx="5" ry="16" transform="rotate(-30 85 52)"/>
+  <ellipse cx="76" cy="68" rx="4" ry="12" transform="rotate(-45 76 68)"/>
+  
+  <!-- Brazo derecho sosteniendo el palo -->
+  <ellipse cx="115" cy="52" rx="5" ry="16" transform="rotate(20 115 52)"/>
+  <ellipse cx="125" cy="70" rx="4" ry="12" transform="rotate(30 125 70)"/>
+  
+  <!-- Palo de hockey llevado en carrera -->
+  <rect x="120" y="70" width="3" height="60" transform="rotate(20 121.5 100)" rx="1.5"/>
+  <ellipse cx="135" cy="120" rx="6" ry="2" transform="rotate(20 135 120)"/>
+  
+  <!-- Pierna izquierda en zancada -->
+  <ellipse cx="92" cy="110" rx="7" ry="24" transform="rotate(-15 92 110)"/>
+  <ellipse cx="88" cy="150" rx="5" ry="16" transform="rotate(-20 88 150)"/>
+  
+  <!-- Pierna derecha impulsándose -->
+  <ellipse cx="108" cy="112" rx="7" ry="24" transform="rotate(25 108 112)"/>
+  <ellipse cx="118" cy="152" rx="5" ry="16" transform="rotate(30 118 152)"/>
+  
+  <!-- Pies en movimiento -->
+  <ellipse cx="82" cy="168" rx="8" ry="4" transform="rotate(-20 82 168)"/>
+  <ellipse cx="130" cy="165" rx="8" ry="4" transform="rotate(30 130 165)"/>
+  
+  <!-- Efectos de movimiento -->
+  <ellipse cx="75" cy="175" rx="3" ry="1" opacity="0.4"/>
+  <ellipse cx="135" cy="172" rx="3" ry="1" opacity="0.4"/>
+</svg>
