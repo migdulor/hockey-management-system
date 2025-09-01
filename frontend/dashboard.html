@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hockey Management - Dashboard de Entrenador</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .header h1 {
+            color: #1e3c72;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .btn-logout {
+            background: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .btn-logout:hover {
+            background: #c82333;
+        }
+        .main-nav {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .nav-tab {
+            padding: 12px 24px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+        .nav-tab.active {
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            color: white;
+        }
+        .nav-tab:hover:not(.active) {
+            background: #e9ecef;
+        }
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            min-height: 500px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        .welcome-section {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .welcome-section h2 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+        .welcome-section p {
+            color: #666;
+            font-size: 1.1em;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            border-left: 5px solid #1e3c72;
+        }
+        .feature-card h3 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .feature-card p {
+            color: #666;
+            line-height: 1.5;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.3);
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .coming-soon {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        .coming-soon h3 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+        }
+        .coming-soon .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        .teams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .team-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        .team-card:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-color: #1e3c72;
+        }
+        .team-card h3 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        .team-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .team-badge {
+            background: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .team-badge.division {
+            background: #d4edda;
+            color: #155724;
+        }
+        .team-badge.category {
+            background: #cce5ff;
+            color: #004085;
+        }
+        .team-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .player-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .player-card:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-color: #28a745;
+        }
+        .player-header {
+            margin-bottom: 15px;
+        }
+        .player-header h4 {
+            color: #1e3c72;
+            margin: 0 0 5px 0;
+            font-size: 1.2em;
+        }
+        .player-nickname {
+            color: #666;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+        .player-info {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        .jersey-number {
+            background: #007bff;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 50%;
+            font-weight: bold;
+            min-width: 32px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+        .player-position {
+            background: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .starter-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ffc107;
+            color: #212529;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+        .player-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+    </style>
+    
+    <!-- SheetJS para leer archivos Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏒 Hockey Management - Dashboard</h1>
+            <div class="user-info">
+                <span id="user-name">Cargando...</span>
+                <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <!-- Main Navigation -->
+        <div class="main-nav">
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('overview')">📊 Resumen</button>
+                <button class="nav-tab" onclick="showTab('teams')">👥 Mis Equipos</button>
+                <button class="nav-tab" onclick="showTab('players')">🏃‍♀️ Jugadores</button>
+                <button class="nav-tab" onclick="showTab('attendance')">📋 Asistencias</button>
+                <button class="nav-tab" onclick="showTab('formations')">🏑 Formaciones</button>
+                <button class="nav-tab" onclick="showTab('matches')">⚽ Partidos</button>
+                <button class="nav-tab" onclick="showTab('reports')">📈 Reportes</button>
+            </div>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <!-- Tab: Resumen -->
+        <div id="overview-tab" class="tab-content active">
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-teams">0</div>
+                    <div class="stat-label">Equipos Activos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-players">0</div>
+                    <div class="stat-label">Jugadoras Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="upcoming-matches">0</div>
+                    <div class="stat-label">Próximos Partidos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="formations-created">0</div>
+                    <div class="stat-label">Formaciones Creadas</div>
+                </div>
+            </div>
+
+            <div class="welcome-section">
+                <h2>¡Bienvenido al Sistema de Gestión de Hockey!</h2>
+                <p>
+                    Desde aquí puedes gestionar todos tus equipos, registrar asistencias a entrenamientos, 
+                    crear formaciones tácticas visuales y llevar el control completo de tus partidos con 
+                    capacidades offline durante los juegos.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>📋 Registro de Asistencias</h3>
+                        <p>
+                            Lleva un control detallado de la asistencia de tus jugadoras a los entrenamientos. 
+                            Marca presente, tarde o ausente con observaciones adicionales.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>🏑 Formaciones Visuales</h3>
+                        <p>
+                            Crea formaciones tácticas arrastrando jugadoras a posiciones en la cancha. 
+                            Exporta como imagen para compartir con tu equipo.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>⚽ Gestión de Partidos</h3>
+                        <p>
+                            Registra acciones en tiempo real durante los partidos con capacidad offline. 
+                            Control de tiempos y cambios de jugadoras automático.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>📈 Reportes Detallados</h3>
+                        <p>
+                            Genera mapas de calor tácticos, estadísticas de rendimiento y reportes 
+                            completos para análisis estratégico del equipo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Mis Equipos -->
+        <div id="teams-tab" class="tab-content">
+            <h2 style="margin-bottom: 20px;">👥 Gestión de Equipos</h2>
+            
+            <!-- Header con botón crear equipo -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <div>
+                    <p>Gestiona tus equipos y jugadoras. Máximo permitido: <strong id="max-teams-display">-</strong> equipos</p>
+                </div>
+                <button class="btn btn-primary" onclick="showCreateTeamModal()">
+                    ➕ Crear Nuevo Equipo
+                </button>
+            </div>
+
+            <!-- Lista de equipos -->
+            <div id="teams-list" class="loading">
+                Cargando equipos...
+            </div>
+
+            <!-- Modal crear/editar equipo -->
+            <div id="team-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+                <div style="position: relative; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%;">
+                    <h3 id="modal-title">Crear Nuevo Equipo</h3>
+                    <form id="team-form" style="margin-top: 20px;">
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label>Nombre del Equipo *</label>
+                            <input type="text" id="team-name" name="name" required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label>Nombre del Club *</label>
+                            <input type="text" id="club-name" name="club_name" required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label>Género del Equipo *</label>
+                            <select id="team-gender" name="gender" required onchange="loadDivisionsForGender(this.value)" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                                <option value="">Seleccionar género...</option>
+                                <option value="female">Femenino</option>
+                                <option value="male">Masculino</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label>División</label>
+                            <select id="team-division" name="division_id" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                                <option value="">Primero selecciona el género...</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label>Máximo de Jugadores</label>
+                            <input type="number" id="max-players" name="max_players" min="10" max="50" value="25" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                            <small style="color: #666; font-size: 0.9em;">Número máximo de jugadores permitidos en el equipo (por defecto: 25)</small>
+                        </div>
+                        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                            <button type="button" onclick="closeTeamModal()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                                Cancelar
+                            </button>
+                            <button type="submit" style="padding: 10px 20px; background: #1e3c72; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                                Guardar Equipo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Jugadores -->
+        <div id="players-tab" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 id="current-team-name">Selecciona un equipo primero</h2>
+                <div id="add-player-btn" style="display: none;">
+                    <button class="btn btn-primary" onclick="showCreatePlayerModal()" style="margin-right: 10px;">
+                        ➕ Agregar Jugador
+                    </button>
+                    <button class="btn btn-success" onclick="showExcelImportModal()">
+                        📊 Importar Excel
+                    </button>
+                </div>
+            </div>
+            
+            <div id="players-list">
+                <div style="text-align: center; padding: 40px; color: #666;">
+                    <div style="font-size: 3em; margin-bottom: 20px;">🏃‍♀️</div>
+                    <h3>Gestión de Jugadores</h3>
+                    <p>Ve a "Mis Equipos" y haz clic en "👥 Jugadoras" de cualquier equipo para ver y gestionar sus jugadores</p>
+                </div>
+            </div>
+
+            <!-- Modal para agregar jugador -->
+            <div id="player-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+                <div style="position: relative; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%;">
+                    <h3 id="player-modal-title">Agregar Jugador</h3>
+                    <form id="player-form" style="margin-top: 20px;">
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label>Nombre Completo *</label>
+                            <input type="text" id="player-name" name="name" required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label>Apodo/Nickname</label>
+                            <input type="text" id="player-nickname" name="nickname" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label>Fecha de Nacimiento *</label>
+                            <input type="date" id="player-birth-date" name="birth_date" required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label>Posición</label>
+                            <select id="player-position" name="position" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                                <option value="">Seleccionar posición...</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label>Número de Camiseta</label>
+                            <input type="number" id="player-jersey" name="jersey_number" min="1" max="99" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label>
+                                <input type="checkbox" id="player-starter" name="is_starter" style="margin-right: 8px;">
+                                Es jugador titular
+                            </label>
+                        </div>
+                        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                            <button type="button" onclick="closePlayerModal()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                                Cancelar
+                            </button>
+                            <button type="submit" style="padding: 10px 20px; background: #1e3c72; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                                Guardar Jugador
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para importar Excel -->
+        <div id="excel-import-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+            <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); max-width: 600px; width: 90%;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h3>📊 Importar Jugadores desde Excel</h3>
+                    <button onclick="closeExcelImportModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">×</button>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <h4>📋 Formato requerido del archivo Excel:</h4>
+                    <p>Tu archivo Excel debe tener exactamente estas columnas en la primera fila:</p>
+                    <div style="background: white; padding: 15px; border-radius: 4px; margin: 10px 0;">
+                        <strong>Columnas obligatorias:</strong><br>
+                        <code>Nombre | Apodo | Posición | Número de Camiseta | Es Titular</code>
+                    </div>
+                    <p><strong>Ejemplo de datos:</strong></p>
+                    <div style="background: white; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 12px;">
+                        María García | Marita | Portera | 1 | Sí<br>
+                        Ana López | Ana | Defensora | 2 | No<br>
+                        Sofia Rodríguez | | Mediocampista | 10 | Sí
+                    </div>
+                    <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                        • <strong>Es Titular:</strong> Usa "Sí" para titular, cualquier otro valor será considerado como suplente<br>
+                        • <strong>Apodo:</strong> Puede estar vacío<br>
+                        • <strong>Posiciones válidas:</strong> Para equipos femeninos: Portera, Arquera, Defensora, Mediocampista, Delantera
+                    </p>
+                </div>
+                
+                <form id="excel-import-form" style="display: flex; flex-direction: column; gap: 15px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Seleccionar archivo Excel:</label>
+                        <input type="file" id="excel-file" accept=".xlsx,.xls" required 
+                               style="width: 100%; padding: 10px; border: 2px dashed #ddd; border-radius: 8px; cursor: pointer;">
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button type="button" onclick="closeExcelImportModal()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            Cancelar
+                        </button>
+                        <button type="submit" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            📊 Importar Jugadores
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tab: Asistencias -->
+        <div id="attendance-tab" class="tab-content">
+            <div class="coming-soon">
+                <div class="icon">📋</div>
+                <h3>Módulo de Asistencias</h3>
+                <p><strong>PRÓXIMO A IMPLEMENTAR</strong></p>
+                <p>Este módulo permitirá:</p>
+                <ul style="text-align: left; max-width: 400px; margin: 20px auto;">
+                    <li>✅ Registrar asistencias por fecha y equipo</li>
+                    <li>✅ Marcar: Presente, Tarde, Ausente</li>
+                    <li>✅ Agregar observaciones por jugadora</li>
+                    <li>✅ Reportes de participación histórica</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Tab: Formaciones -->
+        <div id="formations-tab" class="tab-content">
+            <div class="coming-soon">
+                <div class="icon">🏑</div>
+                <h3>Módulo de Formaciones</h3>
+                <p><strong>PRÓXIMO A IMPLEMENTAR</strong></p>
+                <p>Este módulo permitirá:</p>
+                <ul style="text-align: left; max-width: 400px; margin: 20px auto;">
+                    <li>🎯 Planificación visual drag & drop en cancha</li>
+                    <li>📷 Fotos de jugadoras en posiciones</li>
+                    <li>📝 Datos del partido (rival, cancha, fecha)</li>
+                    <li>📤 Exportación como imagen para compartir</li>
+                    <li>💾 Guardar formaciones como plantillas</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Tab: Partidos -->
+        <div id="matches-tab" class="tab-content">
+            <div class="coming-soon">
+                <div class="icon">⚽</div>
+                <h3>Gestión de Partidos</h3>
+                <p>Funcionalidades avanzadas de registro de partidos en desarrollo.</p>
+                <p>Incluirá capacidades offline, control de tiempos y registro de acciones en tiempo real.</p>
+            </div>
+        </div>
+
+        <!-- Tab: Reportes -->
+        <div id="reports-tab" class="tab-content">
+            <div class="coming-soon">
+                <div class="icon">📈</div>
+                <h3>Reportes y Estadísticas</h3>
+                <p>Mapas de calor tácticos y análisis avanzado próximamente disponible.</p>
+                <p>Generación de reportes PDF y análisis de rendimiento por jugadora.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 🔑 BYPASS TOKEN CONFIGURATION
+        const VERCEL_BYPASS_TOKEN = 'fc85dada1b5dc5394adba665f545be20';
+        
+        // Helper para crear URLs con bypass token
+        function getApiUrl(endpoint) {
+            const timestamp = Date.now();
+            const separator = endpoint.includes('?') ? '&' : '?';
+            return `${endpoint}${separator}x-vercel-set-bypass-cookie=true&x-vercel-protection-bypass=${VERCEL_BYPASS_TOKEN}&_t=${timestamp}`;
+        }
+        
+        // Get JWT token from localStorage
+        function getAuthHeaders() {
+            const token = localStorage.getItem('hockey_token');
+            console.log('Token from localStorage:', token ? 'Existe' : 'No existe');
+            if (!token) {
+                console.log('No token found, redirecting to login');
+                window.location.href = 'login.html';
+                return {};
+            }
+            return {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+        }
+        
+        // Check if user is coach on page load
+        async function checkCoachAccess() {
+            const token = localStorage.getItem('hockey_token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            try {
+                const response = await fetch(getApiUrl('/api/profile'), {
+                    headers: getAuthHeaders()
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error('Token inválido');
+                }
+                
+                if (data.data.role === 'admin') {
+                    // Redirigir admin al panel de admin
+                    window.location.href = 'admin.html';
+                    return;
+                }
+                
+                if (data.data.role !== 'coach') {
+                    alert('Acceso denegado. Solo entrenadores.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                // Mostrar información del usuario
+                document.getElementById('user-name').textContent = 
+                    `${data.data.firstName} ${data.data.lastName} (Entrenador)`;
+                
+                // Cargar estadísticas básicas
+                loadDashboardStats();
+                
+            } catch (error) {
+                console.error('Error checking coach access:', error);
+                localStorage.removeItem('hockey_token');
+                localStorage.removeItem('hockey_user');
+                window.location.href = 'login.html';
+            }
+        }
+        
+        // Load dashboard statistics
+        async function loadDashboardStats() {
+            try {
+                // Cargar información del usuario para obtener max_teams
+                const userResponse = await fetch(getApiUrl('/api/profile'), {
+                    headers: getAuthHeaders()
+                });
+                const userData = await userResponse.json();
+                
+                if (userData.success) {
+                    document.getElementById('max-teams-display').textContent = userData.data.maxTeams || 2;
+                }
+
+                // Cargar equipos del entrenador
+                const teamsResponse = await fetch(getApiUrl('/api/teams'), {
+                    headers: getAuthHeaders()
+                });
+                const teamsData = await teamsResponse.json();
+                
+                if (teamsData.success) {
+                    document.getElementById('total-teams').textContent = teamsData.teams.length;
+                    
+                    // Calcular total de jugadoras (cuando tengamos los datos)
+                    let totalPlayers = 0;
+                    // TODO: Sumar jugadoras de todos los equipos
+                    document.getElementById('total-players').textContent = totalPlayers;
+                }
+                
+            } catch (error) {
+                console.error('Error loading dashboard stats:', error);
+                // Valores por defecto en caso de error
+                document.getElementById('total-teams').textContent = '0';
+                document.getElementById('total-players').textContent = '0';
+            }
+            
+            // Por ahora, valores mock para las otras estadísticas
+            document.getElementById('upcoming-matches').textContent = '0';
+            document.getElementById('formations-created').textContent = '0';
+        }
+        
+        // Tab switching functionality
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            // Load tab-specific content
+            switch(tabName) {
+                case 'teams':
+                    loadTeams();
+                    break;
+                case 'attendance':
+                    // TODO: loadAttendance();
+                    break;
+                case 'formations':
+                    // TODO: loadFormations();
+                    break;
+                case 'matches':
+                    // TODO: loadMatches();
+                    break;
+                case 'reports':
+                    // TODO: loadReports();
+                    break;
+            }
+        }
+        
+        // Logout functionality
+        function logout() {
+            localStorage.removeItem('hockey_token');
+            localStorage.removeItem('hockey_user');
+            window.location.href = 'login.html';
+        }
+        
+        // Show message
+        function showMessage(text, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.textContent = text;
+            msgDiv.className = `message ${type}`;
+            msgDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                msgDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // =================== TEAMS MANAGEMENT ===================
+        
+        // Load teams for the coach
+        async function loadTeams() {
+            const container = document.getElementById('teams-list');
+            container.innerHTML = '<div class="loading">Cargando equipos...</div>';
+            
+            try {
+                const response = await fetch(getApiUrl('/api/teams'), {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const teamsGridHtml = await generateTeamsGrid(data.teams);
+                    container.innerHTML = teamsGridHtml;
+                } else {
+                    container.innerHTML = `<div class="message error">Error: ${data.message || data.error}</div>`;
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="message error">Error de conexión: ${error.message}</div>`;
+            }
+        }
+
+        // Generate teams grid HTML
+        async function generateTeamsGrid(teams) {
+            if (teams.length === 0) {
+                return `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <div style="font-size: 3em; margin-bottom: 20px;">🏒</div>
+                        <h3>No tienes equipos creados</h3>
+                        <p>Crea tu primer equipo para comenzar a gestionar jugadoras</p>
+                        <button class="btn btn-primary" onclick="showCreateTeamModal()" style="margin-top: 20px;">
+                            ➕ Crear Mi Primer Equipo
+                        </button>
+                    </div>
+                `;
+            }
+
+            let html = '<div class="teams-grid">';
+            
+            for (const team of teams) {
+                // Obtener el conteo de jugadores para cada equipo
+                const playerCount = await getPlayerCountForTeam(team.id);
+                const genderText = team.team_gender === 'female' ? 'jugadoras' : 'jugadores';
+                
+                html += `
+                    <div class="team-card">
+                        <h3>${team.name}</h3>
+                        <div class="team-info">
+                            <span class="team-badge division">${team.club_name || 'Sin club'}</span>
+                            ${team.max_players ? `<span class="team-badge category">Max: ${team.max_players} ${genderText}</span>` : ''}
+                        </div>
+                        <div class="team-actions">
+                            <button class="btn btn-sm btn-info" onclick="viewTeamPlayers('${team.id}', '${team.name}', '${team.team_gender || 'male'}')" title="Ver ${genderText}">
+                                👥 ${team.team_gender === 'female' ? 'Jugadoras' : 'Jugadores'} (${playerCount})
+                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="editTeam('${team.id}')" title="Editar equipo">
+                                ✏️ Editar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        // Get player count for a specific team
+        async function getPlayerCountForTeam(teamId) {
+            try {
+                const response = await fetch(getApiUrl(`/api/players?team_id=${teamId}`), {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    return data.players.length;
+                } else {
+                    return 0;
+                }
+            } catch (error) {
+                console.error('Error getting player count:', error);
+                return 0;
+            }
+        }
+
+        // Show create team modal
+        async function showCreateTeamModal() {
+            document.getElementById('modal-title').textContent = 'Crear Nuevo Equipo';
+            document.getElementById('team-form').reset();
+            
+            // Resetear el select de divisiones
+            const divisionSelect = document.getElementById('team-division');
+            divisionSelect.innerHTML = '<option value="">Primero selecciona el género...</option>';
+            
+            document.getElementById('team-modal').style.display = 'block';
+        }
+
+        // Load available divisions
+        async function loadDivisions() {
+            const divisionSelect = document.getElementById('team-division');
+            
+            // Mostrar loading
+            divisionSelect.innerHTML = '<option value="">Cargando divisiones...</option>';
+            
+            try {
+                const response = await fetch(getApiUrl('/api/divisions'), {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Limpiar select
+                    divisionSelect.innerHTML = '<option value="">Seleccionar división (opcional)...</option>';
+                    
+                    // Agregar divisiones
+                    data.divisions.forEach(division => {
+                        const option = document.createElement('option');
+                        option.value = division.id;
+                        option.textContent = division.name;
+                        divisionSelect.appendChild(option);
+                    });
+                } else {
+                    divisionSelect.innerHTML = '<option value="">Error cargando divisiones</option>';
+                    console.error('Error loading divisions:', data.message);
+                }
+            } catch (error) {
+                divisionSelect.innerHTML = '<option value="">Error de conexión</option>';
+                console.error('Error fetching divisions:', error);
+            }
+        }
+
+        // Load divisions filtered by gender
+        async function loadDivisionsForGender(gender) {
+            const divisionSelect = document.getElementById('team-division');
+            
+            if (!gender) {
+                divisionSelect.innerHTML = '<option value="">Primero selecciona el género...</option>';
+                return;
+            }
+            
+            // Mostrar loading
+            divisionSelect.innerHTML = '<option value="">Cargando divisiones...</option>';
+            
+            try {
+                const response = await fetch(getApiUrl(`/api/divisions?gender=${gender}`), {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Limpiar select
+                    divisionSelect.innerHTML = '<option value="">Seleccionar división (opcional)...</option>';
+                    
+                    // Agregar divisiones filtradas por género
+                    data.divisions.forEach(division => {
+                        const option = document.createElement('option');
+                        option.value = division.id;
+                        option.textContent = division.name;
+                        divisionSelect.appendChild(option);
+                    });
+                } else {
+                    divisionSelect.innerHTML = '<option value="">Error cargando divisiones</option>';
+                    console.error('Error loading divisions:', data.message);
+                }
+            } catch (error) {
+                divisionSelect.innerHTML = '<option value="">Error de conexión</option>';
+                console.error('Error fetching divisions:', error);
+            }
+        }
+
+        // Close team modal
+        function closeTeamModal() {
+            document.getElementById('team-modal').style.display = 'none';
+        }
+
+        // Handle team form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            const teamForm = document.getElementById('team-form');
+            if (teamForm) {
+                teamForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    const teamData = Object.fromEntries(formData.entries());
+                    
+                    try {
+                        console.log('Sending team data:', teamData);
+                        
+                        const response = await fetch(getApiUrl('/api/teams'), {
+                            method: 'POST',
+                            headers: getAuthHeaders(),
+                            body: JSON.stringify(teamData)
+                        });
+                        
+                        console.log('Response status:', response.status);
+                        const data = await response.json();
+                        console.log('Response data:', data);
+                        
+                        if (data.success) {
+                            showMessage('Equipo creado exitosamente', 'success');
+                            closeTeamModal();
+                            loadTeams(); // Recargar la lista
+                            loadDashboardStats(); // Actualizar estadísticas
+                        } else {
+                            showMessage(`Error: ${data.message || data.error}`, 'error');
+                            
+                            // Si es error de token, redirigir al login
+                            if (data.message && data.message.includes('Token inválido')) {
+                                localStorage.removeItem('hockey_token');
+                                localStorage.removeItem('hockey_user');
+                                window.location.href = 'login.html';
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error in team creation:', error);
+                        showMessage(`Error de conexión: ${error.message}`, 'error');
+                    }
+                });
+            }
+
+            // Handle player form submission
+            const playerForm = document.getElementById('player-form');
+            if (playerForm) {
+                playerForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    if (!window.currentTeamId) {
+                        showMessage('Error: No hay equipo seleccionado', 'error');
+                        return;
+                    }
+                    
+                    const formData = new FormData(this);
+                    const playerData = Object.fromEntries(formData.entries());
+                    playerData.teamId = window.currentTeamId;
+                    playerData.is_starter = !!playerData.is_starter;
+                    
+                    try {
+                        const response = await fetch(getApiUrl('/api/players'), {
+                            method: 'POST',
+                            headers: getAuthHeaders(),
+                            body: JSON.stringify(playerData)
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            showMessage('Jugador agregado exitosamente', 'success');
+                            closePlayerModal();
+                            loadPlayersForTeam(window.currentTeamId, window.currentTeamName); // Recargar la lista
+                        } else {
+                            showMessage(`Error: ${data.message || data.error}`, 'error');
+                        }
+                    } catch (error) {
+                        showMessage(`Error de conexión: ${error.message}`, 'error');
+                    }
+                });
+            }
+        });
+
+        // View team players
+        function viewTeamPlayers(teamId, teamName, teamGender) {
+            // Cambiar a la pestaña de jugadores
+            showTab('players');
+            
+            // Cargar jugadores del equipo
+            loadPlayersForTeam(teamId, teamName, teamGender);
+        }
+
+        // Load players for specific team
+        async function loadPlayersForTeam(teamId, teamName, teamGender = 'male') {
+            const container = document.getElementById('players-list');
+            const teamTitle = document.getElementById('current-team-name');
+            
+            if (teamTitle) {
+                const genderText = teamGender === 'female' ? 'Jugadoras' : 'Jugadores';
+                teamTitle.textContent = `${genderText} de: ${teamName}`;
+            }
+            
+            // Guardar el teamId actual para crear nuevos jugadores
+            window.currentTeamId = teamId;
+            window.currentTeamName = teamName;
+            window.currentTeamGender = teamGender;
+            
+            container.innerHTML = '<div class="loading">Cargando jugadores...</div>';
+            
+            try {
+                const response = await fetch(getApiUrl(`/api/players?team_id=${teamId}`), {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    container.innerHTML = generatePlayersGrid(data.players, teamGender);
+                } else {
+                    container.innerHTML = `<div class="message error">Error: ${data.message || data.error}</div>`;
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="message error">Error de conexión: ${error.message}</div>`;
+            }
+        }
+
+        // Generate players grid HTML
+        function generatePlayersGrid(players, teamGender = 'male') {
+            const genderText = teamGender === 'female' ? 'jugadoras' : 'jugadores';
+            const genderTextSingular = teamGender === 'female' ? 'Jugadora' : 'Jugador';
+            
+            if (players.length === 0) {
+                return `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <div style="font-size: 3em; margin-bottom: 20px;">🏃‍♀️</div>
+                        <h3>No hay ${genderText} en este equipo</h3>
+                        <p>Agrega ${genderText} para comenzar a gestionar el equipo</p>
+                        <button class="btn btn-primary" onclick="showCreatePlayerModal()" style="margin-top: 20px;">
+                            ➕ Agregar Primer ${genderTextSingular}
+                        </button>
+                    </div>
+                `;
+            }
+
+            let html = '<div class="players-grid">';
+            
+            players.forEach(player => {
+                html += `
+                    <div class="player-card">
+                        <div class="player-header">
+                            <h4>${player.name}</h4>
+                            ${player.nickname ? `<span class="player-nickname">"${player.nickname}"</span>` : ''}
+                        </div>
+                        <div class="player-info">
+                            ${player.jersey_number ? `<span class="jersey-number">#${player.jersey_number}</span>` : '<span class="jersey-number">Sin #</span>'}
+                            <span class="player-position">${player.position || 'Sin posición'}</span>
+                        </div>
+                        ${player.is_starter ? '<span class="starter-badge">TITULAR</span>' : ''}
+                        <div class="player-actions">
+                            <button class="btn btn-sm btn-danger" onclick="removePlayerFromTeam('${player.id}', '${player.name}')" title="Eliminar del equipo">
+                                🗑️ Eliminar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            // Botón para agregar más jugadores
+            html += `
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn btn-primary" onclick="showCreatePlayerModal()">
+                        ➕ Agregar ${genderTextSingular}
+                    </button>
+                </div>
+            `;
+            
+            return html;
+        }
+
+        // Show create player modal
+        function showCreatePlayerModal() {
+            if (!window.currentTeamId) {
+                showMessage('Primero selecciona un equipo desde "Mis Equipos"', 'error');
+                return;
+            }
+            
+            // Definir posiciones según el género del equipo actual
+            const teamGender = currentTeam ? currentTeam.team_gender : 'male';
+            const femalePositions = ['Portera', 'Arquera', 'Defensora', 'Mediocampista', 'Delantera'];
+            const malePositions = ['Portero', 'Arquero', 'Defensor', 'Mediocampista', 'Delantero'];
+            
+            const positions = teamGender === 'female' ? femalePositions : malePositions;
+            
+            // Generar opciones de posición
+            let positionOptions = '<option value="">Seleccionar posición...</option>';
+            positions.forEach(position => {
+                positionOptions += `<option value="${position}">${position}</option>`;
+            });
+            
+            // Actualizar el select de posiciones
+            const positionSelect = document.getElementById('playerPosition');
+            if (positionSelect) {
+                positionSelect.innerHTML = positionOptions;
+            }
+            
+            document.getElementById('player-modal-title').textContent = `Agregar Jugador a: ${window.currentTeamName}`;
+            document.getElementById('player-form').reset();
+            document.getElementById('player-modal').style.display = 'block';
+        }
+
+        // Close player modal
+        function closePlayerModal() {
+            document.getElementById('player-modal').style.display = 'none';
+        }
+
+        // Show Excel import modal
+        function showExcelImportModal() {
+            if (!window.currentTeamId) {
+                showMessage('Primero selecciona un equipo desde "Mis Equipos"', 'error');
+                return;
+            }
+            
+            document.getElementById('excel-import-modal').style.display = 'block';
+            document.getElementById('excel-import-form').reset();
+        }
+
+        // Close Excel import modal
+        function closeExcelImportModal() {
+            document.getElementById('excel-import-modal').style.display = 'none';
+        }
+
+        // Handle Excel import form submission
+        document.getElementById('excel-import-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('excel-file');
+            if (!fileInput.files[0]) {
+                showMessage('Por favor selecciona un archivo Excel', 'error');
+                return;
+            }
+            
+            try {
+                showMessage('Procesando archivo Excel...', 'info');
+                const players = await processExcelFile(fileInput.files[0]);
+                
+                if (players.length === 0) {
+                    showMessage('No se encontraron jugadores válidos en el archivo', 'error');
+                    return;
+                }
+                
+                // Import players
+                await importPlayersToTeam(players);
+                
+            } catch (error) {
+                console.error('Error processing Excel file:', error);
+                showMessage('Error al procesar el archivo Excel: ' + error.message, 'error');
+            }
+        });
+
+        // Process Excel file and extract players data
+        async function processExcelFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        
+                        // Get first sheet
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        
+                        // Convert to JSON
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                        
+                        if (jsonData.length < 2) {
+                            reject(new Error('El archivo debe tener al menos una fila de encabezados y una fila de datos'));
+                            return;
+                        }
+                        
+                        // Expected headers
+                        const expectedHeaders = ['Nombre', 'Apodo', 'Posición', 'Número de Camiseta', 'Es Titular'];
+                        const actualHeaders = jsonData[0];
+                        
+                        // Validate headers
+                        const missingHeaders = expectedHeaders.filter(header => 
+                            !actualHeaders.some(actual => 
+                                actual && actual.toString().toLowerCase().trim() === header.toLowerCase()
+                            )
+                        );
+                        
+                        if (missingHeaders.length > 0) {
+                            reject(new Error(`Faltan las siguientes columnas: ${missingHeaders.join(', ')}`));
+                            return;
+                        }
+                        
+                        // Get column indices
+                        const getColumnIndex = (headerName) => {
+                            return actualHeaders.findIndex(header => 
+                                header && header.toString().toLowerCase().trim() === headerName.toLowerCase()
+                            );
+                        };
+                        
+                        const nameIndex = getColumnIndex('Nombre');
+                        const nicknameIndex = getColumnIndex('Apodo');
+                        const positionIndex = getColumnIndex('Posición');
+                        const jerseyIndex = getColumnIndex('Número de Camiseta');
+                        const starterIndex = getColumnIndex('Es Titular');
+                        
+                        // Process data rows
+                        const players = [];
+                        const teamGender = currentTeam ? currentTeam.team_gender : 'male';
+                        const validPositions = teamGender === 'female' 
+                            ? ['Portera', 'Arquera', 'Defensora', 'Mediocampista', 'Delantera']
+                            : ['Portero', 'Arquero', 'Defensor', 'Mediocampista', 'Delantero'];
+                        
+                        for (let i = 1; i < jsonData.length; i++) {
+                            const row = jsonData[i];
+                            
+                            // Skip empty rows
+                            if (!row || row.length === 0 || !row[nameIndex]) {
+                                continue;
+                            }
+                            
+                            const name = row[nameIndex] ? row[nameIndex].toString().trim() : '';
+                            const nickname = row[nicknameIndex] ? row[nicknameIndex].toString().trim() : '';
+                            const position = row[positionIndex] ? row[positionIndex].toString().trim() : '';
+                            const jerseyNumber = row[jerseyIndex] ? parseInt(row[jerseyIndex]) : null;
+                            const isStarter = row[starterIndex] ? 
+                                row[starterIndex].toString().toLowerCase().trim() === 'sí' : false;
+                            
+                            // Validate required fields
+                            if (!name) {
+                                console.warn(`Fila ${i + 1}: Nombre requerido, saltando...`);
+                                continue;
+                            }
+                            
+                            // Validate position if provided
+                            if (position && !validPositions.includes(position)) {
+                                console.warn(`Fila ${i + 1}: Posición "${position}" no válida para equipo ${teamGender}, saltando...`);
+                                continue;
+                            }
+                            
+                            players.push({
+                                name,
+                                nickname: nickname || null,
+                                position: position || null,
+                                jersey_number: jerseyNumber,
+                                is_starter: isStarter
+                            });
+                        }
+                        
+                        resolve(players);
+                        
+                    } catch (error) {
+                        reject(new Error('Error al leer el archivo Excel: ' + error.message));
+                    }
+                };
+                
+                reader.onerror = function() {
+                    reject(new Error('Error al leer el archivo'));
+                };
+                
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // Import players to team
+        async function importPlayersToTeam(players) {
+            try {
+                const successfulImports = [];
+                const failedImports = [];
+                
+                for (const player of players) {
+                    try {
+                        const response = await fetch('/api/players', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                            },
+                            body: JSON.stringify(player)
+                        });
+
+                        if (response.ok) {
+                            const newPlayer = await response.json();
+                            
+                            // Add player to current team
+                            const teamResponse = await fetch(`/api/teams/${window.currentTeamId}/players`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                },
+                                body: JSON.stringify({
+                                    player_id: newPlayer.id,
+                                    is_starter: player.is_starter
+                                })
+                            });
+
+                            if (teamResponse.ok) {
+                                successfulImports.push(player.name);
+                            } else {
+                                failedImports.push(`${player.name} (error al agregar al equipo)`);
+                            }
+                        } else {
+                            const errorData = await response.json();
+                            failedImports.push(`${player.name} (${errorData.message})`);
+                        }
+                    } catch (error) {
+                        failedImports.push(`${player.name} (${error.message})`);
+                    }
+                }
+                
+                // Show results
+                let message = '';
+                if (successfulImports.length > 0) {
+                    message += `✅ ${successfulImports.length} jugadores importados exitosamente\n`;
+                }
+                if (failedImports.length > 0) {
+                    message += `❌ ${failedImports.length} jugadores fallaron:\n${failedImports.join('\n')}`;
+                }
+                
+                showMessage(message, successfulImports.length > 0 ? 'success' : 'error');
+                
+                // Close modal and refresh team view
+                closeExcelImportModal();
+                if (successfulImports.length > 0) {
+                    await loadPlayersForTeam(window.currentTeamId, window.currentTeamName, currentTeam.team_gender);
+                }
+                
+            } catch (error) {
+                console.error('Error importing players:', error);
+                showMessage('Error al importar jugadores: ' + error.message, 'error');
+            }
+        }
+
+        // Remove player from team
+        async function removePlayerFromTeam(playerId, playerName) {
+            if (!confirm(`¿Estás seguro de que deseas eliminar a "${playerName}" del equipo?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(getApiUrl(`/api/players/${playerId}?team_id=${window.currentTeamId}`), {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(`${playerName} eliminado del equipo exitosamente`, 'success');
+                    loadPlayersForTeam(window.currentTeamId, window.currentTeamName); // Recargar lista
+                } else {
+                    showMessage(`Error: ${data.message || data.error}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Error de conexión: ${error.message}`, 'error');
+            }
+        }
+
+        // Edit team (placeholder for now)
+        function editTeam(teamId) {
+            showMessage('Funcionalidad de edición próximamente disponible', 'success');
+            // TODO: Implement team editing
+        }
+        
+        // Initialize dashboard on page load
+        checkCoachAccess();
+    </script>
+</body>
+</html>

@@ -33,17 +33,39 @@ function parseBody(req: VercelRequest): Promise<any> {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  console.log('🟦 Handler started');
+  
   setCorsHeaders(res);
 
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('🟦 OPTIONS request handled');
     return res.status(200).end();
   }
 
+  console.log('🟦 Parsing URL...');
   const { url, method } = req;
+  console.log('🟦 URL and method extracted:', { url, method });
+  
   // Extract pathname without query parameters
   const urlObj = new URL(url || '', 'http://localhost');
+  console.log('🟦 URL object created');
+  
   const path = urlObj.pathname.replace('/api', '') || '';
+  console.log('🟦 Path processed:', path);
+  
+  // DEBUG: Log all requests temporarily
+  console.log(`📍 API Request: ${method} ${path}`);
+  
+  // Log más detallado para requests PATCH
+  if (method === 'PATCH') {
+    console.log('🔧 PATCH Request details:', {
+      originalUrl: req.url,
+      pathname: urlObj.pathname,
+      pathAfterReplace: path,
+      headers: Object.keys(req.headers)
+    });
+  }
 
   try {
     // Health check endpoint
@@ -61,6 +83,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         message: 'Auth router funcionando correctamente',
         timestamp: new Date().toISOString()
       });
+    }
+
+    // DEBUG: Endpoint temporal para verificar usuarios en DB
+    if (path === '/debug/users' && method === 'GET') {
+      try {
+        const usersResult = await sql`
+          SELECT id, email, first_name, last_name, role, is_active, created_at
+          FROM users 
+          ORDER BY created_at DESC
+          LIMIT 10
+        `;
+        
+        return res.status(200).json({
+          success: true,
+          message: 'Usuarios encontrados en la base de datos',
+          count: usersResult.rows.length,
+          users: usersResult.rows
+        });
+      } catch (error) {
+        return res.status(500).json({
+          success: false,
+          message: 'Error consultando usuarios: ' + (error as Error).message
+        });
+      }
     }
 
     // Login endpoint
@@ -407,6 +453,79 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    // Divisions endpoint
+    if (path === '/divisions' && method === 'GET') {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({
+          success: false,
+          message: 'Token de autorización requerido'
+        });
+      }
+
+      try {
+        const token = authHeader.substring(7);
+        const jwtSecret = process.env.JWT_SECRET || 'test_secret_key_for_demo';
+        const decoded = jwt.verify(token, jwtSecret) as any;
+        
+        console.log('Token verified successfully for divisions endpoint. User:', decoded.userId);
+
+        // Get gender parameter from query string
+        const urlObj = new URL(req.url || '', 'http://localhost');
+        const gender = urlObj.searchParams.get('gender');
+
+        if (!process.env.POSTGRES_URL) {
+          const demoDivisions = [
+            { id: 'demo1', name: 'Sub 14', gender: 'female' },
+            { id: 'demo2', name: 'Sub 16', gender: 'female' },
+            { id: 'demo3', name: 'Primera', gender: 'female' },
+            { id: 'demo4', name: 'Sub 14', gender: 'male' },
+            { id: 'demo5', name: 'Sub 16', gender: 'male' },
+            { id: 'demo6', name: 'Primera', gender: 'male' }
+          ];
+
+          const filteredDivisions = gender 
+            ? demoDivisions.filter(d => d.gender === gender)
+            : demoDivisions;
+
+          return res.status(200).json({
+            success: true,
+            divisions: filteredDivisions,
+            message: 'Datos demo'
+          });
+        }
+
+        let divisionsQuery;
+        if (gender) {
+          // Filter by gender and get distinct divisions to avoid duplicates
+          divisionsQuery = await sql`
+            SELECT DISTINCT ON (name) id, name, gender
+            FROM divisions 
+            WHERE gender = ${gender}
+            ORDER BY name, created_at DESC
+          `;
+        } else {
+          // Get all divisions
+          divisionsQuery = await sql`
+            SELECT DISTINCT ON (name, gender) id, name, gender
+            FROM divisions 
+            ORDER BY name, gender, created_at DESC
+          `;
+        }
+
+        return res.status(200).json({
+          success: true,
+          divisions: divisionsQuery.rows
+        });
+
+      } catch (error) {
+        return res.status(401).json({
+          success: false,
+          message: 'Token inválido'
+        });
+      }
+    }
+
     // Teams management endpoints
     if (path.startsWith('/teams')) {
       const authHeader = req.headers.authorization;
@@ -419,7 +538,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       const token = authHeader.substring(7);
       try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+        const jwtSecret = process.env.JWT_SECRET || 'test_secret_key_for_demo';
+        const decoded = jwt.verify(token, jwtSecret) as any;
+        
+        console.log('Token verified successfully for teams endpoint. User:', decoded.userId);
 
         // GET /api/teams - List teams for user
         if (path === '/teams' && method === 'GET') {
@@ -437,19 +559,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           if (decoded.role === 'admin') {
             // Admin can see all teams
             teamsQuery = await sql`
-              SELECT t.*, u.first_name as coach_first_name, u.last_name as coach_last_name
+              SELECT t.*, u.first_name as coach_first_name, u.last_name as coach_last_name, d.gender as team_gender
               FROM teams t
-              LEFT JOIN users u ON t.coach_id = u.id
+              LEFT JOIN users u ON t.user_id = u.id
+              LEFT JOIN divisions d ON t.division_id = d.id
               WHERE t.is_active = true
               ORDER BY t.created_at DESC
             `;
           } else {
             // Coaches can only see their teams
             teamsQuery = await sql`
-              SELECT t.*, u.first_name as coach_first_name, u.last_name as coach_last_name
+              SELECT t.*, u.first_name as coach_first_name, u.last_name as coach_last_name, d.gender as team_gender
               FROM teams t
-              LEFT JOIN users u ON t.coach_id = u.id
-              WHERE t.coach_id = ${decoded.userId} AND t.is_active = true
+              LEFT JOIN users u ON t.user_id = u.id
+              LEFT JOIN divisions d ON t.division_id = d.id
+              WHERE t.user_id = ${decoded.userId} AND t.is_active = true
               ORDER BY t.created_at DESC
             `;
           }
@@ -463,12 +587,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // POST /api/teams - Create new team
         if (path === '/teams' && method === 'POST') {
           const body = await parseBody(req);
-          const { name, description, category, division } = body;
+          const { name, club_name, division_id, max_players } = body;
 
-          if (!name) {
+          if (!name || !club_name) {
             return res.status(400).json({
               success: false,
-              message: 'El nombre del equipo es requerido'
+              message: 'El nombre del equipo y nombre del club son requeridos'
             });
           }
 
@@ -476,13 +600,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(200).json({
               success: true,
               message: 'Equipo creado (demo)',
-              team: { id: Date.now(), name, description, category, division }
+              team: { id: Date.now(), name, club_name, division_id, max_players }
             });
           }
 
+          // Si no se proporciona division_id, usar un UUID temporal o NULL
+          const divisionValue = division_id || null;
+          
           const newTeam = await sql`
-            INSERT INTO teams (name, description, category, division, coach_id, created_at, updated_at)
-            VALUES (${name}, ${description || ''}, ${category || 'Senior'}, ${division || ''}, ${decoded.userId}, NOW(), NOW())
+            INSERT INTO teams (name, club_name, division_id, user_id, max_players, is_active, created_at, updated_at)
+            VALUES (${name}, ${club_name}, ${divisionValue}, ${decoded.userId}, ${max_players || 25}, true, NOW(), NOW())
             RETURNING *
           `;
 
@@ -494,9 +621,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
       } catch (error) {
+        console.error('JWT verification failed for teams:', error);
         return res.status(401).json({
           success: false,
-          message: 'Token inválido'
+          message: 'Token inválido o expirado'
         });
       }
     }
@@ -530,16 +658,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(200).json({
               success: true,
               players: [
-                { id: 1, firstName: 'Demo', lastName: 'Player', jerseyNumber: 10, position: 'forward' }
+                { id: 1, name: 'Demo Player', nickname: 'Demo', position: 'forward', jersey_number: 10 }
               ],
               message: 'Datos demo'
             });
           }
 
+          // Usar la tabla team_players para obtener jugadores del equipo
           const playersQuery = await sql`
-            SELECT * FROM players 
-            WHERE team_id = ${teamId} AND is_active = true
-            ORDER BY jersey_number ASC
+            SELECT 
+              p.id, 
+              p.name, 
+              p.nickname, 
+              p.birth_date, 
+              p.position, 
+              p.photo_url, 
+              tp.jersey_number, 
+              tp.is_starter,
+              tp.is_active as team_active
+            FROM players p
+            INNER JOIN team_players tp ON p.id = tp.player_id
+            WHERE tp.team_id = ${teamId} AND tp.is_active = true AND p.is_active = true
+            ORDER BY tp.jersey_number ASC
           `;
 
           return res.status(200).json({
@@ -551,12 +691,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // POST /api/players - Create new player
         if (path === '/players' && method === 'POST') {
           const body = await parseBody(req);
-          const { teamId, firstName, lastName, email, phone, jerseyNumber, position, dateOfBirth } = body;
+          const { teamId, name, nickname, position, birth_date, jersey_number, is_starter } = body;
 
-          if (!teamId || !firstName || !lastName) {
+          if (!teamId || !name || !birth_date) {
             return res.status(400).json({
               success: false,
-              message: 'Team ID, nombre y apellido son requeridos'
+              message: 'Team ID, nombre y fecha de nacimiento son requeridos'
             });
           }
 
@@ -564,21 +704,108 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(200).json({
               success: true,
               message: 'Jugador creado (demo)',
-              player: { id: Date.now(), firstName, lastName, jerseyNumber }
+              player: { id: Date.now(), name, nickname, jersey_number }
             });
           }
 
-          const newPlayer = await sql`
-            INSERT INTO players (team_id, first_name, last_name, email, phone, jersey_number, position, date_of_birth, created_at, updated_at)
-            VALUES (${teamId}, ${firstName}, ${lastName}, ${email || null}, ${phone || null}, ${jerseyNumber || null}, ${position || 'forward'}, ${dateOfBirth || null}, NOW(), NOW())
-            RETURNING *
-          `;
+          try {
+            // Verificar que el número de camiseta no esté ocupado en el equipo
+            if (jersey_number) {
+              const existingJerseyQuery = await sql`
+                SELECT id FROM team_players 
+                WHERE team_id = ${teamId} AND jersey_number = ${jersey_number} AND is_active = true
+              `;
+              
+              if (existingJerseyQuery.rows.length > 0) {
+                return res.status(400).json({
+                  success: false,
+                  message: `El número de camiseta ${jersey_number} ya está ocupado en este equipo`
+                });
+              }
+            }
 
-          return res.status(201).json({
-            success: true,
-            message: 'Jugador creado exitosamente',
-            player: newPlayer.rows[0]
-          });
+            // Crear el jugador en la tabla players
+            const newPlayerQuery = await sql`
+              INSERT INTO players (name, nickname, birth_date, position, is_active, created_at, updated_at)
+              VALUES (${name}, ${nickname || null}, ${birth_date}, ${position || null}, true, NOW(), NOW())
+              RETURNING *
+            `;
+
+            const newPlayer = newPlayerQuery.rows[0];
+
+            // Agregar la relación en team_players
+            const teamPlayerQuery = await sql`
+              INSERT INTO team_players (team_id, player_id, jersey_number, is_starter, is_active, joined_at)
+              VALUES (${teamId}, ${newPlayer.id}, ${jersey_number || null}, ${is_starter || false}, true, NOW())
+              RETURNING *
+            `;
+
+            return res.status(201).json({
+              success: true,
+              message: 'Jugador creado exitosamente',
+              player: {
+                ...newPlayer,
+                jersey_number: teamPlayerQuery.rows[0].jersey_number,
+                is_starter: teamPlayerQuery.rows[0].is_starter
+              }
+            });
+
+          } catch (error) {
+            console.error('Error creating player:', error);
+            return res.status(500).json({
+              success: false,
+              message: 'Error interno del servidor al crear jugador'
+            });
+          }
+        }
+
+        // DELETE /api/players/{playerId}?team_id=xxx - Remove player from team
+        if (path.match(/^\/players\/[^\/]+$/) && method === 'DELETE') {
+          const playerId = path.split('/')[2];
+          const teamId = req.url?.split('team_id=')[1]?.split('&')[0];
+
+          if (!playerId || !teamId) {
+            return res.status(400).json({
+              success: false,
+              message: 'Player ID y team_id son requeridos'
+            });
+          }
+
+          if (!process.env.POSTGRES_URL) {
+            return res.status(200).json({
+              success: true,
+              message: 'Jugador eliminado (demo)'
+            });
+          }
+
+          try {
+            // Marcar como inactivo en team_players (no eliminar completamente)
+            const removePlayerQuery = await sql`
+              UPDATE team_players 
+              SET is_active = false, updated_at = NOW()
+              WHERE player_id = ${playerId} AND team_id = ${teamId}
+              RETURNING *
+            `;
+
+            if (removePlayerQuery.rows.length === 0) {
+              return res.status(404).json({
+                success: false,
+                message: 'Jugador no encontrado en este equipo'
+              });
+            }
+
+            return res.status(200).json({
+              success: true,
+              message: 'Jugador eliminado del equipo exitosamente'
+            });
+
+          } catch (error) {
+            console.error('Error removing player:', error);
+            return res.status(500).json({
+              success: false,
+              message: 'Error interno del servidor al eliminar jugador'
+            });
+          }
         }
 
       } catch (error) {
@@ -713,7 +940,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // Get users from real database
         const usersResult = await sql`
-          SELECT id, email, first_name, last_name, role, plan, club_name, is_active, created_at, last_login
+          SELECT id, email, first_name, last_name, role, plan, club_name, is_active, created_at, last_login, max_teams
           FROM users 
           ORDER BY created_at DESC
         `;
@@ -731,7 +958,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             clubName: user.club_name,
             status: user.is_active ? 'active' : 'inactive',
             createdAt: user.created_at,
-            lastLogin: user.last_login
+            lastLogin: user.last_login,
+            maxTeams: user.max_teams !== null && user.max_teams !== undefined ? user.max_teams : 2 // Usar el nuevo campo numérico, permitiendo 0
           })),
           total: usersResult.rows.length
         });
@@ -822,7 +1050,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Admin users endpoint - Toggle user active status
+    console.log('🔧 Checking toggle match for path:', path, 'method:', method);
+    console.log('🔧 Toggle regex test:', /^\/admin\/users\/[^\/]+\/toggle$/.test(path));
     if (path.match(/^\/admin\/users\/[^\/]+\/toggle$/) && method === 'PATCH') {
+      console.log('🔧 Toggle endpoint called with path:', path, 'method:', method);
       const authHeader = req.headers.authorization;
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({
@@ -880,15 +1111,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Update user status
         const updatedUser = await sql`
           UPDATE users 
-          SET is_active = ${newStatus}, updated_at = NOW()
+          SET is_active = ${newStatus}
           WHERE id = ${userId}
-          RETURNING id, email, first_name, last_name, is_active
+          RETURNING id, email, first_name, last_name, is_active, role, plan, club_name, created_at, last_login
         `;
+
+        if (updatedUser.rows.length === 0) {
+          return res.status(404).json({
+            success: false,
+            message: 'Usuario no encontrado para actualizar'
+          });
+        }
+
+        const user = updatedUser.rows[0];
 
         return res.status(200).json({
           success: true,
           message: `Usuario ${newStatus ? 'activado' : 'desactivado'} exitosamente`,
-          data: updatedUser.rows[0]
+          data: {
+            id: user.id,
+            email: user.email,
+            firstName: user.first_name,
+            lastName: user.last_name,
+            fullName: `${user.first_name} ${user.last_name}`,
+            role: user.role,
+            plan: user.plan,
+            clubName: user.club_name || '', // Valor por defecto si es NULL
+            status: user.is_active ? 'active' : 'inactive',
+            createdAt: user.created_at,
+            lastLogin: user.last_login || null
+          }
         });
 
       } catch (error) {
@@ -989,6 +1241,99 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    // Admin users endpoint - Update max teams
+    if (path.match(/^\/admin\/users\/[^\/]+\/teams$/) && method === 'PUT') {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({
+          success: false,
+          message: 'Token de autorización requerido'
+        });
+      }
+
+      const token = authHeader.substring(7);
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+        
+        if (decoded.role !== 'admin') {
+          return res.status(403).json({
+            success: false,
+            message: 'Acceso denegado. Solo administradores.'
+          });
+        }
+
+        // Extract user ID from path
+        const userIdMatch = path.match(/^\/admin\/users\/([^\/]+)\/teams$/);
+        const userId = userIdMatch ? userIdMatch[1] : null;
+
+        if (!userId) {
+          return res.status(400).json({
+            success: false,
+            message: 'ID de usuario requerido'
+          });
+        }
+
+        const body = await parseBody(req);
+        const { max_teams } = body;
+
+        console.log('🔧 TEAMS: Received max_teams:', max_teams, 'type:', typeof max_teams);
+
+        // Validar que max_teams sea un número válido
+        const teamsNumber = parseInt(max_teams);
+        console.log('🔧 TEAMS: Parsed teamsNumber:', teamsNumber, 'isNaN:', isNaN(teamsNumber));
+        
+        if (isNaN(teamsNumber) || teamsNumber < 0 || teamsNumber > 10) {
+          console.log('🔧 TEAMS: Validation failed');
+          return res.status(400).json({
+            success: false,
+            message: 'El número de equipos debe estar entre 0 y 10'
+          });
+        }
+
+        if (!process.env.POSTGRES_URL) {
+          return res.status(200).json({
+            success: true,
+            message: 'Número máximo de equipos actualizado (demo)',
+            data: { id: userId, max_teams: teamsNumber }
+          });
+        }
+
+        // Check if user exists
+        const userExists = await sql`
+          SELECT id FROM users WHERE id = ${userId}
+        `;
+
+        if (userExists.rows.length === 0) {
+          return res.status(404).json({
+            success: false,
+            message: 'Usuario no encontrado'
+          });
+        }
+
+        // Update max_teams field directly (no more mapping to plan constraints)
+        console.log('🔧 TEAMS: Updating max_teams to:', teamsNumber);
+        
+        await sql`
+          UPDATE users 
+          SET max_teams = ${teamsNumber}
+          WHERE id = ${userId}
+        `;
+
+        console.log('🔧 TEAMS: Update successful');
+        return res.status(200).json({
+          success: true,
+          message: `Número máximo de equipos actualizado a ${teamsNumber}`
+        });
+
+      } catch (error) {
+        console.error('Error updating max teams:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Error interno del servidor'
+        });
+      }
+    }
+
     // Route not found
     return res.status(404).json({
       success: false,
@@ -996,7 +1341,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
   } catch (error) {
-    console.error('Error en API:', error);
+    console.error('❌ Error en API:', error);
+    console.error('❌ Error details:', {
+      message: (error as Error).message,
+      stack: (error as Error).stack,
+      path: urlObj.pathname,
+      method: req.method
+    });
     return res.status(500).json({
       success: false,
       message: 'Error interno del servidor'

@@ -154,3 +154,4 @@ images/
 # Test artifacts
 test-results/
 coverage/
+.env*.local

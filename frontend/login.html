@@ -156,21 +156,21 @@
                         <p><strong>Plan:</strong> ${data.user.plan}</p>
                         ${data.user.clubName ? `<p><strong>Club:</strong> ${data.user.clubName}</p>` : ''}
                         <p><strong>Token:</strong> ${data.token.substring(0, 50)}...</p>
-                        <p>🎉 ¡Autenticación con base de datos real funcionando!</p>
+                        <p>🔄 Redirigiendo a ${data.user.role === 'admin' ? 'panel de administración' : 'dashboard'}...</p>
                     `;
                     
                     // Guardar token en localStorage
                     localStorage.setItem('hockey_token', data.token);
                     localStorage.setItem('hockey_user', JSON.stringify(data.user));
                     
-                    // Redirección automática basada en rol
+                    // Redirección automática basada en rol con bypass token
                     setTimeout(() => {
                         if (data.user.role === 'admin') {
-                            window.location.href = 'admin.html';
+                            window.location.href = `admin.html?_vercel_share=${VERCEL_BYPASS_TOKEN}`;
                         } else {
-                            window.location.href = 'dashboard.html';
+                            window.location.href = `dashboard.html?_vercel_share=${VERCEL_BYPASS_TOKEN}`;
                         }
-                    }, 2000);
+                    }, 1500);
                     
                 } else {
                     resultDiv.className = 'result error';

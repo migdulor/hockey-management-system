@@ -20,20 +20,43 @@
       "destination": "/frontend/assets/$1"
     },
     {
+      "source": "/login.html",
+      "destination": "/frontend/login.html"
+    },
+    {
       "source": "/login",
       "destination": "/frontend/login.html"
+    },
+    {
+      "source": "/admin.html",
+      "destination": "/frontend/admin.html"
     },
     {
       "source": "/admin",
       "destination": "/frontend/admin.html"
     },
     {
+      "source": "/teams.html",
+      "destination": "/frontend/teams.html"
+    },
+    {
       "source": "/teams",
       "destination": "/frontend/teams.html"
     },
     {
+      "source": "/dashboard.html",
+      "destination": "/frontend/dashboard.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/frontend/dashboard.html"
+    },
+    {
       "source": "/",
-      "destination": "/frontend/index.html"
+      "destination": "/frontend/login.html"
     }
-  ]
+  ],
+  "github": {
+    "autoAlias": false
+  }
 }
