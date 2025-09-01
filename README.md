@@ -13,7 +13,7 @@ Sistema integral de gestión de equipos de hockey para entrenadores y coaches.
 ## 🏗️ Arquitectura Técnica
 
 - **Frontend**: HTML + CSS + JavaScript (Vanilla)
-- **Backend**: Node.js + Express + TypeScript
+- **Backend**: Node.js + Express + TypeScript  
 - **Database**: PostgreSQL (Neon)
 - **Deployment**: Vercel
 - **Authentication**: JWT Tokens
