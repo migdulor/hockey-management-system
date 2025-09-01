@@ -1209,17 +1209,22 @@
 
         // Show create player modal
         function showCreatePlayerModal() {
+            console.log('showCreatePlayerModal called');
+            console.log('currentTeamId:', window.currentTeamId);
+            console.log('currentTeamGender:', window.currentTeamGender);
+            
             if (!window.currentTeamId) {
                 showMessage('Primero selecciona un equipo desde "Mis Equipos"', 'error');
                 return;
             }
             
             // Definir posiciones según el género del equipo actual
-            const teamGender = currentTeam ? currentTeam.team_gender : 'male';
+            const teamGender = window.currentTeamGender || 'male';
             const femalePositions = ['Portera', 'Arquera', 'Defensora', 'Mediocampista', 'Delantera'];
             const malePositions = ['Portero', 'Arquero', 'Defensor', 'Mediocampista', 'Delantero'];
             
             const positions = teamGender === 'female' ? femalePositions : malePositions;
+            console.log('Positions for gender', teamGender, ':', positions);
             
             // Generar opciones de posición
             let positionOptions = '<option value="">Seleccionar posición...</option>';
@@ -1229,13 +1234,29 @@
             
             // Actualizar el select de posiciones
             const positionSelect = document.getElementById('player-position');
+            console.log('Position select element:', positionSelect);
             if (positionSelect) {
                 positionSelect.innerHTML = positionOptions;
             }
             
-            document.getElementById('player-modal-title').textContent = `Agregar Jugador a: ${window.currentTeamName}`;
-            document.getElementById('player-form').reset();
-            document.getElementById('player-modal').style.display = 'block';
+            const modalTitle = document.getElementById('player-modal-title');
+            const playerForm = document.getElementById('player-form');
+            const playerModal = document.getElementById('player-modal');
+            
+            console.log('Modal elements:', { modalTitle, playerForm, playerModal });
+            
+            if (modalTitle) {
+                modalTitle.textContent = `Agregar Jugador a: ${window.currentTeamName}`;
+            }
+            if (playerForm) {
+                playerForm.reset();
+            }
+            if (playerModal) {
+                playerModal.style.display = 'block';
+                console.log('Modal should be visible now');
+            } else {
+                console.error('Modal element not found!');
+            }
         }
 
         // Close player modal
