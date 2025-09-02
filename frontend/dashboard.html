@@ -1115,10 +1115,16 @@
         async function loadPlayersForTeam(teamId, teamName, teamGender = 'male') {
             const container = document.getElementById('players-list');
             const teamTitle = document.getElementById('current-team-name');
+            const addPlayerBtnContainer = document.getElementById('add-player-btn');
             
             if (teamTitle) {
                 const genderText = teamGender === 'female' ? 'Jugadoras' : 'Jugadores';
                 teamTitle.textContent = `${genderText} de: ${teamName}`;
+            }
+            
+            // Mostrar los botones de acción
+            if (addPlayerBtnContainer) {
+                addPlayerBtnContainer.style.display = 'block';
             }
             
             // Guardar el teamId actual para crear nuevos jugadores
