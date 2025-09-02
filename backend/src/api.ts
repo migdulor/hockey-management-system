@@ -757,6 +757,107 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
         }
 
+        // PUT /api/players/{playerId} - Update existing player
+        if (path.match(/^\/players\/[^\/]+$/) && method === 'PUT') {
+          const playerId = path.split('/')[2];
+          const body = await parseBody(req);
+          const { teamId, name, nickname, position, birth_date, jersey_number } = body;
+
+          if (!playerId || !teamId || !name || !birth_date) {
+            return res.status(400).json({
+              success: false,
+              message: 'Player ID, Team ID, nombre y fecha de nacimiento son requeridos'
+            });
+          }
+
+          if (!process.env.POSTGRES_URL) {
+            return res.status(200).json({
+              success: true,
+              message: 'Jugador actualizado (demo)',
+              player: { id: playerId, name, nickname, jersey_number }
+            });
+          }
+
+          try {
+            // Verificar que el jugador existe en el equipo
+            const existingPlayerQuery = await sql`
+              SELECT tp.id, tp.jersey_number 
+              FROM team_players tp
+              WHERE tp.player_id = ${playerId} AND tp.team_id = ${teamId} AND tp.is_active = true
+            `;
+
+            if (existingPlayerQuery.rows.length === 0) {
+              return res.status(404).json({
+                success: false,
+                message: 'Jugador no encontrado en este equipo'
+              });
+            }
+
+            const currentJerseyNumber = existingPlayerQuery.rows[0].jersey_number;
+
+            // Verificar que el número de camiseta no esté ocupado (si cambió)
+            if (jersey_number && jersey_number != currentJerseyNumber) {
+              const existingJerseyQuery = await sql`
+                SELECT id FROM team_players 
+                WHERE team_id = ${teamId} AND jersey_number = ${jersey_number} AND is_active = true AND player_id != ${playerId}
+              `;
+              
+              if (existingJerseyQuery.rows.length > 0) {
+                return res.status(400).json({
+                  success: false,
+                  message: `El número de camiseta ${jersey_number} ya está ocupado por otro jugador en este equipo`
+                });
+              }
+            }
+
+            // Actualizar datos del jugador en la tabla players
+            const updatePlayerQuery = await sql`
+              UPDATE players 
+              SET 
+                name = ${name}, 
+                nickname = ${nickname || null}, 
+                birth_date = ${birth_date}, 
+                position = ${position || null}, 
+                updated_at = NOW()
+              WHERE id = ${playerId}
+              RETURNING *
+            `;
+
+            if (updatePlayerQuery.rows.length === 0) {
+              return res.status(404).json({
+                success: false,
+                message: 'Jugador no encontrado'
+              });
+            }
+
+            // Actualizar datos específicos del equipo en team_players
+            const updateTeamPlayerQuery = await sql`
+              UPDATE team_players 
+              SET 
+                jersey_number = ${jersey_number || null}, 
+                updated_at = NOW()
+              WHERE player_id = ${playerId} AND team_id = ${teamId}
+              RETURNING *
+            `;
+
+            return res.status(200).json({
+              success: true,
+              message: 'Jugador actualizado exitosamente',
+              player: {
+                ...updatePlayerQuery.rows[0],
+                jersey_number: updateTeamPlayerQuery.rows[0].jersey_number
+              }
+            });
+
+          } catch (error) {
+            console.error('Error updating player:', error);
+            return res.status(500).json({
+              success: false,
+              message: 'Error interno del servidor al actualizar jugador'
+            });
+          }
+        }
+
         // DELETE /api/players/{playerId}?team_id=xxx - Remove player from team
         if (path.match(/^\/players\/[^\/]+$/) && method === 'DELETE') {
           const playerId = path.split('/')[2];
