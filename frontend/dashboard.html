@@ -898,22 +898,10 @@
     </div>
 
     <script>
-        // 🔑 BYPASS TOKEN CONFIGURATION
-        const VERCEL_BYPASS_TOKEN = 'fc85dada1b5dc5394adba665f545be20';
-        
-        // Helper para crear URLs con bypass token
-        function getApiUrl(endpoint) {
-            const timestamp = Date.now();
-            const separator = endpoint.includes('?') ? '&' : '?';
-            return `${endpoint}${separator}x-vercel-set-bypass-cookie=true&x-vercel-protection-bypass=${VERCEL_BYPASS_TOKEN}&_t=${timestamp}`;
-        }
-        
         // Get JWT token from localStorage
         function getAuthHeaders() {
             const token = localStorage.getItem('hockey_token');
-            console.log('Token from localStorage:', token ? 'Existe' : 'No existe');
             if (!token) {
-                console.log('No token found, redirecting to login');
                 window.location.href = 'login.html';
                 return {};
             }
@@ -944,7 +932,7 @@
             }
             
             try {
-                const response = await fetch(getApiUrl('/api/profile'), {
+                const response = await fetch('/api/profile', {
                     headers: getAuthHeaders()
                 });
                 
@@ -985,7 +973,7 @@
         async function loadDashboardStats() {
             try {
                 // Cargar información del usuario para obtener max_teams
-                const userResponse = await fetch(getApiUrl('/api/profile'), {
+                const userResponse = await fetch('/api/profile', {
                     headers: getAuthHeaders()
                 });
                 const userData = await userResponse.json();
@@ -995,7 +983,7 @@
                 }
 
                 // Cargar equipos del entrenador
-                const teamsResponse = await fetch(getApiUrl('/api/teams'), {
+                const teamsResponse = await fetch('/api/teams', {
                     headers: getAuthHeaders()
                 });
                 const teamsData = await teamsResponse.json();
@@ -1085,7 +1073,7 @@
             container.innerHTML = '<div class="loading">Cargando equipos...</div>';
             
             try {
-                const response = await fetch(getApiUrl('/api/teams'), {
+                const response = await fetch('/api/teams', {
                     headers: getAuthHeaders()
                 });
                 const data = await response.json();
@@ -1149,7 +1137,7 @@
         // Get player count for a specific team
         async function getPlayerCountForTeam(teamId) {
             try {
-                const response = await fetch(getApiUrl(`/api/players?team_id=${teamId}`), {
+                const response = await fetch(`/api/players?team_id=${teamId}`, {
                     headers: getAuthHeaders()
                 });
                 const data = await response.json();
@@ -1185,7 +1173,7 @@
             divisionSelect.innerHTML = '<option value="">Cargando divisiones...</option>';
             
             try {
-                const response = await fetch(getApiUrl('/api/divisions'), {
+                const response = await fetch('/api/divisions', {
                     headers: getAuthHeaders()
                 });
                 const data = await response.json();
@@ -1224,7 +1212,7 @@
             divisionSelect.innerHTML = '<option value="">Cargando divisiones...</option>';
             
             try {
-                const response = await fetch(getApiUrl(`/api/divisions?gender=${gender}`), {
+                const response = await fetch(`/api/divisions?gender=${gender}`, {
                     headers: getAuthHeaders()
                 });
                 const data = await response.json();
@@ -1268,7 +1256,7 @@
                     try {
                         console.log('Sending team data:', teamData);
                         
-                        const response = await fetch(getApiUrl('/api/teams'), {
+                        const response = await fetch('/api/teams', {
                             method: 'POST',
                             headers: getAuthHeaders(),
                             body: JSON.stringify(teamData)
@@ -1321,7 +1309,7 @@
                         
                         if (window.editingPlayerId) {
                             // Update existing player
-                            response = await fetch(getApiUrl(`/api/players/${window.editingPlayerId}`), {
+                            response = await fetch(`/api/players/${window.editingPlayerId}`, {
                                 method: 'PUT',
                                 headers: getAuthHeaders(),
                                 body: JSON.stringify(playerData)
@@ -1329,7 +1317,7 @@
                             successMessage = 'Jugador actualizado exitosamente';
                         } else {
                             // Create new player
-                            response = await fetch(getApiUrl('/api/players'), {
+                            response = await fetch('/api/players', {
                                 method: 'POST',
                                 headers: getAuthHeaders(),
                                 body: JSON.stringify(playerData)
@@ -1386,7 +1374,7 @@
             container.innerHTML = '<div class="loading">Cargando jugadores...</div>';
             
             try {
-                const response = await fetch(getApiUrl(`/api/players?team_id=${teamId}`), {
+                const response = await fetch(`/api/players?team_id=${teamId}`, {
                     headers: getAuthHeaders()
                 });
                 
@@ -1760,7 +1748,7 @@
                 
                 for (const player of players) {
                     try {
-                        const response = await fetch(getApiUrl('/api/players'), {
+                        const response = await fetch('/api/players', {
                             method: 'POST',
                             headers: getAuthHeaders(),
                             body: JSON.stringify(player)
@@ -1813,7 +1801,7 @@
             }
 
             try {
-                const response = await fetch(getApiUrl(`/api/players/${playerId}?team_id=${window.currentTeamId}`), {
+                const response = await fetch(`/api/players/${playerId}?team_id=${window.currentTeamId}`, {
                     method: 'DELETE',
                     headers: getAuthHeaders()
                 });
@@ -1850,7 +1838,7 @@
         // Load teams for attendance selector
         async function loadTeamsForAttendance() {
             try {
-                const response = await fetch(getApiUrl('/api/teams'), {
+                const response = await fetch('/api/teams', {
                     headers: getAuthHeaders()
                 });
                 const data = await response.json();
@@ -1911,7 +1899,7 @@
             container.innerHTML = '<div class="loading">Cargando entrenamientos...</div>';
             
             try {
-                const response = await fetch(getApiUrl(`/api/trainings?team_id=${select.value}`), {
+                const response = await fetch(`/api/trainings?team_id=${select.value}`, {
                     headers: getAuthHeaders()
                 });
                 
@@ -1981,7 +1969,7 @@
                 const teamId = document.getElementById('attendance-team-select').value;
                 
                 // Get team players
-                const playersResponse = await fetch(getApiUrl(`/api/players?team_id=${teamId}`), {
+                const playersResponse = await fetch(`/api/players?team_id=${teamId}`, {
                     headers: getAuthHeaders()
                 });
                 
@@ -1993,7 +1981,7 @@
                 const playersData = await playersResponse.json();
                 
                 // Get existing attendance
-                const attendanceResponse = await fetch(getApiUrl(`/api/training-attendances?training_session_id=${trainingId}`), {
+                const attendanceResponse = await fetch(`/api/training-attendances?training_session_id=${trainingId}`, {
                     headers: getAuthHeaders()
                 });
                 
@@ -2111,7 +2099,7 @@
                 
                 for (const attendance of attendances) {
                     try {
-                        const response = await fetch(getApiUrl('/api/training-attendances'), {
+                        const response = await fetch('/api/training-attendances', {
                             method: 'POST',
                             headers: getAuthHeaders(),
                             body: JSON.stringify(attendance)
@@ -2171,7 +2159,7 @@
                     try {
                         console.log('Creating training session:', attendanceData);
                         
-                        const response = await fetch(getApiUrl('/api/trainings'), {
+                        const response = await fetch('/api/trainings', {
                             method: 'POST',
                             headers: getAuthHeaders(),
                             body: JSON.stringify(attendanceData)
@@ -2219,7 +2207,7 @@
         // Load teams for reports selector
         async function loadTeamsForReports() {
             try {
-                const response = await fetch(getApiUrl('/api/teams'), {
+                const response = await fetch('/api/teams', {
                     headers: getAuthHeaders()
                 });
                 const data = await response.json();
@@ -2278,7 +2266,7 @@
                 if (filters.teamId) {
                     teamsToProcess = [filters.teamId];
                 } else {
-                    const teamsResponse = await fetch(getApiUrl('/api/teams'), {
+                    const teamsResponse = await fetch('/api/teams', {
                         headers: getAuthHeaders()
                     });
                     const teamsData = await teamsResponse.json();
@@ -2290,7 +2278,7 @@
                 // Process each team
                 for (const teamId of teamsToProcess) {
                     // Get players for team
-                    const playersResponse = await fetch(getApiUrl(`/api/players?team_id=${teamId}`), {
+                    const playersResponse = await fetch(`/api/players?team_id=${teamId}`, {
                         headers: getAuthHeaders()
                     });
                     const playersData = await playersResponse.json();
@@ -2299,7 +2287,7 @@
                         totalPlayers += playersData.players.length;
                         
                         // Get trainings for team
-                        const trainingsResponse = await fetch(getApiUrl(`/api/trainings?team_id=${teamId}`), {
+                        const trainingsResponse = await fetch(`/api/trainings?team_id=${teamId}`, {
                             headers: getAuthHeaders()
                         });
                         const trainingsData = await trainingsResponse.json();
@@ -2321,7 +2309,7 @@
                             // Get attendance stats for filtered trainings
                             for (const training of filteredTrainings) {
                                 try {
-                                    const attendanceResponse = await fetch(getApiUrl(`/api/training-attendances?training_session_id=${training.id}`), {
+                                    const attendanceResponse = await fetch(`/api/training-attendances?training_session_id=${training.id}`, {
                                         headers: getAuthHeaders()
                                     });
                                     
@@ -2554,20 +2542,20 @@
             
             try {
                 // Get team data
-                const teamResponse = await fetch(getApiUrl(`/api/teams`), {
+                const teamResponse = await fetch(`/api/teams`, {
                     headers: getAuthHeaders()
                 });
                 const teamData = await teamResponse.json();
                 const team = teamData.success ? teamData.teams.find(t => t.id === select.value) : null;
                 
                 // Get players for the team
-                const playersResponse = await fetch(getApiUrl(`/api/players?team_id=${select.value}`), {
+                const playersResponse = await fetch(`/api/players?team_id=${select.value}`, {
                     headers: getAuthHeaders()
                 });
                 const playersData = await playersResponse.json();
                 
                 // Get trainings for the team
-                const trainingsResponse = await fetch(getApiUrl(`/api/trainings?team_id=${select.value}`), {
+                const trainingsResponse = await fetch(`/api/trainings?team_id=${select.value}`, {
                     headers: getAuthHeaders()
                 });
                 const trainingsData = await trainingsResponse.json();
@@ -2709,7 +2697,7 @@
             // Get attendance data for each training
             for (const training of trainings) {
                 try {
-                    const response = await fetch(getApiUrl(`/api/training-attendances?training_session_id=${training.id}`), {
+                    const response = await fetch(`/api/training-attendances?training_session_id=${training.id}`, {
                         headers: getAuthHeaders()
                     });
                     
@@ -2766,12 +2754,12 @@
             
             try {
                 // Get detailed data
-                const playersResponse = await fetch(getApiUrl(`/api/players?team_id=${teamId}`), {
+                const playersResponse = await fetch(`/api/players?team_id=${teamId}`, {
                     headers: getAuthHeaders()
                 });
                 const playersData = await playersResponse.json();
                 
-                const trainingsResponse = await fetch(getApiUrl(`/api/trainings?team_id=${teamId}`), {
+                const trainingsResponse = await fetch(`/api/trainings?team_id=${teamId}`, {
                     headers: getAuthHeaders()
                 });
                 const trainingsData = await trainingsResponse.json();
@@ -2903,7 +2891,7 @@
             // Determinar equipos a procesar
             if (filters.teamId) {
                 // Get specific team name
-                const teamsResponse = await fetch(getApiUrl('/api/teams'), {
+                const teamsResponse = await fetch('/api/teams', {
                     headers: getAuthHeaders()
                 });
                 const teamsData = await teamsResponse.json();
@@ -2912,7 +2900,7 @@
                     teamsToProcess = [{ id: filters.teamId, name: team ? team.name : 'Equipo' }];
                 }
             } else {
-                const teamsResponse = await fetch(getApiUrl('/api/teams'), {
+                const teamsResponse = await fetch('/api/teams', {
                     headers: getAuthHeaders()
                 });
                 const teamsData = await teamsResponse.json();
@@ -2929,14 +2917,14 @@
                 const teamName = team.name;
                 
                 // Obtener jugadores del equipo
-                const playersResponse = await fetch(getApiUrl(`/api/players?team_id=${teamId}`), {
+                const playersResponse = await fetch(`/api/players?team_id=${teamId}`, {
                     headers: getAuthHeaders()
                 });
                 const playersData = await playersResponse.json();
                 
                 if (playersData.success) {
                     // Obtener entrenamientos del equipo
-                    const trainingsResponse = await fetch(getApiUrl(`/api/trainings?team_id=${teamId}`), {
+                    const trainingsResponse = await fetch(`/api/trainings?team_id=${teamId}`, {
                         headers: getAuthHeaders()
                     });
                     const trainingsData = await trainingsResponse.json();
@@ -2972,7 +2960,7 @@
                             // Obtener asistencias para cada entrenamiento
                             for (const training of filteredTrainings) {
                                 try {
-                                    const attendanceResponse = await fetch(getApiUrl(`/api/training-attendances?training_session_id=${training.id}`), {
+                                    const attendanceResponse = await fetch(`/api/training-attendances?training_session_id=${training.id}`, {
                                         headers: getAuthHeaders()
                                     });
                                     

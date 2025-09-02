@@ -101,15 +101,15 @@ INSERT INTO seasons (name, start_date, end_date, is_active)
 VALUES ('Temporada 2025', '2025-01-01', '2025-12-31', true)
 ON CONFLICT DO NOTHING;
 
--- Equipo de ejemplo (usando el coach migdulor@hotmail.com)
-INSERT INTO teams (name, description, coach_id, category, division)
-VALUES (
-    'Hockey Stars',
-    'Equipo principal de hockey sobre hielo',
-    (SELECT id FROM users WHERE email = 'migdulor@hotmail.com' LIMIT 1),
-    'Senior',
-    'Primera División'
-) ON CONFLICT DO NOTHING;
+-- Equipo de ejemplo (configurar manualmente con email válido)
+-- INSERT INTO teams (name, description, coach_id, category, division)
+-- VALUES (
+--     'Mi Equipo',
+--     'Descripción del equipo',
+--     (SELECT id FROM users WHERE email = 'tu_email@aqui.com' LIMIT 1),
+--     'Senior',
+--     'Primera División'
+-- ) ON CONFLICT DO NOTHING;
 
 -- Jugadores de ejemplo
 INSERT INTO players (team_id, first_name, last_name, jersey_number, position, email, phone)
@@ -152,13 +152,13 @@ ON CONFLICT DO NOTHING;
 INSERT INTO trainings (team_id, name, training_date, start_time, end_time, location, created_by)
 SELECT 
     t.id,
-    'Entrenamiento Técnico',
-    CURRENT_DATE + INTERVAL '1 day',
-    '19:00',
-    '21:00',
-    'Pista Principal',
-    (SELECT id FROM users WHERE email = 'migdulor@hotmail.com' LIMIT 1)
-FROM teams t WHERE t.name = 'Hockey Stars'
-ON CONFLICT DO NOTHING;
+--     'Entrenamiento Técnico',
+--     CURRENT_DATE + INTERVAL '1 day',
+--     '19:00',
+--     '21:00',
+--     'Pista Principal',
+--     (SELECT id FROM users WHERE email = 'tu_email@aqui.com' LIMIT 1)
+-- FROM teams t WHERE t.name = 'Mi Equipo'
+-- ON CONFLICT DO NOTHING;
 
 SELECT 'Schema actualizado exitosamente! ✅' as status;

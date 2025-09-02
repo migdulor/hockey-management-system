@@ -124,40 +124,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       try {
         // Check if database is configured
         if (!process.env.POSTGRES_URL && !process.env.hockeymanager_POSTGRES_URL) {
-          // Fallback to mock users for demo
-          const mockUsers = [
-            { id: 1, email: 'test@hockey.com', password: 'test123', role: 'coach' },
-            { id: 2, email: 'admin@hockey.com', password: 'admin123', role: 'admin' }
-          ];
-
-          const user = mockUsers.find(u => u.email === email && u.password === password);
-
-          if (!user) {
-            return res.status(401).json({
-              success: false,
-              message: 'Credenciales inválidas'
-            });
-          }
-
-          const token = jwt.sign(
-            { 
-              userId: user.id, 
-              email: user.email, 
-              role: user.role 
-            },
-            process.env.JWT_SECRET || 'test_secret_key_for_demo',
-            { expiresIn: '24h' }
-          );
-
-          return res.status(200).json({
-            success: true,
-            message: 'Login exitoso (modo demo)',
-            token,
-            user: {
-              id: user.id,
-              email: user.email,
-              role: user.role
-            }
+          return res.status(503).json({
+            success: false,
+            message: 'Sistema no configurado correctamente'
           });
         }
 
@@ -468,8 +437,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const jwtSecret = process.env.JWT_SECRET || 'test_secret_key_for_demo';
         const decoded = jwt.verify(token, jwtSecret) as any;
         
-        console.log('Token verified successfully for divisions endpoint. User:', decoded.userId);
-
         // Get gender parameter from query string
         const urlObj = new URL(req.url || '', 'http://localhost');
         const gender = urlObj.searchParams.get('gender');
@@ -541,8 +508,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const jwtSecret = process.env.JWT_SECRET || 'test_secret_key_for_demo';
         const decoded = jwt.verify(token, jwtSecret) as any;
         
-        console.log('Token verified successfully for teams endpoint. User:', decoded.userId);
-
         // GET /api/teams - List teams for user
         if (path === '/teams' && method === 'GET') {
           if (!process.env.POSTGRES_URL) {

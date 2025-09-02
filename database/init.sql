@@ -101,38 +101,25 @@ CREATE TRIGGER update_teams_updated_at BEFORE UPDATE ON teams FOR EACH ROW EXECU
 CREATE TRIGGER update_players_updated_at BEFORE UPDATE ON players FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_games_updated_at BEFORE UPDATE ON games FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Insertar usuario administrador inicial
--- Contraseña: admin123 (hasheada con bcrypt, salt rounds 12)
-INSERT INTO users (email, password_hash, first_name, last_name, role) 
-VALUES (
-    'admin@hockey.com',
-    '$2b$12$BnmGQ/jM3DawhQB/IqLPfeVKeblgfpZb7l3dqxocZ24MfBFJ8nZBW',
-    'Admin',
-    'Sistema',
-    'admin'
-) ON CONFLICT (email) DO NOTHING;
+-- Insertar usuario administrador inicial (configurar manualmente)
+-- INSERT INTO users (email, password_hash, first_name, last_name, role) 
+-- VALUES (
+--     'tu_email@aqui.com',
+--     'hash_de_tu_password_aqui',
+--     'Tu Nombre',
+--     'Tu Apellido',
+--     'admin'
+-- ) ON CONFLICT (email) DO NOTHING;
 
--- Insertar usuario coach de prueba
--- Contraseña: coach123 (hasheada con bcrypt, salt rounds 12)
-INSERT INTO users (email, password_hash, first_name, last_name, role) 
-VALUES (
-    'coach@hockey.com',
-    '$2b$12$Y/29TPEIfyadAYGm6tgVu.vlSpIYQZf1xTEJpBqmpdeCX2oNmfjsm',
-    'Coach',
-    'Demo',
-    'coach'
-) ON CONFLICT (email) DO NOTHING;
-
--- Insertar usuario test
--- Contraseña: test123 (hasheada con bcrypt, salt rounds 12)
-INSERT INTO users (email, password_hash, first_name, last_name, role) 
-VALUES (
-    'test@hockey.com',
-    '$2b$12$gVq0MWZrUVaHSPArLXxYVu8gJXU6UA9CUflT1LnzEIJrNLmTmWvWW',
-    'Test',
-    'User',
-    'coach'
-) ON CONFLICT (email) DO NOTHING;
+-- Insertar usuario coach de ejemplo (configurar manualmente)
+-- INSERT INTO users (email, password_hash, first_name, last_name, role) 
+-- VALUES (
+--     'coach@tudominio.com',
+--     'hash_de_password_aqui',
+--     'Nombre Coach',
+--     'Apellido Coach',
+--     'coach'
+-- ) ON CONFLICT (email) DO NOTHING;
 
 -- Insertar temporada actual
 INSERT INTO seasons (name, start_date, end_date, active)

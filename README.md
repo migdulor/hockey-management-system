@@ -6,9 +6,8 @@ Sistema integral de gestión de equipos de hockey para entrenadores y coaches.
 
 **🔗 Aplicación**: https://hockey-management.vercel.app/
 
-### Credenciales de Prueba:
-- **Admin**: admin@hockeymanagement.com / admin123
-- **Coach**: cualquier email de coach existente / password123
+### Acceso al Sistema:
+- Solicita credenciales al administrador del sistema
 
 ## 🏗️ Arquitectura Técnica
 

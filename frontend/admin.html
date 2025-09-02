@@ -325,16 +325,7 @@
     </div>
 
     <script>
-        // 🔑 BYPASS TOKEN CONFIGURATION
-        const VERCEL_BYPASS_TOKEN = 'fc85dada1b5dc5394adba665f545be20'; // Token de 32 caracteres para Vercel
         const API_BASE = '/api/admin/users';
-        
-        // Helper para crear URLs con bypass token
-        function getApiUrl(endpoint) {
-            const timestamp = Date.now();
-            const separator = endpoint.includes('?') ? '&' : '?';
-            return `${endpoint}${separator}x-vercel-set-bypass-cookie=true&x-vercel-protection-bypass=${VERCEL_BYPASS_TOKEN}&_t=${timestamp}`;
-        }
         
         // Get JWT token from localStorage
         function getAuthHeaders() {
@@ -358,7 +349,7 @@
             }
             
             try {
-                const response = await fetch(getApiUrl('/api/profile'), {
+                const response = await fetch('/api/profile', {
                     headers: getAuthHeaders()
                 });
                 
@@ -412,7 +403,7 @@
             container.innerHTML = '<div class="loading">Cargando usuarios...</div>';
             
             try {
-                const response = await fetch(getApiUrl(API_BASE), {
+                const response = await fetch(API_BASE, {
                     headers: getAuthHeaders()
                 });
                 const data = await response.json();
@@ -497,7 +488,7 @@
             container.innerHTML = '<div class="loading">Cargando estadísticas...</div>';
             
             try {
-                const response = await fetch(getApiUrl(`${API_BASE}/stats`));
+                const response = await fetch(`${API_BASE}/stats`);
                 const data = await response.json();
                 
                 if (data.success) {
@@ -558,7 +549,7 @@
             const userData = Object.fromEntries(formData.entries());
             
             try {
-                const response = await fetch(getApiUrl(API_BASE), {
+                const response = await fetch(API_BASE, {
                     method: 'POST',
                     headers: getAuthHeaders(),
                     body: JSON.stringify(userData)
@@ -581,7 +572,7 @@
         // Activar/Desactivar usuario
         async function toggleUser(userId) {
             try {
-                const response = await fetch(getApiUrl(`${API_BASE}/${userId}/toggle`), {
+                const response = await fetch(`${API_BASE}/${userId}/toggle`, {
                     method: 'PATCH',
                     headers: getAuthHeaders()
                 });
@@ -633,7 +624,7 @@
             }
             
             try {
-                const response = await fetch(getApiUrl(`${API_BASE}/${userId}/password`), {
+                const response = await fetch(`${API_BASE}/${userId}/password`, {
                     method: 'PUT',
                     headers: getAuthHeaders(),
                     body: JSON.stringify({ new_password: newPassword })
@@ -668,7 +659,7 @@
             console.log('🔧 Sending PUT request to update max_teams:', teamsNum);
             
             try {
-                const url = getApiUrl(`${API_BASE}/${userId}/teams`);
+                const url = `${API_BASE}/${userId}/teams`;
                 console.log('🔧 Request URL:', url);
                 console.log('🔧 Request body:', JSON.stringify({ max_teams: teamsNum }));
                 console.log('🔧 Request headers:', getAuthHeaders());

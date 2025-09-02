@@ -226,30 +226,20 @@
     </div>
 
     <script>
-        // 🔑 BYPASS TOKEN CONFIGURATION
-        const VERCEL_BYPASS_TOKEN = 'fc85dada1b5dc5394adba665f545be20'; // Token de 32 caracteres para Vercel
-        
         // Configuración
         const API_BASE = '/api';
         let currentUser = null;
         let userTeams = [];
 
-        // Helper para crear URLs con bypass token
-        function getApiUrl(endpoint) {
-            return `${endpoint}?x-vercel-set-bypass-cookie=true&x-vercel-protection-bypass=${VERCEL_BYPASS_TOKEN}`;
-        }
-
         // Inicializar aplicación
         document.addEventListener('DOMContentLoaded', async function() {
-            // Simular usuario logueado (por ahora)
-            currentUser = {
-                id: '1',
-                email: 'migdulor@hotmail.com',
-                role: 'coach',
-                plan: '3_teams',
-                first_name: 'Miguel',
-                last_name: 'Dulor'
-            };
+            // Obtener usuario desde localStorage
+            const userString = localStorage.getItem('hockey_user');
+            if (!userString) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = JSON.parse(userString);
 
             await loadUserLimits();
             await loadTeams();

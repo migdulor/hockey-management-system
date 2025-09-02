@@ -223,6 +223,5 @@ export class TokenService {
     }
 
     tokensToRemove.forEach(token => this.blacklistedTokens.delete(token));
-    console.log(`🧹 Cleaned ${tokensToRemove.length} expired tokens from blacklist`);
   }
 }

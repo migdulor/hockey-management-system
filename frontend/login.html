@@ -73,13 +73,6 @@
         .error {
             background: rgba(244, 67, 54, 0.3);
         }
-        .users-info {
-            margin-top: 30px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            font-size: 14px;
-        }
     </style>
 </head>
 <body>
@@ -103,24 +96,10 @@
         
         <div id="result" class="result"></div>
         
-        <div class="users-info">
-            <h3>👥 Usuarios de Prueba (Producción):</h3>
-            <p><strong>Admin:</strong><br>
-               migdulor@hotmail.com / admin123</p>
-            <p><strong>Coach 1:</strong><br>
-               entrenador1@test.com / ?</p>
-            <p><strong>Coach 2:</strong><br>
-               entrenador2@test.com / ?</p>
-            <p style="font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 15px;">
-               ✅ Conectado a base de datos Postgres real con bcrypt
-            </p>
-        </div>
+
     </div>
 
     <script>
-        // 🔑 BYPASS TOKEN CONFIGURATION
-        const VERCEL_BYPASS_TOKEN = 'fc85dada1b5dc5394adba665f545be20'; // Token de 32 caracteres para Vercel
-        
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -129,12 +108,7 @@
             const resultDiv = document.getElementById('result');
             
             try {
-                console.log('🔐 Intentando login con bypass token...');
-                
-                // URL con bypass token para evitar la autenticación de Vercel
-                const loginUrl = `/api/auth/login?x-vercel-set-bypass-cookie=true&x-vercel-protection-bypass=${VERCEL_BYPASS_TOKEN}`;
-                
-                const response = await fetch(loginUrl, {
+                const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -150,25 +124,20 @@
                     resultDiv.className = 'result success';
                     resultDiv.innerHTML = `
                         <h3>✅ Login Exitoso!</h3>
-                        <p><strong>Usuario:</strong> ${data.user.firstName} ${data.user.lastName}</p>
-                        <p><strong>Email:</strong> ${data.user.email}</p>
-                        <p><strong>Rol:</strong> ${data.user.role}</p>
-                        <p><strong>Plan:</strong> ${data.user.plan}</p>
-                        ${data.user.clubName ? `<p><strong>Club:</strong> ${data.user.clubName}</p>` : ''}
-                        <p><strong>Token:</strong> ${data.token.substring(0, 50)}...</p>
-                        <p>🔄 Redirigiendo a ${data.user.role === 'admin' ? 'panel de administración' : 'dashboard'}...</p>
+                        <p>Bienvenido, ${data.user.firstName} ${data.user.lastName}</p>
+                        <p>Redirigiendo...</p>
                     `;
                     
                     // Guardar token en localStorage
                     localStorage.setItem('hockey_token', data.token);
                     localStorage.setItem('hockey_user', JSON.stringify(data.user));
                     
-                    // Redirección automática basada en rol con bypass token
+                    // Redirección automática basada en rol
                     setTimeout(() => {
                         if (data.user.role === 'admin') {
-                            window.location.href = `admin.html?_vercel_share=${VERCEL_BYPASS_TOKEN}`;
+                            window.location.href = 'admin.html';
                         } else {
-                            window.location.href = `dashboard.html?_vercel_share=${VERCEL_BYPASS_TOKEN}`;
+                            window.location.href = 'dashboard.html';
                         }
                     }, 1500);
                     
@@ -176,7 +145,7 @@
                     resultDiv.className = 'result error';
                     resultDiv.innerHTML = `
                         <h3>❌ Error de Login</h3>
-                        <p>${data.message || 'Error desconocido'}</p>
+                        <p>Credenciales incorrectas. Intenta de nuevo.</p>
                     `;
                 }
                 
@@ -184,27 +153,10 @@
                 console.error('Error en login:', error);
                 resultDiv.style.display = 'block';
                 resultDiv.className = 'result error';
-                
-                // Detectar si es problema de bypass token
-                if (VERCEL_BYPASS_TOKEN === 'TU_TOKEN_AQUI' || VERCEL_BYPASS_TOKEN.length !== 32) {
-                    resultDiv.innerHTML = `
-                        <h3>⚠️ Configuración Requerida</h3>
-                        <p><strong>Bypass token no configurado.</strong></p>
-                        <p>Pasos para resolver:</p>
-                        <ol style="text-align: left; margin: 10px 0;">
-                            <li>Ve a: <a href="https://vercel.com/migdulors-projects/hockey-management/settings/deployment-protection" target="_blank">Vercel Settings</a></li>
-                            <li>Copia el "Protection Bypass Token"</li>
-                            <li>Reemplaza 'TU_TOKEN_AQUI' en el código</li>
-                            <li>Redespliega la aplicación</li>
-                        </ol>
-                    `;
-                } else {
-                    resultDiv.innerHTML = `
-                        <h3>❌ Error de Conexión</h3>
-                        <p>${error.message}</p>
-                        <p>Verifica que el bypass token sea válido.</p>
-                    `;
-                }
+                resultDiv.innerHTML = `
+                    <h3>❌ Error de Conexión</h3>
+                    <p>No se pudo conectar con el servidor. Intenta más tarde.</p>
+                `;
             }
         });
     </script>
