@@ -357,6 +357,49 @@
             font-weight: 600;
             color: #333;
         }
+        
+        /* Report Cards Hover Effects */
+        .report-card:hover {
+            border-color: #007bff;
+            box-shadow: 0 4px 15px rgba(0,123,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        /* Custom button styles */
+        .btn-purple {
+            background: #6f42c1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-purple:hover {
+            background: #5a2d91;
+            transform: translateY(-1px);
+        }
+        
+        /* Loading animation */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .loading::after {
+            content: '...';
+            animation: dots 1s infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
     </style>
     
     <!-- SheetJS para leer archivos Excel -->
@@ -728,23 +771,126 @@
 
         <!-- Tab: Reportes -->
         <div id="reports-tab" class="tab-content">
-            <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-                <h2>📈 Reportes y Estadísticas</h2>
+            <div style="max-width: 1400px; margin: 0 auto; padding: 20px;">
+                <h2>📈 Reportes de Asistencia - Sistema Completo</h2>
                 
-                <!-- Selector de equipo para reportes -->
-                <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">
-                    <h3>Seleccionar Equipo</h3>
-                    <select id="reports-team-select" onchange="loadReportsForTeam()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                        <option value="">Selecciona un equipo...</option>
-                    </select>
+                <!-- Filtros Globales -->
+                <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 20px 0; color: #2c5aa0;">🔍 Filtros de Consulta</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Equipo:</label>
+                            <select id="reports-team-filter" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                                <option value="">Todos los equipos</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Desde:</label>
+                            <input type="date" id="reports-date-from" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Hasta:</label>
+                            <input type="date" id="reports-date-to" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <button class="btn btn-primary" onclick="applyReportFilters()" style="width: 100%; padding: 10px;">
+                                🔍 Aplicar Filtros
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 
-                <!-- Contenedor de reportes -->
-                <div id="reports-content" style="display: grid; gap: 20px;">
+                <!-- Dashboard Principal -->
+                <div id="reports-dashboard" style="display: grid; gap: 20px; margin-bottom: 25px;">
+                    <!-- Indicadores Clave -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div style="background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2.5em; font-weight: bold;" id="kpi-total-players">0</div>
+                            <div>Total Jugadores</div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2.5em; font-weight: bold;" id="kpi-total-sessions">0</div>
+                            <div>Entrenamientos</div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #fd7e14, #e55a4e); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2.5em; font-weight: bold;" id="kpi-avg-attendance">0%</div>
+                            <div>Asistencia Promedio</div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #6610f2, #e83e8c); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2.5em; font-weight: bold;" id="kpi-punctuality">0%</div>
+                            <div>Puntualidad Promedio</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Menú de Reportes -->
+                <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 20px 0; color: #2c5aa0;">📊 Tipos de Reportes Disponibles</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+                        
+                        <!-- Reporte 1: General de Asistencias -->
+                        <div class="report-card" style="border: 2px solid #e9ecef; border-radius: 8px; padding: 20px; transition: all 0.3s;">
+                            <h4 style="margin: 0 0 10px 0; color: #28a745;">📋 1. Reporte General</h4>
+                            <p style="color: #666; font-size: 0.9em; margin-bottom: 15px;">Listado completo con porcentajes de asistencia, ranking y estadísticas generales</p>
+                            <button class="btn btn-success" onclick="generateGeneralReport()" style="width: 100%;">
+                                Ver Reporte General
+                            </button>
+                        </div>
+                        
+                        <!-- Reporte 2: Comparativo por Equipo -->
+                        <div class="report-card" style="border: 2px solid #e9ecef; border-radius: 8px; padding: 20px; transition: all 0.3s;">
+                            <h4 style="margin: 0 0 10px 0; color: #007bff;">📊 2. Comparativo Equipos</h4>
+                            <p style="color: #666; font-size: 0.9em; margin-bottom: 15px;">Comparación de asistencia entre diferentes equipos y categorías</p>
+                            <button class="btn btn-primary" onclick="generateComparativeReport()" style="width: 100%;">
+                                Ver Comparativo
+                            </button>
+                        </div>
+                        
+                        <!-- Reporte 3: Tendencias -->
+                        <div class="report-card" style="border: 2px solid #e9ecef; border-radius: 8px; padding: 20px; transition: all 0.3s;">
+                            <h4 style="margin: 0 0 10px 0; color: #fd7e14;">📈 3. Tendencias y Evolución</h4>
+                            <p style="color: #666; font-size: 0.9em; margin-bottom: 15px;">Evolución temporal de asistencia con gráficos de líneas</p>
+                            <button class="btn btn-warning" onclick="generateTrendsReport()" style="width: 100%;">
+                                Ver Tendencias
+                            </button>
+                        </div>
+                        
+                        <!-- Reporte 4: Justificaciones -->
+                        <div class="report-card" style="border: 2px solid #e9ecef; border-radius: 8px; padding: 20px; transition: all 0.3s;">
+                            <h4 style="margin: 0 0 10px 0; color: #6c757d;">📝 4. Justificaciones</h4>
+                            <p style="color: #666; font-size: 0.9em; margin-bottom: 15px;">Análisis de ausencias justificadas vs injustificadas</p>
+                            <button class="btn btn-secondary" onclick="generateJustificationsReport()" style="width: 100%;">
+                                Ver Justificaciones
+                            </button>
+                        </div>
+                        
+                        <!-- Reporte 5: Puntualidad -->
+                        <div class="report-card" style="border: 2px solid #e9ecef; border-radius: 8px; padding: 20px; transition: all 0.3s;">
+                            <h4 style="margin: 0 0 10px 0; color: #17a2b8;">⏰ 5. Puntualidad</h4>
+                            <p style="color: #666; font-size: 0.9em; margin-bottom: 15px;">Análisis detallado de puntualidad y llegadas tarde</p>
+                            <button class="btn btn-info" onclick="generatePunctualityReport()" style="width: 100%;">
+                                Ver Puntualidad
+                            </button>
+                        </div>
+                        
+                        <!-- Reporte 7: Ficha Individual -->
+                        <div class="report-card" style="border: 2px solid #e9ecef; border-radius: 8px; padding: 20px; transition: all 0.3s;">
+                            <h4 style="margin: 0 0 10px 0; color: #6f42c1;">👤 7. Ficha Individual</h4>
+                            <p style="color: #666; font-size: 0.9em; margin-bottom: 15px;">Reporte personalizado por jugador con historial completo</p>
+                            <button class="btn btn-purple" onclick="generateIndividualReport()" style="width: 100%; background: #6f42c1; color: white;">
+                                Ver Ficha Individual
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Contenedor de Reportes -->
+                <div id="reports-content" style="min-height: 200px;">
                     <div style="text-align: center; color: #666; padding: 40px;">
                         <div style="font-size: 3em; margin-bottom: 20px;">📊</div>
-                        <h3>Selecciona un equipo para ver los reportes</h3>
-                        <p>Podrás ver estadísticas de asistencia, rendimiento y generar reportes exportables</p>
+                        <h3>Sistema de Reportes de Asistencia</h3>
+                        <p>Selecciona los filtros deseados y luego elige el tipo de reporte que necesitas generar</p>
+                        <p><strong>Consejo:</strong> Para mejores resultados, aplica primero los filtros de equipo y fechas</p>
                     </div>
                 </div>
             </div>
@@ -2064,8 +2210,10 @@
         
         // Load reports management
         async function loadReports() {
-            console.log('Loading reports management...');
+            console.log('Loading enhanced reports management...');
             await loadTeamsForReports();
+            await initializeReportFilters();
+            await loadDashboardKPIs();
         }
         
         // Load teams for reports selector
@@ -2077,8 +2225,8 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    const select = document.getElementById('reports-team-select');
-                    select.innerHTML = '<option value="">Selecciona un equipo...</option>';
+                    const select = document.getElementById('reports-team-filter');
+                    select.innerHTML = '<option value="">Todos los equipos</option>';
                     
                     data.teams.forEach(team => {
                         const option = document.createElement('option');
@@ -2089,6 +2237,300 @@
                 }
             } catch (error) {
                 console.error('Error loading teams for reports:', error);
+            }
+        }
+        
+        // Initialize report filters with default dates
+        function initializeReportFilters() {
+            const today = new Date();
+            const threeMonthsAgo = new Date();
+            threeMonthsAgo.setMonth(today.getMonth() - 3);
+            
+            document.getElementById('reports-date-from').value = threeMonthsAgo.toISOString().split('T')[0];
+            document.getElementById('reports-date-to').value = today.toISOString().split('T')[0];
+        }
+        
+        // Apply report filters and update dashboard
+        async function applyReportFilters() {
+            const teamId = document.getElementById('reports-team-filter').value;
+            const dateFrom = document.getElementById('reports-date-from').value;
+            const dateTo = document.getElementById('reports-date-to').value;
+            
+            // Store current filters globally
+            window.currentReportFilters = { teamId, dateFrom, dateTo };
+            
+            showMessage('Aplicando filtros...', 'info');
+            await loadDashboardKPIs();
+            showMessage('Filtros aplicados correctamente', 'success');
+        }
+        
+        // Load dashboard KPIs with current filters
+        async function loadDashboardKPIs() {
+            try {
+                const filters = window.currentReportFilters || {};
+                let totalPlayers = 0;
+                let totalSessions = 0;
+                let totalAttendances = 0;
+                let totalLates = 0;
+                let teamsToProcess = [];
+                
+                // Get teams to process
+                if (filters.teamId) {
+                    teamsToProcess = [filters.teamId];
+                } else {
+                    const teamsResponse = await fetch(getApiUrl('/api/teams'), {
+                        headers: getAuthHeaders()
+                    });
+                    const teamsData = await teamsResponse.json();
+                    if (teamsData.success) {
+                        teamsToProcess = teamsData.teams.map(t => t.id);
+                    }
+                }
+                
+                // Process each team
+                for (const teamId of teamsToProcess) {
+                    // Get players for team
+                    const playersResponse = await fetch(getApiUrl(`/api/players?team_id=${teamId}`), {
+                        headers: getAuthHeaders()
+                    });
+                    const playersData = await playersResponse.json();
+                    
+                    if (playersData.success) {
+                        totalPlayers += playersData.players.length;
+                        
+                        // Get trainings for team
+                        const trainingsResponse = await fetch(getApiUrl(`/api/trainings?team_id=${teamId}`), {
+                            headers: getAuthHeaders()
+                        });
+                        const trainingsData = await trainingsResponse.json();
+                        
+                        if (trainingsData.success) {
+                            // Filter trainings by date if specified
+                            let filteredTrainings = trainingsData.trainings;
+                            if (filters.dateFrom || filters.dateTo) {
+                                filteredTrainings = trainingsData.trainings.filter(training => {
+                                    const trainingDate = new Date(training.training_date);
+                                    const isAfterFrom = !filters.dateFrom || trainingDate >= new Date(filters.dateFrom);
+                                    const isBeforeTo = !filters.dateTo || trainingDate <= new Date(filters.dateTo);
+                                    return isAfterFrom && isBeforeTo;
+                                });
+                            }
+                            
+                            totalSessions += filteredTrainings.length;
+                            
+                            // Get attendance stats for filtered trainings
+                            for (const training of filteredTrainings) {
+                                try {
+                                    const attendanceResponse = await fetch(getApiUrl(`/api/training-attendances?training_session_id=${training.id}`), {
+                                        headers: getAuthHeaders()
+                                    });
+                                    
+                                    if (attendanceResponse.ok) {
+                                        const attendanceData = await attendanceResponse.json();
+                                        if (attendanceData.success) {
+                                            attendanceData.attendances.forEach(att => {
+                                                if (att.status === 'presente' || att.status === 'tarde') {
+                                                    totalAttendances++;
+                                                }
+                                                if (att.status === 'tarde') {
+                                                    totalLates++;
+                                                }
+                                            });
+                                        }
+                                    }
+                                } catch (error) {
+                                    console.error('Error fetching attendance:', error);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Calculate percentages
+                const avgAttendance = totalSessions > 0 && totalPlayers > 0 
+                    ? Math.round((totalAttendances / (totalSessions * totalPlayers)) * 100)
+                    : 0;
+                
+                const punctualityRate = totalAttendances > 0 
+                    ? Math.round(((totalAttendances - totalLates) / totalAttendances) * 100)
+                    : 0;
+                
+                // Update KPIs in dashboard
+                document.getElementById('kpi-total-players').textContent = totalPlayers;
+                document.getElementById('kpi-total-sessions').textContent = totalSessions;
+                document.getElementById('kpi-avg-attendance').textContent = `${avgAttendance}%`;
+                document.getElementById('kpi-punctuality').textContent = `${punctualityRate}%`;
+                
+            } catch (error) {
+                console.error('Error loading dashboard KPIs:', error);
+                // Set default values on error
+                document.getElementById('kpi-total-players').textContent = '0';
+                document.getElementById('kpi-total-sessions').textContent = '0';
+                document.getElementById('kpi-avg-attendance').textContent = '0%';
+                document.getElementById('kpi-punctuality').textContent = '0%';
+            }
+        }
+        
+        // ===== REPORTES ESPECÍFICOS =====
+        
+        // 1. Generar Reporte General de Asistencias
+        async function generateGeneralReport() {
+            const container = document.getElementById('reports-content');
+            container.innerHTML = '<div class="loading">Generando reporte general de asistencias...</div>';
+            
+            try {
+                const filters = window.currentReportFilters || {};
+                const reportData = await getCompleteAttendanceData(filters);
+                
+                let html = `
+                    <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px;">
+                            <h2 style="margin: 0; color: #28a745;">📋 Reporte General de Asistencias</h2>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn btn-success" onclick="exportReport('general', 'excel')">📊 Exportar Excel</button>
+                                <button class="btn btn-info" onclick="exportReport('general', 'pdf')">📄 Exportar PDF</button>
+                                <button class="btn btn-secondary" onclick="loadReports()">← Volver</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Filtros Aplicados -->
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
+                            <h4 style="margin: 0 0 10px 0;">🔍 Filtros Aplicados:</h4>
+                            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                                <span><strong>Equipo:</strong> ${filters.teamId ? 'Equipo específico' : 'Todos los equipos'}</span>
+                                <span><strong>Período:</strong> ${filters.dateFrom || 'Sin límite'} - ${filters.dateTo || 'Hasta hoy'}</span>
+                                <span><strong>Total Jugadores:</strong> ${reportData.totalPlayers}</span>
+                                <span><strong>Total Entrenamientos:</strong> ${reportData.totalTrainings}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Resumen Estadístico -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                            <div style="background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 2em; font-weight: bold;">${reportData.stats.avgAttendance}%</div>
+                                <div>Asistencia Promedio</div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, #ffc107, #fd7e14); color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 2em; font-weight: bold;">${reportData.stats.punctualityRate}%</div>
+                                <div>Puntualidad Promedio</div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, #dc3545, #e74a3b); color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 2em; font-weight: bold;">${reportData.stats.totalAbsences}</div>
+                                <div>Total Ausencias</div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 2em; font-weight: bold;">${reportData.stats.bestAttendanceRate}%</div>
+                                <div>Mejor Asistencia</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Ranking de Asistencia -->
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="color: #2c5aa0; margin-bottom: 20px;">🏆 Ranking de Asistencia</h3>
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse; background: white;">
+                                    <thead>
+                                        <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                                            <th style="padding: 12px; text-align: left;">Posición</th>
+                                            <th style="padding: 12px; text-align: left;">Jugador</th>
+                                            <th style="padding: 12px; text-align: center;">Equipo</th>
+                                            <th style="padding: 12px; text-align: center;">Presente</th>
+                                            <th style="padding: 12px; text-align: center;">Tarde</th>
+                                            <th style="padding: 12px; text-align: center;">Ausente</th>
+                                            <th style="padding: 12px; text-align: center;">Total</th>
+                                            <th style="padding: 12px; text-align: center;">% Asistencia</th>
+                                            <th style="padding: 12px; text-align: center;">% Puntualidad</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                `;
+                
+                reportData.playersRanked.forEach((player, index) => {
+                    const position = index + 1;
+                    const total = player.presente + player.tarde + player.ausente;
+                    const attendanceRate = total > 0 ? Math.round(((player.presente + player.tarde) / total) * 100) : 0;
+                    const punctualityRate = (player.presente + player.tarde) > 0 ? Math.round((player.presente / (player.presente + player.tarde)) * 100) : 0;
+                    
+                    let positionIcon = '';
+                    if (position === 1) positionIcon = '🥇';
+                    else if (position === 2) positionIcon = '🥈';
+                    else if (position === 3) positionIcon = '🥉';
+                    
+                    let attendanceColor = attendanceRate >= 80 ? '#28a745' : attendanceRate >= 60 ? '#ffc107' : '#dc3545';
+                    let punctualityColor = punctualityRate >= 90 ? '#28a745' : punctualityRate >= 70 ? '#ffc107' : '#dc3545';
+                    
+                    html += `
+                        <tr style="border-bottom: 1px solid #dee2e6;">
+                            <td style="padding: 12px; font-weight: bold; color: #2c5aa0;">${positionIcon} #${position}</td>
+                            <td style="padding: 12px;">
+                                <strong>${player.name}</strong>
+                                ${player.nickname ? `<br><small style="color: #666;">"${player.nickname}"</small>` : ''}
+                                ${player.jersey_number ? `<span style="color: #007bff;"> #${player.jersey_number}</span>` : ''}
+                            </td>
+                            <td style="padding: 12px; text-align: center;">
+                                <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 0.85em;">
+                                    ${player.teamName}
+                                </span>
+                            </td>
+                            <td style="padding: 12px; text-align: center; color: #28a745; font-weight: bold;">${player.presente}</td>
+                            <td style="padding: 12px; text-align: center; color: #ffc107; font-weight: bold;">${player.tarde}</td>
+                            <td style="padding: 12px; text-align: center; color: #dc3545; font-weight: bold;">${player.ausente}</td>
+                            <td style="padding: 12px; text-align: center; font-weight: bold;">${total}</td>
+                            <td style="padding: 12px; text-align: center;">
+                                <span style="background: ${attendanceColor}; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;">
+                                    ${attendanceRate}%
+                                </span>
+                            </td>
+                            <td style="padding: 12px; text-align: center;">
+                                <span style="background: ${punctualityColor}; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;">
+                                    ${punctualityRate}%
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Gráfico de Barras de Asistencia (Simulado) -->
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="color: #2c5aa0; margin-bottom: 20px;">📊 Gráfico de Asistencia (Top 10)</h3>
+                            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                `;
+                
+                reportData.playersRanked.slice(0, 10).forEach((player, index) => {
+                    const total = player.presente + player.tarde + player.ausente;
+                    const attendanceRate = total > 0 ? Math.round(((player.presente + player.tarde) / total) * 100) : 0;
+                    const barWidth = Math.max(attendanceRate, 5); // Minimum 5% for visibility
+                    
+                    html += `
+                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                            <div style="width: 150px; font-size: 0.9em; font-weight: bold; color: #333;">${player.name}</div>
+                            <div style="flex: 1; background: #e9ecef; border-radius: 4px; margin: 0 10px; height: 25px; position: relative;">
+                                <div style="background: ${attendanceRate >= 80 ? '#28a745' : attendanceRate >= 60 ? '#ffc107' : '#dc3545'}; 
+                                           height: 100%; width: ${barWidth}%; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.85em;">
+                                    ${attendanceRate}%
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error generating general report:', error);
+                container.innerHTML = `<div class="message error">Error generando reporte general: ${error.message}</div>`;
             }
         }
         
@@ -2447,9 +2889,213 @@
         }
         
         // Generate temporal report (placeholder)
-        function generateTemporalReport(teamId) {
+        function generateTemporalReport() {
             showMessage('Reporte temporal próximamente disponible', 'info');
             // TODO: Implement temporal trending reports
+        }
+        
+        // Obtener datos completos de asistencia con filtros
+        async function getCompleteAttendanceData(filters) {
+            let allPlayers = [];
+            let totalTrainings = 0;
+            let teamsToProcess = [];
+            
+            // Determinar equipos a procesar
+            if (filters.teamId) {
+                // Get specific team name
+                const teamsResponse = await fetch(getApiUrl('/api/teams'), {
+                    headers: getAuthHeaders()
+                });
+                const teamsData = await teamsResponse.json();
+                if (teamsData.success) {
+                    const team = teamsData.teams.find(t => t.id === filters.teamId);
+                    teamsToProcess = [{ id: filters.teamId, name: team ? team.name : 'Equipo' }];
+                }
+            } else {
+                const teamsResponse = await fetch(getApiUrl('/api/teams'), {
+                    headers: getAuthHeaders()
+                });
+                const teamsData = await teamsResponse.json();
+                if (teamsData.success) {
+                    teamsToProcess = teamsData.teams.map(t => ({ id: t.id, name: t.name }));
+                } else {
+                    teamsToProcess = [];
+                }
+            }
+            
+            // Procesar cada equipo
+            for (const team of teamsToProcess) {
+                const teamId = team.id;
+                const teamName = team.name;
+                
+                // Obtener jugadores del equipo
+                const playersResponse = await fetch(getApiUrl(`/api/players?team_id=${teamId}`), {
+                    headers: getAuthHeaders()
+                });
+                const playersData = await playersResponse.json();
+                
+                if (playersData.success) {
+                    // Obtener entrenamientos del equipo
+                    const trainingsResponse = await fetch(getApiUrl(`/api/trainings?team_id=${teamId}`), {
+                        headers: getAuthHeaders()
+                    });
+                    const trainingsData = await trainingsResponse.json();
+                    
+                    if (trainingsData.success) {
+                        // Filtrar entrenamientos por fecha
+                        let filteredTrainings = trainingsData.trainings;
+                        if (filters.dateFrom || filters.dateTo) {
+                            filteredTrainings = trainingsData.trainings.filter(training => {
+                                const trainingDate = new Date(training.training_date);
+                                const isAfterFrom = !filters.dateFrom || trainingDate >= new Date(filters.dateFrom);
+                                const isBeforeTo = !filters.dateTo || trainingDate <= new Date(filters.dateTo);
+                                return isAfterFrom && isBeforeTo;
+                            });
+                        }
+                        
+                        totalTrainings = Math.max(totalTrainings, filteredTrainings.length);
+                        
+                        // Procesar cada jugador
+                        for (const player of playersData.players) {
+                            const playerStats = {
+                                id: player.id,
+                                name: player.name,
+                                nickname: player.nickname,
+                                jersey_number: player.jersey_number,
+                                teamId: teamId,
+                                teamName: teamName,
+                                presente: 0,
+                                tarde: 0,
+                                ausente: 0
+                            };
+                            
+                            // Obtener asistencias para cada entrenamiento
+                            for (const training of filteredTrainings) {
+                                try {
+                                    const attendanceResponse = await fetch(getApiUrl(`/api/training-attendances?training_session_id=${training.id}`), {
+                                        headers: getAuthHeaders()
+                                    });
+                                    
+                                    if (attendanceResponse.ok) {
+                                        const attendanceData = await attendanceResponse.json();
+                                        if (attendanceData.success) {
+                                            const playerAttendance = attendanceData.attendances.find(att => att.player_id == player.id);
+                                            if (playerAttendance) {
+                                                switch (playerAttendance.status) {
+                                                    case 'presente':
+                                                        playerStats.presente++;
+                                                        break;
+                                                    case 'tarde':
+                                                        playerStats.tarde++;
+                                                        break;
+                                                    case 'ausente':
+                                                        playerStats.ausente++;
+                                                        break;
+                                                }
+                                            } else {
+                                                playerStats.ausente++; // Si no hay registro, asume ausente
+                                            }
+                                        }
+                                    }
+                                } catch (error) {
+                                    console.error('Error fetching attendance:', error);
+                                }
+                            }
+                            
+                            allPlayers.push(playerStats);
+                        }
+                    }
+                }
+            }
+            
+            // Calcular estadísticas globales
+            const totalPlayers = allPlayers.length;
+            let totalAttendances = 0;
+            let totalLates = 0;
+            let totalAbsences = 0;
+            let bestAttendanceRate = 0;
+            
+            allPlayers.forEach(player => {
+                totalAttendances += (player.presente + player.tarde);
+                totalLates += player.tarde;
+                totalAbsences += player.ausente;
+                
+                const total = player.presente + player.tarde + player.ausente;
+                const attendanceRate = total > 0 ? Math.round(((player.presente + player.tarde) / total) * 100) : 0;
+                bestAttendanceRate = Math.max(bestAttendanceRate, attendanceRate);
+            });
+            
+            const avgAttendance = totalPlayers > 0 && totalTrainings > 0 
+                ? Math.round((totalAttendances / (totalTrainings * totalPlayers)) * 100)
+                : 0;
+            
+            const punctualityRate = totalAttendances > 0 
+                ? Math.round(((totalAttendances - totalLates) / totalAttendances) * 100)
+                : 0;
+            
+            // Ordenar jugadores por porcentaje de asistencia
+            const playersRanked = allPlayers.sort((a, b) => {
+                const totalA = a.presente + a.tarde + a.ausente;
+                const totalB = b.presente + b.tarde + b.ausente;
+                const rateA = totalA > 0 ? ((a.presente + a.tarde) / totalA) * 100 : 0;
+                const rateB = totalB > 0 ? ((b.presente + b.tarde) / totalB) * 100 : 0;
+                return rateB - rateA; // Descendente
+            });
+            
+            return {
+                totalPlayers,
+                totalTrainings,
+                playersRanked,
+                stats: {
+                    avgAttendance,
+                    punctualityRate,
+                    totalAbsences,
+                    bestAttendanceRate
+                }
+            };
+        }
+        
+        // ===== OTROS REPORTES (PLACEHOLDERS) =====
+        
+        // 2. Reporte Comparativo por Equipo
+        function generateComparativeReport() {
+            showMessage('Reporte comparativo por equipos próximamente disponible', 'info');
+            // TODO: Implement team comparative report
+        }
+        
+        // 3. Reporte de Tendencias
+        function generateTrendsReport() {
+            showMessage('Reporte de tendencias y evolución próximamente disponible', 'info');
+            // TODO: Implement trends report with line charts
+        }
+        
+        // 4. Reporte de Justificaciones
+        function generateJustificationsReport() {
+            showMessage('Reporte de justificaciones próximamente disponible', 'info');
+            // TODO: Implement justifications report
+        }
+        
+        // 5. Reporte de Puntualidad
+        function generatePunctualityReport() {
+            showMessage('Reporte de puntualidad próximamente disponible', 'info');
+            // TODO: Implement punctuality report
+        }
+        
+        // 7. Reporte Individual de Jugador
+        function generateIndividualReport() {
+            showMessage('Ficha individual de jugador próximamente disponible', 'info');
+            // TODO: Implement individual player report
+        }
+        
+        // Función de exportación
+        function exportReport(reportType, format) {
+            if (format === 'pdf') {
+                window.print(); // Simple print for now
+                showMessage('Usa la función de imprimir del navegador para generar PDF', 'info');
+            } else if (format === 'excel') {
+                showMessage('Exportación a Excel próximamente disponible', 'info');
+                // TODO: Implement Excel export
+            }
         }
         
         // ==========================================
