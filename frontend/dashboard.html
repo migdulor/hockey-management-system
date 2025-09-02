@@ -589,15 +589,16 @@
                     <p>Tu archivo Excel debe tener exactamente estas columnas en la primera fila:</p>
                     <div style="background: white; padding: 15px; border-radius: 4px; margin: 10px 0;">
                         <strong>Columnas obligatorias:</strong><br>
-                        <code>Nombre | Apodo | Posición | Número de Camiseta</code>
+                        <code>Nombre | Apodo | Fecha de Nacimiento | Posición | Número de Camiseta</code>
                     </div>
                     <p><strong>Ejemplo de datos:</strong></p>
                     <div style="background: white; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 12px;">
-                        María García | Marita | Portera | 1<br>
-                        Ana López | Ana | Defensora | 2<br>
-                        Sofia Rodríguez | | Mediocampista | 10
+                        María García | Marita | 15/03/1995 | Portera | 1<br>
+                        Ana López | Ana | 22/07/1998 | Defensora | 2<br>
+                        Sofia Rodríguez | | 10/11/1996 | Mediocampista | 10
                     </div>
                     <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                        • <strong>Fecha de Nacimiento:</strong> Formato DD/MM/YYYY (ejemplo: 15/03/1995)<br>
                         • <strong>Apodo:</strong> Puede estar vacío<br>
                         • <strong>Posiciones válidas:</strong> Para equipos femeninos: Portera, Arquera, Defensora, Mediocampista, Delantera
                     </p>
@@ -1355,7 +1356,7 @@
                         }
                         
                         // Expected headers
-                        const expectedHeaders = ['Nombre', 'Apodo', 'Posición', 'Número de Camiseta'];
+                        const expectedHeaders = ['Nombre', 'Apodo', 'Fecha de Nacimiento', 'Posición', 'Número de Camiseta'];
                         const actualHeaders = jsonData[0];
                         
                         // Validate headers
@@ -1379,6 +1380,7 @@
                         
                         const nameIndex = getColumnIndex('Nombre');
                         const nicknameIndex = getColumnIndex('Apodo');
+                        const birthDateIndex = getColumnIndex('Fecha de Nacimiento');
                         const positionIndex = getColumnIndex('Posición');
                         const jerseyIndex = getColumnIndex('Número de Camiseta');
                         
@@ -1399,12 +1401,58 @@
                             
                             const name = row[nameIndex] ? row[nameIndex].toString().trim() : '';
                             const nickname = row[nicknameIndex] ? row[nicknameIndex].toString().trim() : '';
+                            const birthDateRaw = row[birthDateIndex] ? row[birthDateIndex].toString().trim() : '';
                             const position = row[positionIndex] ? row[positionIndex].toString().trim() : '';
                             const jerseyNumber = row[jerseyIndex] ? parseInt(row[jerseyIndex]) : null;
                             
                             // Validate required fields
                             if (!name) {
                                 console.warn(`Fila ${i + 1}: Nombre requerido, saltando...`);
+                                continue;
+                            }
+                            
+                            if (!birthDateRaw) {
+                                console.warn(`Fila ${i + 1}: Fecha de nacimiento requerida, saltando...`);
+                                continue;
+                            }
+                            
+                            // Parse birth date - support multiple formats
+                            let birthDate = null;
+                            try {
+                                // Try to parse different date formats
+                                if (birthDateRaw.includes('/')) {
+                                    // DD/MM/YYYY or MM/DD/YYYY format
+                                    const parts = birthDateRaw.split('/');
+                                    if (parts.length === 3) {
+                                        // Assume DD/MM/YYYY format for Spanish locale
+                                        const day = parseInt(parts[0]);
+                                        const month = parseInt(parts[1]);
+                                        const year = parseInt(parts[2]);
+                                        birthDate = `${year.toString().padStart(4, '0')}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                                    }
+                                } else if (birthDateRaw.includes('-')) {
+                                    // YYYY-MM-DD format
+                                    birthDate = birthDateRaw;
+                                } else {
+                                    // Try to parse as Excel serial date
+                                    const excelDate = parseInt(birthDateRaw);
+                                    if (!isNaN(excelDate) && excelDate > 25000) { // Excel serial dates start around 25567 for 1970
+                                        const jsDate = new Date((excelDate - 25569) * 86400 * 1000);
+                                        birthDate = jsDate.toISOString().split('T')[0];
+                                    }
+                                }
+                                
+                                if (!birthDate) {
+                                    throw new Error('Formato de fecha no reconocido');
+                                }
+                                
+                                // Validate date format YYYY-MM-DD
+                                if (!/^\d{4}-\d{2}-\d{2}$/.test(birthDate)) {
+                                    throw new Error('Formato de fecha inválido');
+                                }
+                                
+                            } catch (error) {
+                                console.warn(`Fila ${i + 1}: Error procesando fecha "${birthDateRaw}": ${error.message}, saltando...`);
                                 continue;
                             }
                             
@@ -1418,9 +1466,9 @@
                                 teamId: window.currentTeamId,
                                 name,
                                 nickname: nickname || null,
+                                birth_date: birthDate,
                                 position: position || null,
-                                jersey_number: jerseyNumber,
-                                birth_date: '2000-01-01' // Fecha por defecto para importación masiva
+                                jersey_number: jerseyNumber
                             });
                         }
                         
