@@ -683,6 +683,7 @@
         .table-responsive {
             overflow-x: auto;
             margin: 15px 0;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling en iOS */
         }
         
         .table-responsive table {
@@ -694,17 +695,25 @@
         
         .table-responsive th,
         .table-responsive td {
-            padding: 8px 12px;
+            padding: 8px 6px !important; /* Override inline styles */
             text-align: left;
             border-bottom: 1px solid #ddd;
-            font-size: 14px;
+            font-size: 12px !important; /* Smaller on mobile */
+            white-space: nowrap;
         }
         
         @media (min-width: 768px) {
             .table-responsive th,
             .table-responsive td {
-                padding: 12px 15px;
-                font-size: 16px;
+                padding: 12px 15px !important;
+                font-size: 14px !important;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .table-responsive th,
+            .table-responsive td {
+                font-size: 16px !important;
             }
         }
         
@@ -712,6 +721,8 @@
             background: #f8f9fa;
             font-weight: 600;
             color: #495057;
+            position: sticky;
+            top: 0;
         }
         
         /* Modal Responsive */
@@ -2842,20 +2853,20 @@
                 const reportData = await getCompleteAttendanceData(filters);
                 
                 let html = `
-                    <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px;">
-                            <h2 style="margin: 0; color: #28a745;">📋 Reporte General de Asistencias</h2>
-                            <div style="display: flex; gap: 10px;">
-                                <button class="btn btn-success" onclick="exportReport('general', 'excel')">📊 Exportar Excel</button>
-                                <button class="btn btn-info" onclick="exportReport('general', 'pdf')">📄 Exportar PDF</button>
-                                <button class="btn btn-secondary" onclick="loadReports()">← Volver</button>
+                    <div style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                        <div style="margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px;">
+                            <h2 style="margin: 0 0 15px 0; color: #28a745; font-size: 1.5rem;">📋 Reporte General de Asistencias</h2>
+                            <div class="button-group" style="justify-content: flex-start;">
+                                <button class="btn btn-success btn-sm" onclick="exportReport('general', 'excel')">📊 Excel</button>
+                                <button class="btn btn-info btn-sm" onclick="exportReport('general', 'pdf')">📄 PDF</button>
+                                <button class="btn btn-secondary btn-sm" onclick="loadReports()">← Volver</button>
                             </div>
                         </div>
                         
                         <!-- Filtros Aplicados -->
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
                             <h4 style="margin: 0 0 10px 0;">🔍 Filtros Aplicados:</h4>
-                            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <div style="display: flex; gap: 15px; flex-wrap: wrap; font-size: 0.9rem;">
                                 <span><strong>Equipo:</strong> ${filters.teamId ? 'Equipo específico' : 'Todos los equipos'}</span>
                                 <span><strong>Período:</strong> ${filters.dateFrom || 'Sin límite'} - ${filters.dateTo || 'Hasta hoy'}</span>
                                 <span><strong>Total Jugadores:</strong> ${reportData.totalPlayers}</span>
