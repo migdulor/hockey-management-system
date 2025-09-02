@@ -871,6 +871,33 @@
                 margin: 20px 10px;
                 padding: 15px;
             }
+            
+            /* Report optimizations for mobile */
+            .ranking-chart-mobile {
+                padding: 10px !important;
+            }
+            
+            .ranking-chart-mobile .bar-container {
+                margin-bottom: 8px !important;
+            }
+            
+            .ranking-chart-mobile .player-name {
+                width: 100px !important;
+                font-size: 0.75rem !important;
+                line-height: 1.2 !important;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            .ranking-chart-mobile .progress-bar {
+                height: 20px !important;
+                margin: 0 8px !important;
+            }
+            
+            .ranking-chart-mobile .percentage-text {
+                font-size: 0.7rem !important;
+            }
         }
         
         /* Touch-friendly interactions */
@@ -2901,15 +2928,14 @@
                                 <table>
                                     <thead>
                                         <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-                                            <th>Posición</th>
-                                            <th>Jugador</th>
-                                            <th>Equipo</th>
-                                            <th>Presente</th>
-                                            <th>Tarde</th>
-                                            <th>Ausente</th>
-                                            <th>Total</th>
-                                            <th>% Asistencia</th>
-                                            <th>% Puntualidad</th>
+                                            <th style="padding: 10px 8px; font-size: 0.85rem;">#</th>
+                                            <th style="padding: 10px 8px; font-size: 0.85rem;">Jugador</th>
+                                            <th style="padding: 10px 8px; font-size: 0.85rem;">Equipo</th>
+                                            <th style="padding: 10px 8px; font-size: 0.85rem; text-align: center;">✅</th>
+                                            <th style="padding: 10px 8px; font-size: 0.85rem; text-align: center;">⚠️</th>
+                                            <th style="padding: 10px 8px; font-size: 0.85rem; text-align: center;">❌</th>
+                                            <th style="padding: 10px 8px; font-size: 0.85rem; text-align: center;">📊</th>
+                                            <th style="padding: 10px 8px; font-size: 0.85rem; text-align: center;">⏰</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -2931,28 +2957,27 @@
                     
                     html += `
                         <tr style="border-bottom: 1px solid #dee2e6;">
-                            <td style="padding: 12px; font-weight: bold; color: #2c5aa0;">${positionIcon} #${position}</td>
-                            <td style="padding: 12px;">
-                                <strong>${player.name}</strong>
-                                ${player.nickname ? `<br><small style="color: #666;">"${player.nickname}"</small>` : ''}
-                                ${player.jersey_number ? `<span style="color: #007bff;"> #${player.jersey_number}</span>` : ''}
+                            <td style="padding: 8px 6px; font-weight: bold; color: #2c5aa0; font-size: 0.8rem;">${positionIcon} ${position}</td>
+                            <td style="padding: 8px 6px; font-size: 0.8rem;">
+                                <div style="font-weight: bold;">${player.name}</div>
+                                ${player.nickname ? `<small style="color: #666; font-size: 0.7rem;">"${player.nickname}"</small>` : ''}
+                                ${player.jersey_number ? `<span style="color: #007bff; font-size: 0.7rem;"> #${player.jersey_number}</span>` : ''}
                             </td>
-                            <td style="padding: 12px; text-align: center;">
-                                <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 0.85em;">
+                            <td style="padding: 8px 6px; text-align: center; font-size: 0.75rem;">
+                                <span style="background: #e9ecef; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem;">
                                     ${player.teamName}
                                 </span>
                             </td>
-                            <td style="padding: 12px; text-align: center; color: #28a745; font-weight: bold;">${player.presente}</td>
-                            <td style="padding: 12px; text-align: center; color: #ffc107; font-weight: bold;">${player.tarde}</td>
-                            <td style="padding: 12px; text-align: center; color: #dc3545; font-weight: bold;">${player.ausente}</td>
-                            <td style="padding: 12px; text-align: center; font-weight: bold;">${total}</td>
-                            <td style="padding: 12px; text-align: center;">
-                                <span style="background: ${attendanceColor}; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;">
+                            <td style="padding: 8px 6px; text-align: center; color: #28a745; font-weight: bold; font-size: 0.8rem;">${player.presente}</td>
+                            <td style="padding: 8px 6px; text-align: center; color: #ffc107; font-weight: bold; font-size: 0.8rem;">${player.tarde}</td>
+                            <td style="padding: 8px 6px; text-align: center; color: #dc3545; font-weight: bold; font-size: 0.8rem;">${player.ausente}</td>
+                            <td style="padding: 8px 6px; text-align: center;">
+                                <span style="background: ${attendanceColor}; color: white; padding: 3px 6px; border-radius: 4px; font-weight: bold; font-size: 0.75rem;">
                                     ${attendanceRate}%
                                 </span>
                             </td>
-                            <td style="padding: 12px; text-align: center;">
-                                <span style="background: ${punctualityColor}; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;">
+                            <td style="padding: 8px 6px; text-align: center;">
+                                <span style="background: ${punctualityColor}; color: white; padding: 3px 6px; border-radius: 4px; font-weight: bold; font-size: 0.75rem;">
                                     ${punctualityRate}%
                                 </span>
                             </td>
@@ -2969,7 +2994,7 @@
                         <!-- Gráfico de Barras de Asistencia (Simulado) -->
                         <div style="margin-bottom: 30px;">
                             <h3 style="color: #2c5aa0; margin-bottom: 20px;">📊 Gráfico de Asistencia (Top 10)</h3>
-                            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                            <div class="ranking-chart-mobile" style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
                 `;
                 
                 reportData.playersRanked.slice(0, 10).forEach((player, index) => {
@@ -2978,12 +3003,12 @@
                     const barWidth = Math.max(attendanceRate, 5); // Minimum 5% for visibility
                     
                     html += `
-                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                            <div style="width: 150px; font-size: 0.9em; font-weight: bold; color: #333;">${player.name}</div>
-                            <div style="flex: 1; background: #e9ecef; border-radius: 4px; margin: 0 10px; height: 25px; position: relative;">
+                        <div class="bar-container" style="display: flex; align-items: center; margin-bottom: 10px;">
+                            <div class="player-name" style="width: 150px; font-size: 0.9em; font-weight: bold; color: #333; flex-shrink: 0;">${player.name}</div>
+                            <div class="progress-bar" style="flex: 1; background: #e9ecef; border-radius: 4px; margin: 0 10px; height: 25px; position: relative;">
                                 <div style="background: ${attendanceRate >= 80 ? '#28a745' : attendanceRate >= 60 ? '#ffc107' : '#dc3545'}; 
-                                           height: 100%; width: ${barWidth}%; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.85em;">
-                                    ${attendanceRate}%
+                                           height: 100%; width: ${barWidth}%; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                                    <span class="percentage-text" style="font-size: 0.85em;">${attendanceRate}%</span>
                                 </div>
                             </div>
                         </div>
