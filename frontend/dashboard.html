@@ -1508,26 +1508,7 @@
 
                         if (response.ok) {
                             const newPlayer = await response.json();
-                            
-                            // Add player to current team
-                            const teamResponse = await fetch(getApiUrl(`/api/teams/${window.currentTeamId}/players`), {
-                                method: 'POST',
-                                headers: getAuthHeaders(),
-                                body: JSON.stringify({
-                                    player_id: newPlayer.id
-                                })
-                            });
-
-                            if (teamResponse.status === 401) {
-                                handleAuthError('Token expired during team assignment', teamResponse);
-                                return;
-                            }
-
-                            if (teamResponse.ok) {
-                                successfulImports.push(player.name);
-                            } else {
-                                failedImports.push(`${player.name} (error al agregar al equipo)`);
-                            }
+                            successfulImports.push(player.name);
                         } else {
                             const errorData = await response.json();
                             failedImports.push(`${player.name} (${errorData.message})`);
