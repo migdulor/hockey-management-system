@@ -850,9 +850,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
 
           const trainingsQuery = await sql`
-            SELECT * FROM trainings 
-            WHERE team_id = ${teamId}
-            ORDER BY training_date DESC, start_time DESC
+            SELECT 
+              id,
+              team_id,
+              name,
+              date as training_date,
+              time as start_time,
+              location,
+              type,
+              notes,
+              is_cancelled,
+              created_at
+            FROM training_sessions 
+            WHERE team_id = ${teamId} AND is_cancelled = false
+            ORDER BY date DESC, time DESC
           `;
 
           return res.status(200).json({
@@ -882,8 +893,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
 
           const newTraining = await sql`
-            INSERT INTO trainings (team_id, name, training_date, start_time, end_time, location, notes, created_by, created_at, updated_at)
-            VALUES (${teamId}, ${name}, ${trainingDate}, ${startTime}, ${endTime || null}, ${location || ''}, ${notes || ''}, ${decoded.userId}, NOW(), NOW())
+            INSERT INTO training_sessions (team_id, name, date, time, location, notes, type, created_at, updated_at)
+            VALUES (${teamId}, ${name}, ${trainingDate}, ${startTime}, ${location || null}, ${notes || null}, 'regular', NOW(), NOW())
             RETURNING *
           `;
 
@@ -891,6 +902,115 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             success: true,
             message: 'Entrenamiento creado exitosamente',
             training: newTraining.rows[0]
+          });
+        }
+
+      } catch (error) {
+        return res.status(401).json({
+          success: false,
+          message: 'Token inválido'
+        });
+      }
+    }
+
+    // Training Attendances management endpoints
+    if (path.startsWith('/training-attendances')) {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({
+          success: false,
+          message: 'Token de autorización requerido'
+        });
+      }
+
+      const token = authHeader.substring(7);
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+
+        // GET /api/training-attendances?training_session_id=xxx - Get attendance for a training session
+        if (path.startsWith('/training-attendances') && method === 'GET') {
+          const trainingSessionId = req.url?.split('training_session_id=')[1]?.split('&')[0];
+          
+          if (!trainingSessionId) {
+            return res.status(400).json({
+              success: false,
+              message: 'training_session_id es requerido'
+            });
+          }
+
+          if (!process.env.POSTGRES_URL) {
+            return res.status(200).json({
+              success: true,
+              attendances: [],
+              message: 'Datos demo'
+            });
+          }
+
+          const attendancesQuery = await sql`
+            SELECT 
+              ta.id,
+              ta.player_id,
+              p.name as player_name,
+              ta.status,
+              ta.arrival_time,
+              ta.excuse_reason,
+              ta.participation_level,
+              ta.performance_notes,
+              ta.marked_at
+            FROM training_attendances ta
+            JOIN players p ON ta.player_id = p.id
+            WHERE ta.training_session_id = ${trainingSessionId}
+            ORDER BY p.name ASC
+          `;
+
+          return res.status(200).json({
+            success: true,
+            attendances: attendancesQuery.rows
+          });
+        }
+
+        // POST /api/training-attendances - Create or update attendance
+        if (path === '/training-attendances' && method === 'POST') {
+          const body = await parseBody(req);
+          const { training_session_id, player_id, status, arrival_time, excuse_reason, participation_level, performance_notes } = body;
+
+          if (!training_session_id || !player_id || !status) {
+            return res.status(400).json({
+              success: false,
+              message: 'training_session_id, player_id y status son requeridos'
+            });
+          }
+
+          if (!process.env.POSTGRES_URL) {
+            return res.status(200).json({
+              success: true,
+              message: 'Asistencia registrada (demo)',
+              attendance: { id: Date.now(), status, player_name: 'Demo Player' }
+            });
+          }
+
+          // Insert or update attendance (UPSERT)
+          const attendanceQuery = await sql`
+            INSERT INTO training_attendances 
+              (training_session_id, player_id, status, arrival_time, excuse_reason, participation_level, performance_notes, marked_at, created_at, updated_at)
+            VALUES 
+              (${training_session_id}, ${player_id}, ${status}, ${arrival_time || null}, ${excuse_reason || null}, ${participation_level || null}, ${performance_notes || null}, NOW(), NOW(), NOW())
+            ON CONFLICT (player_id, training_session_id) 
+            DO UPDATE SET 
+              status = ${status},
+              arrival_time = ${arrival_time || null},
+              excuse_reason = ${excuse_reason || null},
+              participation_level = ${participation_level || null},
+              performance_notes = ${performance_notes || null},
+              marked_at = NOW(),
+              updated_at = NOW()
+            RETURNING *
+          `;
+
+          return res.status(201).json({
+            success: true,
+            message: 'Asistencia registrada exitosamente',
+            attendance: attendanceQuery.rows[0]
           });
         }
 
