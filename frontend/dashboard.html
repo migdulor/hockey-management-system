@@ -1365,7 +1365,7 @@
                         
                         // Process data rows
                         const players = [];
-                        const teamGender = currentTeam ? currentTeam.team_gender : 'male';
+                        const teamGender = window.currentTeamGender || 'male';
                         const validPositions = teamGender === 'female' 
                             ? ['Portera', 'Arquera', 'Defensora', 'Mediocampista', 'Delantera']
                             : ['Portero', 'Arquero', 'Defensor', 'Mediocampista', 'Delantero'];
@@ -1478,7 +1478,7 @@
                 // Close modal and refresh team view
                 closeExcelImportModal();
                 if (successfulImports.length > 0) {
-                    await loadPlayersForTeam(window.currentTeamId, window.currentTeamName, currentTeam.team_gender);
+                    await loadPlayersForTeam(window.currentTeamId, window.currentTeamName, window.currentTeamGender);
                 }
                 
             } catch (error) {
