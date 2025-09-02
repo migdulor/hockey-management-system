@@ -678,7 +678,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             FROM players p
             INNER JOIN team_players tp ON p.id = tp.player_id
             WHERE tp.team_id = ${teamId} AND tp.is_active = true AND p.is_active = true
-            ORDER BY tp.jersey_number ASC
+            ORDER BY p.name ASC
           `;
 
           return res.status(200).json({

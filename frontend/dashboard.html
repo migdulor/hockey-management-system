@@ -623,19 +623,79 @@
             </div>
         </div>
 
+        <!-- Modal: Crear Lista de Asistencia -->
+        <div id="attendance-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+            <div style="background: white; width: 90%; max-width: 600px; margin: 5% auto; padding: 0; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto;">
+                <div style="background: linear-gradient(135deg, #4CAF50, #45a049); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
+                    <h2 style="margin: 0; display: flex; align-items: center; gap: 10px;">
+                        📋 Nueva Lista de Asistencia
+                    </h2>
+                </div>
+                <form id="attendance-form" style="padding: 25px;">
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">Fecha de la Actividad:</label>
+                        <input type="date" id="attendance-date" required 
+                               style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 16px;">
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">Tipo de Actividad:</label>
+                        <select id="attendance-type" required 
+                                style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 16px;">
+                            <option value="">Seleccionar tipo...</option>
+                            <option value="training">🏋️ Entrenamiento</option>
+                            <option value="match">⚽ Partido</option>
+                            <option value="meeting">👥 Reunión</option>
+                            <option value="other">📝 Otro</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">Descripción (opcional):</label>
+                        <textarea id="attendance-description" rows="3" placeholder="Ej: Entrenamiento de preparación física..."
+                                  style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 16px; resize: vertical;"></textarea>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 30px;">
+                        <button type="button" onclick="closeAttendanceModal()" 
+                                style="padding: 12px 24px; background: #f5f5f5; color: #333; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; transition: all 0.3s;">
+                            ❌ Cancelar
+                        </button>
+                        <button type="submit" 
+                                style="padding: 12px 24px; background: linear-gradient(135deg, #4CAF50, #45a049); color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; transition: all 0.3s;">
+                            ✅ Crear Lista
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Tab: Asistencias -->
         <div id="attendance-tab" class="tab-content">
-            <div class="coming-soon">
-                <div class="icon">📋</div>
-                <h3>Módulo de Asistencias</h3>
-                <p><strong>PRÓXIMO A IMPLEMENTAR</strong></p>
-                <p>Este módulo permitirá:</p>
-                <ul style="text-align: left; max-width: 400px; margin: 20px auto;">
-                    <li>✅ Registrar asistencias por fecha y equipo</li>
-                    <li>✅ Marcar: Presente, Tarde, Ausente</li>
-                    <li>✅ Agregar observaciones por jugadora</li>
-                    <li>✅ Reportes de participación histórica</li>
-                </ul>
+            <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+                <div style="display: flex; justify-content: between-center; align-items: center; margin-bottom: 20px;">
+                    <h2>📋 Gestión de Asistencias</h2>
+                    <button class="btn btn-primary" onclick="showCreateAttendanceModal()" style="margin-left: auto;">
+                        ➕ Nueva Lista de Asistencia
+                    </button>
+                </div>
+                
+                <!-- Selector de equipo para asistencias -->
+                <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                    <h3>Seleccionar Equipo</h3>
+                    <select id="attendance-team-select" onchange="loadAttendanceForTeam()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="">Selecciona un equipo...</option>
+                    </select>
+                </div>
+                
+                <!-- Lista de asistencias -->
+                <div id="attendance-list" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="text-align: center; color: #666; padding: 40px;">
+                        <div style="font-size: 3em; margin-bottom: 20px;">📋</div>
+                        <h3>Selecciona un equipo para ver las asistencias</h3>
+                        <p>Podrás registrar y gestionar las asistencias de entrenamientos y partidos</p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -821,7 +881,7 @@
                     loadTeams();
                     break;
                 case 'attendance':
-                    // TODO: loadAttendance();
+                    loadAttendance();
                     break;
                 case 'formations':
                     // TODO: loadFormations();
@@ -1571,6 +1631,135 @@
             showMessage('Funcionalidad de edición próximamente disponible', 'success');
             // TODO: Implement team editing
         }
+        
+        // ==========================================
+        // ATTENDANCE FUNCTIONS
+        // ==========================================
+        
+        // Load attendance management
+        async function loadAttendance() {
+            console.log('Loading attendance management...');
+            await loadTeamsForAttendance();
+        }
+        
+        // Load teams for attendance selector
+        async function loadTeamsForAttendance() {
+            try {
+                const response = await fetch(getApiUrl('/api/teams'), {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const select = document.getElementById('attendance-team-select');
+                    select.innerHTML = '<option value="">Selecciona un equipo...</option>';
+                    
+                    data.teams.forEach(team => {
+                        const option = document.createElement('option');
+                        option.value = team.id;
+                        option.textContent = team.name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading teams for attendance:', error);
+            }
+        }
+        
+        // Show create attendance modal
+        function showCreateAttendanceModal() {
+            const select = document.getElementById('attendance-team-select');
+            if (!select.value) {
+                showMessage('Por favor selecciona un equipo primero', 'error');
+                return;
+            }
+            
+            // Set today's date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('attendance-date').value = today;
+            
+            document.getElementById('attendance-modal').style.display = 'block';
+        }
+        
+        // Close attendance modal
+        function closeAttendanceModal() {
+            document.getElementById('attendance-modal').style.display = 'none';
+            document.getElementById('attendance-form').reset();
+        }
+        
+        // Load attendance for selected team
+        async function loadAttendanceForTeam() {
+            const select = document.getElementById('attendance-team-select');
+            const container = document.getElementById('attendance-list');
+            
+            if (!select.value) {
+                container.innerHTML = `
+                    <div style="text-align: center; color: #666; padding: 40px;">
+                        <div style="font-size: 3em; margin-bottom: 20px;">📋</div>
+                        <h3>Selecciona un equipo para ver las asistencias</h3>
+                        <p>Podrás registrar y gestionar las asistencias de entrenamientos y partidos</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '<div class="loading">Cargando asistencias...</div>';
+            
+            try {
+                // TODO: Implement API call to get attendance records
+                // For now, show placeholder
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <div style="font-size: 3em; margin-bottom: 20px;">📋</div>
+                        <h3>No hay registros de asistencia aún</h3>
+                        <p>Crea tu primera lista de asistencia para comenzar a registrar la participación de las jugadoras</p>
+                        <button class="btn btn-primary" onclick="showCreateAttendanceModal()" style="margin-top: 20px;">
+                            ➕ Crear Primera Lista de Asistencia
+                        </button>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading attendance:', error);
+                container.innerHTML = `<div class="message error">Error cargando asistencias: ${error.message}</div>`;
+            }
+        }
+        
+        // Handle attendance form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            const attendanceForm = document.getElementById('attendance-form');
+            if (attendanceForm) {
+                attendanceForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const teamSelect = document.getElementById('attendance-team-select');
+                    const formData = new FormData(this);
+                    
+                    const attendanceData = {
+                        team_id: teamSelect.value,
+                        date: document.getElementById('attendance-date').value,
+                        type: document.getElementById('attendance-type').value,
+                        description: document.getElementById('attendance-description').value
+                    };
+                    
+                    try {
+                        console.log('Creating attendance record:', attendanceData);
+                        
+                        // TODO: Implement API call to create attendance record
+                        showMessage('Lista de asistencia creada exitosamente (funcionalidad en desarrollo)', 'success');
+                        closeAttendanceModal();
+                        loadAttendanceForTeam();
+                        
+                    } catch (error) {
+                        console.error('Error creating attendance:', error);
+                        showMessage('Error creando lista de asistencia: ' + error.message, 'error');
+                    }
+                });
+            }
+        });
+        
+        // ==========================================
+        // END ATTENDANCE FUNCTIONS
+        // ==========================================
         
         // Initialize dashboard on page load
         checkCoachAccess();
