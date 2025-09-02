@@ -56,6 +56,7 @@
       "destination": "/frontend/login.html"
     }
   ],
+  "alias": ["hockey-management.vercel.app"],
   "github": {
     "autoAlias": false
   }
