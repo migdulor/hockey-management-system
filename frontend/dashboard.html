@@ -563,12 +563,6 @@
                             <label>Número de Camiseta</label>
                             <input type="number" id="player-jersey" name="jersey_number" min="1" max="99" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
                         </div>
-                        <div class="form-group" style="margin-bottom: 20px;">
-                            <label>
-                                <input type="checkbox" id="player-starter" name="is_starter" style="margin-right: 8px;">
-                                Es jugador titular
-                            </label>
-                        </div>
                         <div style="display: flex; gap: 10px; justify-content: flex-end;">
                             <button type="button" onclick="closePlayerModal()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer;">
                                 Cancelar
@@ -595,16 +589,15 @@
                     <p>Tu archivo Excel debe tener exactamente estas columnas en la primera fila:</p>
                     <div style="background: white; padding: 15px; border-radius: 4px; margin: 10px 0;">
                         <strong>Columnas obligatorias:</strong><br>
-                        <code>Nombre | Apodo | Posición | Número de Camiseta | Es Titular</code>
+                        <code>Nombre | Apodo | Posición | Número de Camiseta</code>
                     </div>
                     <p><strong>Ejemplo de datos:</strong></p>
                     <div style="background: white; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 12px;">
-                        María García | Marita | Portera | 1 | Sí<br>
-                        Ana López | Ana | Defensora | 2 | No<br>
-                        Sofia Rodríguez | | Mediocampista | 10 | Sí
+                        María García | Marita | Portera | 1<br>
+                        Ana López | Ana | Defensora | 2<br>
+                        Sofia Rodríguez | | Mediocampista | 10
                     </div>
                     <p style="margin-top: 10px; font-size: 14px; color: #666;">
-                        • <strong>Es Titular:</strong> Usa "Sí" para titular, cualquier otro valor será considerado como suplente<br>
                         • <strong>Apodo:</strong> Puede estar vacío<br>
                         • <strong>Posiciones válidas:</strong> Para equipos femeninos: Portera, Arquera, Defensora, Mediocampista, Delantera
                     </p>
@@ -1085,7 +1078,6 @@
                     const formData = new FormData(this);
                     const playerData = Object.fromEntries(formData.entries());
                     playerData.teamId = window.currentTeamId;
-                    playerData.is_starter = !!playerData.is_starter;
                     
                     try {
                         const response = await fetch(getApiUrl('/api/players'), {
@@ -1183,7 +1175,6 @@
                             ${player.jersey_number ? `<span class="jersey-number">#${player.jersey_number}</span>` : '<span class="jersey-number">Sin #</span>'}
                             <span class="player-position">${player.position || 'Sin posición'}</span>
                         </div>
-                        ${player.is_starter ? '<span class="starter-badge">TITULAR</span>' : ''}
                         <div class="player-actions">
                             <button class="btn btn-sm btn-danger" onclick="removePlayerFromTeam('${player.id}', '${player.name}')" title="Eliminar del equipo">
                                 🗑️ Eliminar
@@ -1331,7 +1322,7 @@
                         }
                         
                         // Expected headers
-                        const expectedHeaders = ['Nombre', 'Apodo', 'Posición', 'Número de Camiseta', 'Es Titular'];
+                        const expectedHeaders = ['Nombre', 'Apodo', 'Posición', 'Número de Camiseta'];
                         const actualHeaders = jsonData[0];
                         
                         // Validate headers
@@ -1357,7 +1348,6 @@
                         const nicknameIndex = getColumnIndex('Apodo');
                         const positionIndex = getColumnIndex('Posición');
                         const jerseyIndex = getColumnIndex('Número de Camiseta');
-                        const starterIndex = getColumnIndex('Es Titular');
                         
                         // Process data rows
                         const players = [];
@@ -1378,8 +1368,6 @@
                             const nickname = row[nicknameIndex] ? row[nicknameIndex].toString().trim() : '';
                             const position = row[positionIndex] ? row[positionIndex].toString().trim() : '';
                             const jerseyNumber = row[jerseyIndex] ? parseInt(row[jerseyIndex]) : null;
-                            const isStarter = row[starterIndex] ? 
-                                row[starterIndex].toString().toLowerCase().trim() === 'sí' : false;
                             
                             // Validate required fields
                             if (!name) {
@@ -1397,8 +1385,7 @@
                                 name,
                                 nickname: nickname || null,
                                 position: position || null,
-                                jersey_number: jerseyNumber,
-                                is_starter: isStarter
+                                jersey_number: jerseyNumber
                             });
                         }
                         
@@ -1445,8 +1432,7 @@
                                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                                 },
                                 body: JSON.stringify({
-                                    player_id: newPlayer.id,
-                                    is_starter: player.is_starter
+                                    player_id: newPlayer.id
                                 })
                             });
 

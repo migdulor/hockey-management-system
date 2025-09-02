@@ -674,7 +674,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               p.position, 
               p.photo_url, 
               tp.jersey_number, 
-              tp.is_starter,
               tp.is_active as team_active
             FROM players p
             INNER JOIN team_players tp ON p.id = tp.player_id
@@ -691,7 +690,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // POST /api/players - Create new player
         if (path === '/players' && method === 'POST') {
           const body = await parseBody(req);
-          const { teamId, name, nickname, position, birth_date, jersey_number, is_starter } = body;
+          const { teamId, name, nickname, position, birth_date, jersey_number } = body;
 
           if (!teamId || !name || !birth_date) {
             return res.status(400).json({
@@ -735,8 +734,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             // Agregar la relación en team_players
             const teamPlayerQuery = await sql`
-              INSERT INTO team_players (team_id, player_id, jersey_number, is_starter, is_active, joined_at)
-              VALUES (${teamId}, ${newPlayer.id}, ${jersey_number || null}, ${is_starter || false}, true, NOW())
+              INSERT INTO team_players (team_id, player_id, jersey_number, is_active, joined_at)
+              VALUES (${teamId}, ${newPlayer.id}, ${jersey_number || null}, true, NOW())
               RETURNING *
             `;
 
@@ -745,8 +744,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               message: 'Jugador creado exitosamente',
               player: {
                 ...newPlayer,
-                jersey_number: teamPlayerQuery.rows[0].jersey_number,
-                is_starter: teamPlayerQuery.rows[0].is_starter
+                jersey_number: teamPlayerQuery.rows[0].jersey_number
               }
             });
 
