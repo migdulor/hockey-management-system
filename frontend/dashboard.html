@@ -19,56 +19,119 @@
         .dashboard-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 10px;
         }
+        
+        /* Media Queries para Responsive Design */
+        @media (min-width: 768px) {
+            .dashboard-container {
+                padding: 20px;
+            }
+        }
+        
         .header {
             background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
+            padding: 15px;
             border-radius: 15px;
             margin-bottom: 20px;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 15px;
             align-items: center;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
+        
+        @media (min-width: 768px) {
+            .header {
+                flex-direction: row;
+                justify-content: space-between;
+                padding: 20px;
+            }
+        }
+        
         .header h1 {
             color: #1e3c72;
             display: flex;
             align-items: center;
             gap: 10px;
+            font-size: 1.5rem;
+            text-align: center;
         }
+        
+        @media (min-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+        
         .user-info {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        @media (min-width: 768px) {
+            .user-info {
+                gap: 15px;
+                justify-content: flex-end;
+            }
         }
         .btn-logout {
             background: #dc3545;
             color: white;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             text-decoration: none;
             font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
         }
+        
+        @media (min-width: 768px) {
+            .btn-logout {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+        }
+        
         .btn-logout:hover {
             background: #c82333;
         }
+        
         .main-nav {
             background: rgba(255, 255, 255, 0.95);
-            padding: 15px;
+            padding: 10px;
             border-radius: 15px;
             margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
+        
+        @media (min-width: 768px) {
+            .main-nav {
+                padding: 15px;
+            }
+        }
+        
         .nav-tabs {
             display: flex;
-            gap: 10px;
+            gap: 5px;
             flex-wrap: wrap;
+            justify-content: center;
         }
+        
+        @media (min-width: 768px) {
+            .nav-tabs {
+                gap: 10px;
+                justify-content: flex-start;
+            }
+        }
+        
         .nav-tab {
-            padding: 12px 24px;
+            padding: 10px 16px;
             background: #f8f9fa;
             border: none;
             border-radius: 8px;
@@ -76,6 +139,25 @@
             font-weight: 600;
             transition: all 0.3s ease;
             color: #666;
+            font-size: 0.85rem;
+            flex: 1;
+            text-align: center;
+            min-width: fit-content;
+        }
+        
+        @media (min-width: 768px) {
+            .nav-tab {
+                padding: 12px 24px;
+                font-size: 1rem;
+                flex: none;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .nav-tab {
+                font-size: 0.75rem;
+                padding: 8px 12px;
+            }
         }
         .nav-tab.active {
             background: linear-gradient(45deg, #1e3c72, #2a5298);
@@ -87,65 +169,140 @@
         .tab-content {
             display: none;
             background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
+            padding: 15px;
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            min-height: 500px;
+            min-height: 400px;
         }
+        
+        @media (min-width: 768px) {
+            .tab-content {
+                padding: 30px;
+                min-height: 500px;
+            }
+        }
+        
         .tab-content.active {
             display: block;
         }
+        
         .quick-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
         }
+        
+        @media (min-width: 768px) {
+            .quick-stats {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+        }
+        
         .stat-card {
             background: linear-gradient(45deg, #28a745, #20c997);
             color: white;
-            padding: 20px;
+            padding: 15px;
             border-radius: 12px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
+        
+        @media (min-width: 768px) {
+            .stat-card {
+                padding: 20px;
+            }
+        }
+        
         .stat-number {
-            font-size: 2.5em;
+            font-size: 2em;
             font-weight: bold;
             margin-bottom: 5px;
         }
+        
+        @media (min-width: 768px) {
+            .stat-number {
+                font-size: 2.5em;
+            }
+        }
+        
         .stat-label {
-            font-size: 0.9em;
+            font-size: 0.8em;
             opacity: 0.9;
+        }
+        
+        @media (min-width: 768px) {
+            .stat-label {
+                font-size: 0.9em;
+            }
         }
         .welcome-section {
             text-align: center;
-            padding: 40px 20px;
+            padding: 20px 10px;
         }
+        
+        @media (min-width: 768px) {
+            .welcome-section {
+                padding: 40px 20px;
+            }
+        }
+        
         .welcome-section h2 {
             color: #1e3c72;
-            margin-bottom: 20px;
-            font-size: 2em;
+            margin-bottom: 15px;
+            font-size: 1.5em;
         }
+        
+        @media (min-width: 768px) {
+            .welcome-section h2 {
+                font-size: 2em;
+                margin-bottom: 20px;
+            }
+        }
+        
         .welcome-section p {
             color: #666;
-            font-size: 1.1em;
+            font-size: 1em;
             line-height: 1.6;
             max-width: 600px;
             margin: 0 auto;
         }
+        
+        @media (min-width: 768px) {
+            .welcome-section p {
+                font-size: 1.1em;
+            }
+        }
+        
         .feature-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 20px;
         }
+        
+        @media (min-width: 768px) {
+            .feature-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                margin-top: 30px;
+            }
+        }
+        
         .feature-card {
             background: #f8f9fa;
-            padding: 25px;
+            padding: 20px;
             border-radius: 12px;
             text-align: center;
             border-left: 5px solid #1e3c72;
+        }
+        
+        @media (min-width: 768px) {
+            .feature-card {
+                padding: 25px;
+            }
         }
         .feature-card h3 {
             color: #1e3c72;
@@ -212,39 +369,76 @@
         }
         .teams-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: 1fr;
+            gap: 15px;
             margin-top: 20px;
         }
+        
+        @media (min-width: 768px) {
+            .teams-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 20px;
+            }
+        }
+        
         .team-card {
             background: #f8f9fa;
             border: 1px solid #dee2e6;
             border-radius: 12px;
-            padding: 20px;
+            padding: 15px;
             transition: all 0.3s ease;
         }
+        
+        @media (min-width: 768px) {
+            .team-card {
+                padding: 20px;
+            }
+        }
+        
         .team-card:hover {
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             border-color: #1e3c72;
         }
+        
         .team-card h3 {
             color: #1e3c72;
             margin-bottom: 10px;
-            font-size: 1.3em;
+            font-size: 1.2em;
         }
+        
+        @media (min-width: 768px) {
+            .team-card h3 {
+                font-size: 1.3em;
+            }
+        }
+        
         .team-info {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 15px;
         }
+        
+        @media (min-width: 768px) {
+            .team-info {
+                gap: 10px;
+            }
+        }
+        
         .team-badge {
             background: #e9ecef;
             padding: 4px 8px;
             border-radius: 6px;
-            font-size: 0.85em;
+            font-size: 0.75em;
             font-weight: 600;
         }
+        
+        @media (min-width: 768px) {
+            .team-badge {
+                font-size: 0.85em;
+            }
+        }
+        
         .team-badge.division {
             background: #d4edda;
             color: #155724;
@@ -253,15 +447,35 @@
             background: #cce5ff;
             color: #004085;
         }
+        
         .team-actions {
             display: flex;
-            gap: 8px;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        
+        @media (min-width: 768px) {
+            .team-actions {
+                gap: 8px;
+            }
         }
         .btn-sm {
-            padding: 6px 12px;
-            font-size: 12px;
+            padding: 6px 10px;
+            font-size: 11px;
             border-radius: 6px;
+            flex: 1;
+            min-width: fit-content;
+            text-align: center;
         }
+        
+        @media (min-width: 768px) {
+            .btn-sm {
+                padding: 6px 12px;
+                font-size: 12px;
+                flex: none;
+            }
+        }
+        
         .btn-secondary {
             background: #6c757d;
             color: white;
@@ -278,20 +492,42 @@
             background: #dc3545;
             color: white;
         }
+        
         .players-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: 1fr;
+            gap: 15px;
             margin-top: 20px;
         }
+        
+        @media (min-width: 480px) {
+            .players-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .players-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 20px;
+            }
+        }
+        
         .player-card {
             background: #f8f9fa;
             border: 1px solid #dee2e6;
             border-radius: 12px;
-            padding: 20px;
+            padding: 15px;
             transition: all 0.3s ease;
             position: relative;
         }
+        
+        @media (min-width: 768px) {
+            .player-card {
+                padding: 20px;
+            }
+        }
+        
         .player-card:hover {
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             border-color: #28a745;
@@ -399,6 +635,241 @@
             0%, 20% { content: '.'; }
             40% { content: '..'; }
             60%, 100% { content: '...'; }
+        }
+        
+        /* ========== RESPONSIVE IMPROVEMENTS ========== */
+        
+        /* Form Elements */
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        @media (min-width: 768px) {
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                font-size: 16px;
+                padding: 12px;
+            }
+        }
+        
+        /* Button Groups */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .button-group .btn {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        @media (min-width: 768px) {
+            .button-group .btn {
+                flex: none;
+            }
+        }
+        
+        /* Tables Responsive */
+        .table-responsive {
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        .table-responsive table {
+            width: 100%;
+            min-width: 600px;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        .table-responsive th,
+        .table-responsive td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+        
+        @media (min-width: 768px) {
+            .table-responsive th,
+            .table-responsive td {
+                padding: 12px 15px;
+                font-size: 16px;
+            }
+        }
+        
+        .table-responsive th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        /* Modal Responsive */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10px;
+            padding: 20px;
+            border-radius: 12px;
+            width: calc(100% - 20px);
+            max-width: 500px;
+            margin: 50px auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        @media (min-width: 768px) {
+            .modal-content {
+                margin: 100px auto;
+                padding: 30px;
+            }
+        }
+        
+        /* Attendance Controls */
+        .attendance-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        @media (min-width: 768px) {
+            .attendance-controls {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+        
+        .team-selector,
+        .training-selector {
+            flex: 1;
+            max-width: 300px;
+        }
+        
+        /* Player Actions Responsive */
+        .player-actions {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+        
+        @media (min-width: 768px) {
+            .player-actions {
+                gap: 8px;
+            }
+        }
+        
+        /* Reports Grid */
+        .reports-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        @media (min-width: 768px) {
+            .reports-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+            }
+        }
+        
+        /* KPIs Responsive */
+        .kpis-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 480px) {
+            .kpis-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Filter Controls */
+        .filter-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        @media (min-width: 768px) {
+            .filter-controls {
+                flex-direction: row;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+        }
+        
+        /* Small devices specific */
+        @media (max-width: 480px) {
+            .dashboard-container {
+                padding: 5px;
+            }
+            
+            .header {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.2rem;
+            }
+            
+            .nav-tab {
+                font-size: 0.7rem;
+                padding: 6px 8px;
+            }
+            
+            .tab-content {
+                padding: 10px;
+            }
+            
+            .btn {
+                font-size: 12px;
+                padding: 8px 16px;
+            }
+            
+            .modal-content {
+                margin: 20px 10px;
+                padding: 15px;
+            }
+        }
+        
+        /* Touch-friendly interactions */
+        @media (hover: none) {
+            .btn:hover,
+            .nav-tab:hover,
+            .team-card:hover,
+            .player-card:hover {
+                transform: none;
+            }
         }
     </style>
     
@@ -513,42 +984,42 @@
             </div>
 
             <!-- Modal crear/editar equipo -->
-            <div id="team-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
-                <div style="position: relative; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%;">
+            <div id="team-modal" class="modal">
+                <div class="modal-content">
                     <h3 id="modal-title">Crear Nuevo Equipo</h3>
                     <form id="team-form" style="margin-top: 20px;">
-                        <div class="form-group" style="margin-bottom: 15px;">
+                        <div class="form-group">
                             <label>Nombre del Equipo *</label>
-                            <input type="text" id="team-name" name="name" required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                            <input type="text" id="team-name" name="name" required>
                         </div>
-                        <div class="form-group" style="margin-bottom: 15px;">
+                        <div class="form-group">
                             <label>Nombre del Club *</label>
-                            <input type="text" id="club-name" name="club_name" required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                            <input type="text" id="club-name" name="club_name" required>
                         </div>
-                        <div class="form-group" style="margin-bottom: 15px;">
+                        <div class="form-group">
                             <label>Género del Equipo *</label>
-                            <select id="team-gender" name="gender" required onchange="loadDivisionsForGender(this.value)" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                            <select id="team-gender" name="gender" required onchange="loadDivisionsForGender(this.value)">
                                 <option value="">Seleccionar género...</option>
                                 <option value="female">Femenino</option>
                                 <option value="male">Masculino</option>
                             </select>
                         </div>
-                        <div class="form-group" style="margin-bottom: 15px;">
+                        <div class="form-group">
                             <label>División</label>
-                            <select id="team-division" name="division_id" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                            <select id="team-division" name="division_id">
                                 <option value="">Primero selecciona el género...</option>
                             </select>
                         </div>
-                        <div class="form-group" style="margin-bottom: 20px;">
+                        <div class="form-group">
                             <label>Máximo de Jugadores</label>
-                            <input type="number" id="max-players" name="max_players" min="10" max="50" value="25" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
-                            <small style="color: #666; font-size: 0.9em;">Número máximo de jugadores permitidos en el equipo (por defecto: 25)</small>
+                            <input type="number" id="max-players" name="max_players" min="10" max="50" value="25">
+                            <small style="color: #666; font-size: 0.9em; display: block; margin-top: 5px;">Número máximo de jugadores permitidos en el equipo (por defecto: 25)</small>
                         </div>
-                        <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                            <button type="button" onclick="closeTeamModal()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                        <div class="button-group">
+                            <button type="button" class="btn btn-secondary" onclick="closeTeamModal()">
                                 Cancelar
                             </button>
-                            <button type="submit" style="padding: 10px 20px; background: #1e3c72; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            <button type="submit" class="btn btn-primary">
                                 Guardar Equipo
                             </button>
                         </div>
@@ -580,37 +1051,37 @@
             </div>
 
             <!-- Modal para agregar jugador -->
-            <div id="player-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
-                <div style="position: relative; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%;">
+            <div id="player-modal" class="modal">
+                <div class="modal-content">
                     <h3 id="player-modal-title">Agregar Jugador</h3>
                     <form id="player-form" style="margin-top: 20px;">
-                        <div class="form-group" style="margin-bottom: 15px;">
+                        <div class="form-group">
                             <label>Nombre Completo *</label>
-                            <input type="text" id="player-name" name="name" required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                            <input type="text" id="player-name" name="name" required>
                         </div>
-                        <div class="form-group" style="margin-bottom: 15px;">
+                        <div class="form-group">
                             <label>Apodo/Nickname</label>
-                            <input type="text" id="player-nickname" name="nickname" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                            <input type="text" id="player-nickname" name="nickname">
                         </div>
-                        <div class="form-group" style="margin-bottom: 15px;">
+                        <div class="form-group">
                             <label>Fecha de Nacimiento *</label>
-                            <input type="date" id="player-birth-date" name="birth_date" required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                            <input type="date" id="player-birth-date" name="birth_date" required>
                         </div>
-                        <div class="form-group" style="margin-bottom: 15px;">
+                        <div class="form-group">
                             <label>Posición</label>
-                            <select id="player-position" name="position" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                            <select id="player-position" name="position">
                                 <option value="">Seleccionar posición...</option>
                             </select>
                         </div>
-                        <div class="form-group" style="margin-bottom: 15px;">
+                        <div class="form-group">
                             <label>Número de Camiseta</label>
-                            <input type="number" id="player-jersey" name="jersey_number" min="1" max="99" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                            <input type="number" id="player-jersey" name="jersey_number" min="1" max="99">
                         </div>
-                        <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                            <button type="button" onclick="closePlayerModal()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                        <div class="button-group">
+                            <button type="button" class="btn btn-secondary" onclick="closePlayerModal()">
                                 Cancelar
                             </button>
-                            <button type="submit" style="padding: 10px 20px; background: #1e3c72; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            <button type="submit" class="btn btn-primary">
                                 Guardar Jugador
                             </button>
                         </div>
@@ -777,23 +1248,23 @@
                 <!-- Filtros Globales -->
                 <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px;">
                     <h3 style="margin: 0 0 20px 0; color: #2c5aa0;">🔍 Filtros de Consulta</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
-                        <div>
-                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Equipo:</label>
-                            <select id="reports-team-filter" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    <div class="filter-controls">
+                        <div class="form-group">
+                            <label>Equipo:</label>
+                            <select id="reports-team-filter">
                                 <option value="">Todos los equipos</option>
                             </select>
                         </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Desde:</label>
-                            <input type="date" id="reports-date-from" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        <div class="form-group">
+                            <label>Desde:</label>
+                            <input type="date" id="reports-date-from">
                         </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Hasta:</label>
-                            <input type="date" id="reports-date-to" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        <div class="form-group">
+                            <label>Hasta:</label>
+                            <input type="date" id="reports-date-to">
                         </div>
-                        <div>
-                            <button class="btn btn-primary" onclick="applyReportFilters()" style="width: 100%; padding: 10px;">
+                        <div class="form-group">
+                            <button class="btn btn-primary" onclick="applyReportFilters()" style="width: 100%;">
                                 🔍 Aplicar Filtros
                             </button>
                         </div>
@@ -803,7 +1274,7 @@
                 <!-- Dashboard Principal -->
                 <div id="reports-dashboard" style="display: grid; gap: 20px; margin-bottom: 25px;">
                     <!-- Indicadores Clave -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div class="kpis-container">
                         <div style="background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 20px; border-radius: 10px; text-align: center;">
                             <div style="font-size: 2.5em; font-weight: bold;" id="kpi-total-players">0</div>
                             <div>Total Jugadores</div>
@@ -826,7 +1297,7 @@
                 <!-- Menú de Reportes -->
                 <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px;">
                     <h3 style="margin: 0 0 20px 0; color: #2c5aa0;">📊 Tipos de Reportes Disponibles</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+                    <div class="reports-grid">
                         
                         <!-- Reporte 1: General de Asistencias -->
                         <div class="report-card" style="border: 2px solid #e9ecef; border-radius: 8px; padding: 20px; transition: all 0.3s;">
@@ -2415,19 +2886,19 @@
                         <!-- Ranking de Asistencia -->
                         <div style="margin-bottom: 30px;">
                             <h3 style="color: #2c5aa0; margin-bottom: 20px;">🏆 Ranking de Asistencia</h3>
-                            <div style="overflow-x: auto;">
-                                <table style="width: 100%; border-collapse: collapse; background: white;">
+                            <div class="table-responsive">
+                                <table>
                                     <thead>
                                         <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-                                            <th style="padding: 12px; text-align: left;">Posición</th>
-                                            <th style="padding: 12px; text-align: left;">Jugador</th>
-                                            <th style="padding: 12px; text-align: center;">Equipo</th>
-                                            <th style="padding: 12px; text-align: center;">Presente</th>
-                                            <th style="padding: 12px; text-align: center;">Tarde</th>
-                                            <th style="padding: 12px; text-align: center;">Ausente</th>
-                                            <th style="padding: 12px; text-align: center;">Total</th>
-                                            <th style="padding: 12px; text-align: center;">% Asistencia</th>
-                                            <th style="padding: 12px; text-align: center;">% Puntualidad</th>
+                                            <th>Posición</th>
+                                            <th>Jugador</th>
+                                            <th>Equipo</th>
+                                            <th>Presente</th>
+                                            <th>Tarde</th>
+                                            <th>Ausente</th>
+                                            <th>Total</th>
+                                            <th>% Asistencia</th>
+                                            <th>% Puntualidad</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -2794,16 +3265,16 @@
                         </div>
                         
                         <!-- Player Details Table -->
-                        <div style="overflow-x: auto;">
-                            <table style="width: 100%; border-collapse: collapse; background: white;">
+                        <div class="table-responsive">
+                            <table>
                                 <thead>
                                     <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-                                        <th style="padding: 12px; text-align: left; border-right: 1px solid #dee2e6;">Jugador</th>
-                                        <th style="padding: 12px; text-align: center; border-right: 1px solid #dee2e6;">✅ Presente</th>
-                                        <th style="padding: 12px; text-align: center; border-right: 1px solid #dee2e6;">⏰ Tarde</th>
-                                        <th style="padding: 12px; text-align: center; border-right: 1px solid #dee2e6;">❌ Ausente</th>
-                                        <th style="padding: 12px; text-align: center; border-right: 1px solid #dee2e6;">Total</th>
-                                        <th style="padding: 12px; text-align: center;">% Asistencia</th>
+                                        <th style="border-right: 1px solid #dee2e6;">Jugador</th>
+                                        <th style="text-align: center; border-right: 1px solid #dee2e6;">✅ Presente</th>
+                                        <th style="text-align: center; border-right: 1px solid #dee2e6;">⏰ Tarde</th>
+                                        <th style="text-align: center; border-right: 1px solid #dee2e6;">❌ Ausente</th>
+                                        <th style="text-align: center; border-right: 1px solid #dee2e6;">Total</th>
+                                        <th style="text-align: center;">% Asistencia</th>
                                     </tr>
                                 </thead>
                                 <tbody>
