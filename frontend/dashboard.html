@@ -1155,9 +1155,14 @@
                         <div style="font-size: 3em; margin-bottom: 20px;">🏃‍♀️</div>
                         <h3>No hay ${genderText} en este equipo</h3>
                         <p>Agrega ${genderText} para comenzar a gestionar el equipo</p>
-                        <button class="btn btn-primary" onclick="showCreatePlayerModal()" style="margin-top: 20px;">
-                            ➕ Agregar Primer ${genderTextSingular}
-                        </button>
+                        <div style="margin-top: 20px;">
+                            <button class="btn btn-primary" onclick="showCreatePlayerModal()" style="margin-right: 10px;">
+                                ➕ Agregar Primer ${genderTextSingular}
+                            </button>
+                            <button class="btn btn-success" onclick="showExcelImportModal()">
+                                📊 Importar Excel
+                            </button>
+                        </div>
                     </div>
                 `;
             }
@@ -1189,8 +1194,11 @@
             // Botón para agregar más jugadores
             html += `
                 <div style="text-align: center; margin-top: 30px;">
-                    <button class="btn btn-primary" onclick="showCreatePlayerModal()">
+                    <button class="btn btn-primary" onclick="showCreatePlayerModal()" style="margin-right: 10px;">
                         ➕ Agregar ${genderTextSingular}
+                    </button>
+                    <button class="btn btn-success" onclick="showExcelImportModal()">
+                        📊 Importar Excel
                     </button>
                 </div>
             `;
