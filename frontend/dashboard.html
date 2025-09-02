@@ -1415,10 +1415,12 @@
                             }
                             
                             players.push({
+                                teamId: window.currentTeamId,
                                 name,
                                 nickname: nickname || null,
                                 position: position || null,
-                                jersey_number: jerseyNumber
+                                jersey_number: jerseyNumber,
+                                birth_date: '2000-01-01' // Fecha por defecto para importación masiva
                             });
                         }
                         
