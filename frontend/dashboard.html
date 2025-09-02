@@ -702,6 +702,18 @@
             };
         }
         
+        // Handle authentication errors
+        function handleAuthError(error, response = null) {
+            if (response && response.status === 401) {
+                console.log('Token expired or invalid, redirecting to login');
+                localStorage.removeItem('hockey_token');
+                localStorage.removeItem('hockey_user');
+                window.location.href = 'login.html';
+                return;
+            }
+            console.error('Auth error:', error);
+        }
+        
         // Check if user is coach on page load
         async function checkCoachAccess() {
             const token = localStorage.getItem('hockey_token');
@@ -1138,6 +1150,12 @@
                 const response = await fetch(getApiUrl(`/api/players?team_id=${teamId}`), {
                     headers: getAuthHeaders()
                 });
+                
+                if (response.status === 401) {
+                    handleAuthError('Token expired', response);
+                    return;
+                }
+                
                 const data = await response.json();
                 
                 if (data.success) {
@@ -1146,6 +1164,7 @@
                     container.innerHTML = `<div class="message error">Error: ${data.message || data.error}</div>`;
                 }
             } catch (error) {
+                console.error('Error loading players:', error);
                 container.innerHTML = `<div class="message error">Error de conexión: ${error.message}</div>`;
             }
         }
@@ -1426,29 +1445,33 @@
                 
                 for (const player of players) {
                     try {
-                        const response = await fetch('/api/players', {
+                        const response = await fetch(getApiUrl('/api/players'), {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${localStorage.getItem('token')}`
-                            },
+                            headers: getAuthHeaders(),
                             body: JSON.stringify(player)
                         });
+
+                        if (response.status === 401) {
+                            handleAuthError('Token expired during import', response);
+                            return;
+                        }
 
                         if (response.ok) {
                             const newPlayer = await response.json();
                             
                             // Add player to current team
-                            const teamResponse = await fetch(`/api/teams/${window.currentTeamId}/players`, {
+                            const teamResponse = await fetch(getApiUrl(`/api/teams/${window.currentTeamId}/players`), {
                                 method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                                },
+                                headers: getAuthHeaders(),
                                 body: JSON.stringify({
                                     player_id: newPlayer.id
                                 })
                             });
+
+                            if (teamResponse.status === 401) {
+                                handleAuthError('Token expired during team assignment', teamResponse);
+                                return;
+                            }
 
                             if (teamResponse.ok) {
                                 successfulImports.push(player.name);
