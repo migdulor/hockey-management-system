@@ -1688,6 +1688,9 @@
                             <button class="btn btn-sm btn-secondary" onclick="editTeam('${team.id}')" title="Editar equipo">
                                 ✏️ Editar
                             </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteTeam('${team.id}', '${team.name}', ${playerCount})" title="Eliminar equipo">
+                                🗑️ Eliminar
+                            </button>
                         </div>
                     </div>
                 `;
@@ -1881,6 +1884,91 @@
         // Close team modal
         function closeTeamModal() {
             document.getElementById('team-modal').style.display = 'none';
+            // Reset form for next use
+            document.getElementById('team-form').reset();
+            document.getElementById('modal-title').textContent = 'Crear Nuevo Equipo';
+            document.getElementById('team-form').setAttribute('data-mode', 'create');
+            document.getElementById('team-form').removeAttribute('data-team-id');
+        }
+
+        // Edit team function
+        async function editTeam(teamId) {
+            try {
+                // Fetch team data
+                const response = await fetch(`/api/teams`, {
+                    headers: getAuthHeaders()
+                });
+                
+                const data = await response.json();
+                if (!data.success) {
+                    showMessage('Error al cargar datos del equipo', 'error');
+                    return;
+                }
+                
+                // Find the team
+                const team = data.teams.find(t => t.id === teamId);
+                if (!team) {
+                    showMessage('Equipo no encontrado', 'error');
+                    return;
+                }
+                
+                // Fill form with team data
+                document.getElementById('team-name').value = team.name || '';
+                document.getElementById('club-name').value = team.club_name || '';
+                document.getElementById('team-gender').value = team.team_gender || '';
+                document.getElementById('max-players').value = team.max_players || 20;
+                
+                // Load divisions for the gender
+                if (team.team_gender) {
+                    await loadDivisionsForGender(team.team_gender);
+                    if (team.division_id) {
+                        document.getElementById('team-division').value = team.division_id;
+                    }
+                }
+                
+                // Change modal to edit mode
+                document.getElementById('modal-title').textContent = 'Editar Equipo';
+                document.getElementById('team-form').setAttribute('data-mode', 'edit');
+                document.getElementById('team-form').setAttribute('data-team-id', teamId);
+                
+                // Show modal
+                document.getElementById('team-modal').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading team for edit:', error);
+                showMessage('Error al cargar datos del equipo', 'error');
+            }
+        }
+
+        // Delete team function
+        async function deleteTeam(teamId, teamName, playerCount) {
+            if (playerCount > 0) {
+                showMessage(`No puedes eliminar el equipo "${teamName}" porque tiene ${playerCount} jugador(es). Primero elimina o transfiere todos los jugadores.`, 'warning');
+                return;
+            }
+            
+            const confirmed = confirm(`¿Estás seguro de que quieres eliminar el equipo "${teamName}"?`);
+            if (!confirmed) return;
+            
+            try {
+                const response = await fetch(`/api/teams/${teamId}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('Equipo eliminado exitosamente', 'success');
+                    loadTeams(); // Reload teams list
+                    loadDashboardStats(); // Update stats
+                } else {
+                    showMessage(data.message || 'Error al eliminar equipo', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting team:', error);
+                showMessage('Error de conexión al eliminar equipo', 'error');
+            }
         }
 
         // Handle team form submission
@@ -1893,11 +1981,18 @@
                     const formData = new FormData(this);
                     const teamData = Object.fromEntries(formData.entries());
                     
+                    // Check if we're editing or creating
+                    const mode = this.getAttribute('data-mode') || 'create';
+                    const teamId = this.getAttribute('data-team-id');
+                    
                     try {
-                        console.log('Sending team data:', teamData);
+                        console.log('Sending team data:', teamData, 'Mode:', mode);
                         
-                        const response = await fetch('/api/teams', {
-                            method: 'POST',
+                        const url = mode === 'edit' ? `/api/teams/${teamId}` : '/api/teams';
+                        const method = mode === 'edit' ? 'PUT' : 'POST';
+                        
+                        const response = await fetch(url, {
+                            method: method,
                             headers: getAuthHeaders(),
                             body: JSON.stringify(teamData)
                         });
@@ -1921,7 +2016,8 @@
                         console.log('Response data:', data);
                         
                         if (data.success) {
-                            showMessage('Equipo creado exitosamente', 'success');
+                            const successMessage = mode === 'edit' ? 'Equipo actualizado exitosamente' : 'Equipo creado exitosamente';
+                            showMessage(successMessage, 'success');
                             closeTeamModal();
                             loadTeams(); // Recargar la lista
                             loadDashboardStats(); // Actualizar estadísticas
@@ -1932,7 +2028,7 @@
                             showMessage(`${message}`, messageType);
                         }
                     } catch (error) {
-                        console.error('Error in team creation:', error);
+                        console.error('Error in team operation:', error);
                         showMessage(`Error de conexión: ${error.message}`, 'error');
                     }
                 });

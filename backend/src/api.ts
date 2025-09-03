@@ -109,9 +109,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // TEMP: Migration endpoint to fix team limits
+    // TEMP: Migration endpoint to fix team limits and make division_id optional
     if (path === '/admin/migrate' && method === 'POST') {
       try {
+        // Make division_id optional
+        await sql`ALTER TABLE teams ALTER COLUMN division_id DROP NOT NULL`;
+        
         // Drop old trigger and function
         await sql`DROP TRIGGER IF EXISTS validate_team_limit_trigger ON teams`;
         await sql`DROP FUNCTION IF EXISTS validate_team_limit_by_plan()`;
@@ -167,7 +170,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         return res.status(200).json({
           success: true,
-          message: 'Migration completed: Removed plan system, using max_teams'
+          message: 'Migration completed: Removed plan system, using max_teams, made division_id optional'
         });
       } catch (error) {
         console.error('Migration error:', error);
@@ -708,6 +711,112 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             success: true,
             message: 'Equipo creado exitosamente',
             team: newTeam.rows[0]
+          });
+        }
+
+        // PUT /api/teams/:id - Update team
+        if (path.startsWith('/teams/') && method === 'PUT') {
+          const teamId = path.split('/teams/')[1];
+          const body = await parseBody(req);
+          const { name, club_name, division_id, division, max_players } = body;
+
+          if (!teamId) {
+            return res.status(400).json({
+              success: false,
+              message: 'ID del equipo es requerido'
+            });
+          }
+
+          // Verificar que el equipo pertenezca al usuario
+          const existingTeam = await sql`
+            SELECT * FROM teams WHERE id = ${teamId} AND user_id = ${decoded.userId} AND is_active = true
+          `;
+
+          if (existingTeam.rows.length === 0) {
+            return res.status(404).json({
+              success: false,
+              message: 'Equipo no encontrado o no tienes permisos para editarlo'
+            });
+          }
+
+          // Handle division - support both division_id and division (string)
+          let finalDivisionId = division_id || existingTeam.rows[0].division_id;
+          if (!finalDivisionId && division) {
+            if (typeof division === 'string') {
+              const divisionResult = await sql`
+                SELECT id FROM divisions WHERE LOWER(name) = LOWER(${division}) LIMIT 1
+              `;
+              if (divisionResult.rows.length > 0) {
+                finalDivisionId = divisionResult.rows[0].id;
+              }
+            }
+          }
+
+          const updatedTeam = await sql`
+            UPDATE teams 
+            SET 
+              name = ${name || existingTeam.rows[0].name},
+              club_name = ${club_name || existingTeam.rows[0].club_name},
+              division_id = ${finalDivisionId},
+              max_players = ${max_players || existingTeam.rows[0].max_players},
+              updated_at = NOW()
+            WHERE id = ${teamId} AND user_id = ${decoded.userId}
+            RETURNING *
+          `;
+
+          return res.status(200).json({
+            success: true,
+            message: 'Equipo actualizado exitosamente',
+            team: updatedTeam.rows[0]
+          });
+        }
+
+        // DELETE /api/teams/:id - Delete team (only if no players)
+        if (path.startsWith('/teams/') && method === 'DELETE') {
+          const teamId = path.split('/teams/')[1];
+
+          if (!teamId) {
+            return res.status(400).json({
+              success: false,
+              message: 'ID del equipo es requerido'
+            });
+          }
+
+          // Verificar que el equipo pertenezca al usuario
+          const existingTeam = await sql`
+            SELECT * FROM teams WHERE id = ${teamId} AND user_id = ${decoded.userId} AND is_active = true
+          `;
+
+          if (existingTeam.rows.length === 0) {
+            return res.status(404).json({
+              success: false,
+              message: 'Equipo no encontrado o no tienes permisos para eliminarlo'
+            });
+          }
+
+          // Verificar que no tenga jugadores
+          const playersCount = await sql`
+            SELECT COUNT(*) as count FROM players WHERE team_id = ${teamId} AND is_active = true
+          `;
+
+          const playerCount = parseInt(playersCount.rows[0].count);
+          if (playerCount > 0) {
+            return res.status(409).json({
+              success: false,
+              message: `No puedes eliminar el equipo porque tiene ${playerCount} jugador(es). Primero elimina o transfiere todos los jugadores.`
+            });
+          }
+
+          // Marcar equipo como inactivo (soft delete)
+          await sql`
+            UPDATE teams 
+            SET is_active = false, updated_at = NOW()
+            WHERE id = ${teamId} AND user_id = ${decoded.userId}
+          `;
+
+          return res.status(200).json({
+            success: true,
+            message: 'Equipo eliminado exitosamente'
           });
         }
 
