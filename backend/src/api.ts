@@ -641,6 +641,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           });
         }
         
+        // Check if it's a team limit validation error (from database function)
+        if (error.code === 'P0001' && error.message?.includes('allows maximum')) {
+          return res.status(403).json({
+            success: false,
+            message: error.message
+          });
+        }
+        
         // Check if it's a database constraint error
         if (error.code === '23514') { // Check constraint violation
           return res.status(400).json({
