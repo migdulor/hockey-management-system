@@ -1713,7 +1713,16 @@
                 
                 const userData = await response.json();
                 if (userData.success) {
-                    const maxTeams = userData.data.maxTeams || 2;
+                    const maxTeams = userData.data.maxTeams !== undefined ? userData.data.maxTeams : 2;
+                    
+                    console.log('=== TEAM LIMITS CHECK ===');
+                    console.log('Max teams allowed:', maxTeams);
+                    
+                    // Si el usuario tiene 0 equipos permitidos, no puede crear ningún equipo
+                    if (maxTeams === 0) {
+                        showMessage('No tienes permisos para crear equipos. Contacta al administrador para solicitar acceso.', 'warning');
+                        return;
+                    }
                     
                     // Verificar equipos actuales
                     const teamsResponse = await fetch('/api/teams', {
@@ -1724,13 +1733,11 @@
                     if (teamsData.success) {
                         const currentTeams = teamsData.teams.length;
                         
-                        console.log('=== TEAM LIMITS CHECK ===');
                         console.log('Current teams:', currentTeams);
-                        console.log('Max teams allowed:', maxTeams);
                         console.log('Can create more:', currentTeams < maxTeams);
                         
                         if (currentTeams >= maxTeams) {
-                            showMessage(`Has alcanzado el límite máximo de ${maxTeams} equipos. Para crear más equipos, contacta al administrador.`, 'warning');
+                            showMessage(`Has alcanzado el límite máximo de ${maxTeams} equipos. Para crear más equipos, solicita al administrador que amplíe tu límite de equipos.`, 'warning');
                             return;
                         }
                     }
@@ -1863,6 +1870,13 @@
                             return;
                         }
                         
+                        // Manejar error de límite de equipos
+                        if (response.status === 403) {
+                            const data = await response.json();
+                            showMessage(data.message || 'No tienes permisos para crear más equipos', 'warning');
+                            return;
+                        }
+                        
                         const data = await response.json();
                         console.log('Response data:', data);
                         
@@ -1872,7 +1886,10 @@
                             loadTeams(); // Recargar la lista
                             loadDashboardStats(); // Actualizar estadísticas
                         } else {
-                            showMessage(`Error: ${data.message || data.error}`, 'error');
+                            // Mensaje específico para límites
+                            const message = data.message || data.error;
+                            const messageType = message.includes('límite') || message.includes('solicita') ? 'warning' : 'error';
+                            showMessage(`${message}`, messageType);
                         }
                     } catch (error) {
                         console.error('Error in team creation:', error);
@@ -3904,7 +3921,15 @@
                         console.log('Plan:', data.data.plan);
                         console.log('Role:', data.data.role);
                         
-                        showMessage(`Token válido. Usuario: ${data.data.firstName} ${data.data.lastName}. Max equipos: ${data.data.maxTeams || 2}`, 'success');
+                        const maxTeams = data.data.maxTeams || 0;
+                        let limitMessage;
+                        if (maxTeams === 0) {
+                            limitMessage = 'No puede crear equipos';
+                        } else {
+                            limitMessage = `Max equipos: ${maxTeams}`;
+                        }
+                        
+                        showMessage(`Token válido. Usuario: ${data.data.firstName} ${data.data.lastName}. ${limitMessage}`, 'success');
                         
                         // También obtener equipos actuales
                         const teamsResponse = await fetch('/api/teams', {
@@ -3914,7 +3939,7 @@
                         
                         if (teamsData.success) {
                             console.log('Current teams:', teamsData.teams.length);
-                            console.log('Can create more teams:', teamsData.teams.length < (data.data.maxTeams || 2));
+                            console.log('Can create more teams:', maxTeams > 0 && teamsData.teams.length < maxTeams);
                         }
                     } else {
                         showMessage(`Token inválido. Status: ${response.status}`, 'error');

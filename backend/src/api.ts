@@ -569,6 +569,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             });
           }
 
+          // Verificar límite de equipos del usuario
+          console.log('🔧 TEAMS: Checking team limits for user:', decoded.userId);
+          
+          // Obtener información del usuario
+          const userInfo = await sql`
+            SELECT max_teams FROM users WHERE id = ${decoded.userId}
+          `;
+
+          if (userInfo.rows.length === 0) {
+            return res.status(404).json({
+              success: false,
+              message: 'Usuario no encontrado'
+            });
+          }
+
+          const maxTeams = userInfo.rows[0].max_teams || 0;
+          console.log('🔧 TEAMS: User max teams allowed:', maxTeams);
+
+          // Si el usuario tiene 0 equipos permitidos, no puede crear ningún equipo
+          if (maxTeams === 0) {
+            return res.status(403).json({
+              success: false,
+              message: 'No tienes permisos para crear equipos. Contacta al administrador para solicitar acceso.'
+            });
+          }
+
+          // Contar equipos actuales del usuario
+          const currentTeams = await sql`
+            SELECT COUNT(*) as count FROM teams WHERE user_id = ${decoded.userId} AND is_active = true
+          `;
+
+          const currentTeamsCount = parseInt(currentTeams.rows[0].count);
+          console.log('🔧 TEAMS: Current teams count:', currentTeamsCount);
+
+          // Verificar si ya alcanzó el límite
+          if (currentTeamsCount >= maxTeams) {
+            return res.status(403).json({
+              success: false,
+              message: `Has alcanzado el límite máximo de ${maxTeams} equipos. Para crear más equipos, solicita al administrador que amplíe tu límite de equipos.`
+            });
+          }
+
           // Si no se proporciona division_id, usar un UUID temporal o NULL
           const divisionValue = division_id || null;
           
@@ -577,6 +619,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             VALUES (${name}, ${club_name}, ${divisionValue}, ${decoded.userId}, ${max_players || 25}, true, NOW(), NOW())
             RETURNING *
           `;
+
+          console.log('🔧 TEAMS: Team created successfully for user:', decoded.userId);
+          console.log('🔧 TEAMS: New team count:', currentTeamsCount + 1, 'of', maxTeams, 'allowed');
 
           return res.status(201).json({
             success: true,
