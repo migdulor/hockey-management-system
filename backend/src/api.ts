@@ -109,6 +109,76 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    // TEMP: Migration endpoint to fix team limits
+    if (path === '/admin/migrate' && method === 'POST') {
+      try {
+        // Drop old trigger and function
+        await sql`DROP TRIGGER IF EXISTS validate_team_limit_trigger ON teams`;
+        await sql`DROP FUNCTION IF EXISTS validate_team_limit_by_plan()`;
+        
+        // Create new function
+        await sql`
+          CREATE OR REPLACE FUNCTION validate_team_limit_by_max_teams()
+          RETURNS TRIGGER AS $$
+          DECLARE
+              user_max_teams INTEGER;
+              current_team_count INTEGER;
+          BEGIN
+              SELECT max_teams INTO user_max_teams FROM users WHERE id = NEW.user_id;
+              
+              IF NOT FOUND THEN
+                  RAISE EXCEPTION 'User not found with id: %', NEW.user_id;
+              END IF;
+              
+              IF user_max_teams IS NULL THEN
+                  user_max_teams := 2;
+              END IF;
+              
+              SELECT COUNT(*) INTO current_team_count 
+              FROM teams 
+              WHERE user_id = NEW.user_id AND is_active = true;
+              
+              IF TG_OP = 'INSERT' THEN
+                  IF current_team_count >= user_max_teams THEN
+                      RAISE EXCEPTION 'User allows maximum % teams. Current active teams: %', 
+                          user_max_teams, current_team_count;
+                  END IF;
+              ELSIF TG_OP = 'UPDATE' THEN
+                  IF OLD.is_active = false AND NEW.is_active = true THEN
+                      IF current_team_count >= user_max_teams THEN
+                          RAISE EXCEPTION 'User allows maximum % teams. Current active teams: %', 
+                              user_max_teams, current_team_count;
+                      END IF;
+                  END IF;
+              END IF;
+              
+              RETURN NEW;
+          END;
+          $$ LANGUAGE plpgsql;
+        `;
+        
+        // Create new trigger
+        await sql`
+          CREATE TRIGGER validate_team_limit_max_teams_trigger
+              BEFORE INSERT OR UPDATE ON teams
+              FOR EACH ROW 
+              EXECUTE FUNCTION validate_team_limit_by_max_teams();
+        `;
+        
+        return res.status(200).json({
+          success: true,
+          message: 'Migration completed: Removed plan system, using max_teams'
+        });
+      } catch (error) {
+        console.error('Migration error:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Migration failed',
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
+      }
+    }
+
     // Login endpoint
     if (path === '/auth/login' && method === 'POST') {
       const body = await parseBody(req);
