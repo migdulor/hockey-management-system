@@ -302,13 +302,11 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Plan *</label>
-                            <select name="plan" required>
-                                <option value="">Seleccionar...</option>
-                                <option value="2_teams">2 Equipos</option>
-                                <option value="3_teams">3 Equipos</option>
-                                <option value="5_teams">5 Equipos</option>
-                            </select>
+                            <label>Equipos Permitidos *</label>
+                            <input type="number" name="max_teams" min="0" max="50" value="2" required>
+                            <small style="color: #666; font-size: 0.9em; display: block; margin-top: 5px;">
+                                Número máximo de equipos que puede crear este usuario (0 = sin límite)
+                            </small>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary">➕ Crear Usuario</button>

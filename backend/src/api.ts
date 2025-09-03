@@ -1178,7 +1178,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const body = await parseBody(req);
-        const { email, password, first_name, last_name, role, plan } = body;
+        const { email, password, first_name, last_name, role, max_teams } = body;
 
         if (!email || !password || !first_name || !last_name || !role) {
           return res.status(400).json({
@@ -1187,11 +1187,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           });
         }
 
+        // Validar max_teams
+        const teamsLimit = max_teams ? parseInt(max_teams) : 2;
+        if (isNaN(teamsLimit) || teamsLimit < 0) {
+          return res.status(400).json({
+            success: false,
+            message: 'El número de equipos permitidos debe ser un número válido (0 o mayor)'
+          });
+        }
+
         if (!process.env.POSTGRES_URL) {
           return res.status(200).json({
             success: true,
             message: 'Usuario creado (demo)',
-            data: { id: Date.now(), email, first_name, last_name, role, plan }
+            data: { id: Date.now(), email, first_name, last_name, role, max_teams: teamsLimit }
           });
         }
 
@@ -1213,9 +1222,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // Create user
         const newUser = await sql`
-          INSERT INTO users (id, email, password_hash, first_name, last_name, role, plan, is_active, created_at, updated_at)
-          VALUES (gen_random_uuid(), ${email}, ${passwordHash}, ${first_name}, ${last_name}, ${role}, ${plan || '2_teams'}, true, NOW(), NOW())
-          RETURNING id, email, first_name, last_name, role, plan, created_at
+          INSERT INTO users (id, email, password_hash, first_name, last_name, role, max_teams, is_active, created_at, updated_at)
+          VALUES (gen_random_uuid(), ${email}, ${passwordHash}, ${first_name}, ${last_name}, ${role}, ${teamsLimit}, true, NOW(), NOW())
+          RETURNING id, email, first_name, last_name, role, max_teams, created_at
         `;
 
         return res.status(201).json({
