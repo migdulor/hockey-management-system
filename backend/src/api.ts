@@ -616,7 +616,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           
           const newTeam = await sql`
             INSERT INTO teams (name, club_name, division_id, user_id, max_players, is_active, created_at, updated_at)
-            VALUES (${name}, ${club_name}, ${divisionValue}, ${decoded.userId}, ${max_players || 25}, true, NOW(), NOW())
+            VALUES (${name}, ${club_name}, ${divisionValue}, ${decoded.userId}, ${max_players || 20}, true, NOW(), NOW())
             RETURNING *
           `;
 
@@ -630,11 +630,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           });
         }
 
-      } catch (error) {
-        console.error('JWT verification failed for teams:', error);
-        return res.status(401).json({
+      } catch (error: any) {
+        console.error('Error in teams endpoint:', error);
+        
+        // Check if it's a JWT verification error
+        if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+          return res.status(401).json({
+            success: false,
+            message: 'Token inválido o expirado'
+          });
+        }
+        
+        // Check if it's a database constraint error
+        if (error.code === '23514') { // Check constraint violation
+          return res.status(400).json({
+            success: false,
+            message: 'Error de validación: El número de jugadores debe estar entre 10 y 22'
+          });
+        }
+        
+        if (error.code === '23505') { // Unique constraint violation
+          return res.status(409).json({
+            success: false,
+            message: 'Ya existe un equipo con ese nombre'
+          });
+        }
+        
+        // Generic database error
+        return res.status(500).json({
           success: false,
-          message: 'Token inválido o expirado'
+          message: 'Error interno del servidor'
         });
       }
     }
