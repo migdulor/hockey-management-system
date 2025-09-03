@@ -1,4 +1,4 @@
-# 🏒 EJEMPLOS ESPECÍFICOS DE CASOS DE USO
+# � EJEMPLOS ESPECÍFICOS DE CASOS DE USO
 ## Basados en "Dudas críticas para el desarrollo.pdf"
 
 **Fecha:** 22 de agosto de 2025  
@@ -130,7 +130,7 @@ export class ReportService {
 
 ---
 
-## ⚽ EJEMPLO 1: REGISTRO DE GOL
+## 🏑 EJEMPLO 1: REGISTRO DE GOL
 
 ### Contexto del Partido:
 ```
@@ -336,7 +336,7 @@ Situación: Intercepción en defensa propia
 ### Output Esperado:
 - 🖼️ **Imagen PNG 1080x1350px**
 - 📱 **Optimizada para WhatsApp/Instagram**  
-- 🏒 **Cancha visual con posiciones**
+- � **Cancha visual con posiciones**
 - 📸 **Fotos circulares 80x80px**
 - 🎨 **Colores del club**
 - 📝 **Información del partido completa**
@@ -386,7 +386,7 @@ Situación: Intercepción en defensa propia
 
 ### Output Mapa Recuperaciones:
 ```
-    🏒 MAPA DE CALOR - RECUPERACIONES 🏒
+    � MAPA DE CALOR - RECUPERACIONES �
     ┌─────────────────────────────────────────┐
     │                                         │
     │  🟡 ZONA 3        🟢 ZONA 4             │

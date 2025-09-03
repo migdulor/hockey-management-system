@@ -311,7 +311,7 @@ CREATE INDEX idx_team_players_player_id ON team_players(player_id);
 
 ---
 
-### ⚽ **PASO 3: Sistema de Partidos (2 horas)**
+### 🏑 **PASO 3: Sistema de Partidos (2 horas)**
 
 #### 3.1 Migración 5: Tipos de Acciones Hockey
 ```bash

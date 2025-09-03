@@ -152,7 +152,7 @@ CREATE TABLE action_types (
 -- Poblar con acciones específicas del hockey
 INSERT INTO action_types (name, description, requires_player, requires_zone, requires_area_sector, icon, color) VALUES
 -- Acciones de gol (requiere sector área rival)
-('Gol', 'Anotación en arco rival', true, false, true, '⚽', '#00ff00'),
+('Gol', 'Anotación en arco rival', true, false, true, '🏑', '#00ff00'),
 
 -- Acciones de cambios (requiere zona y 2 jugadoras)
 ('Cambio', 'Sustitución de jugadora', true, true, false, '🔄', '#0099ff'),

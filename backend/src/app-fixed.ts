@@ -73,8 +73,8 @@ app.get('/', (req, res) => {
       '🔐 Sistema de autenticación JWT',
       '👥 Administración de usuarios (admin/coach)',
       '📋 Planes de suscripción (2/3/5 equipos)',
-      '🏒 US005: Sistema de entrenamientos independientes',
-      '⚽ US006: Formaciones drag & drop (11+9 jugadores)',
+      '� US005: Sistema de entrenamientos independientes',
+      '🏑 US006: Formaciones drag & drop (11+9 jugadores)',
       '📊 US007: Información contextual de partidos',
       '🖼️ US008: Exportación PNG de formaciones'
     ],

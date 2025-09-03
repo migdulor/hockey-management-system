@@ -19,7 +19,7 @@ app.delete('/api/players/:id', (req, res) => playerController.delete(req, res));
 
 app.get('/', (req, res) => {
   res.json({ 
-    message: '🏒 Hockey Management System API',
+    message: '� Hockey Management System API',
     version: '1.0.0',
     endpoints: {
       players: '/api/players'

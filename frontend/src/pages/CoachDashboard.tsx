@@ -71,7 +71,7 @@ const CoachDashboard = () => {
       key: 'teams', 
       label: 'Equipos', 
       icon: () => (
-        <span className="text-sm mb-1">🏒</span>
+        <span className="text-sm mb-1">�</span>
       )
     },
     { 
@@ -308,7 +308,7 @@ const CoachDashboard = () => {
                           </div>
                           <div className="text-center">
                             <div className={`text-xl font-bold ${team.formation === 'Disponible' ? 'text-green-600' : team.formation === 'Pendiente' ? 'text-yellow-600' : 'text-red-600'}`}>
-                              {team.formation === 'Disponible' ? '⚽' : team.formation === 'Pendiente' ? '⏳' : '❌'}
+                              {team.formation === 'Disponible' ? '🏑' : team.formation === 'Pendiente' ? '⏳' : '❌'}
                             </div>
                             <div className="text-xs text-gray-600">Formación</div>
                             <div className="text-xs text-gray-500">{team.formation}</div>

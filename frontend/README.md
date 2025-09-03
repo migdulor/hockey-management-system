@@ -1,4 +1,4 @@
-# 🏒 Hockey Management System - Frontend
+# � Hockey Management System - Frontend
 
 Sistema de gestión de hockey moderno y completo desarrollado con React, TypeScript y Vite.
 
@@ -230,4 +230,4 @@ Para preguntas o issues relacionados con el frontend:
 
 ---
 
-**🏒 ¡Disfruta gestionando tu liga de hockey!**
+**� ¡Disfruta gestionando tu liga de hockey!**

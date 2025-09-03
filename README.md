@@ -1,4 +1,4 @@
-# 🏒 Hockey Management System
+# � Hockey Management System
 
 Sistema integral de gestión de equipos de hockey para entrenadores y coaches.
 
@@ -69,7 +69,7 @@ Sistema integral de gestión de equipos de hockey para entrenadores y coaches.
 ### **Módulos Planificados (Próximas Implementaciones):**
 - 📋 **Asistencias**: Registro de asistencias por fecha y equipo
 - 🏑 **Formaciones**: Editor visual drag & drop en cancha
-- ⚽ **Partidos**: Gestión de partidos y estadísticas
+- 🏑 **Partidos**: Gestión de partidos y estadísticas
 - 📊 **Reportes**: Estadísticas avanzadas y reportes
 
 ## 🛠️ Desarrollo Local
@@ -208,7 +208,7 @@ curl -X POST http://localhost:3000/api/auth/login
 - Exportación como imagen
 - Plantillas reutilizables
 
-### ⚽ Gestión de Partidos
+### 🏑 Gestión de Partidos
 - Registro completo de partidos
 - Estadísticas en tiempo real
 - Control de cambios y sustituciones

@@ -437,7 +437,7 @@ export class FormationService {
 }
 ```
 
-### ⚽ TASK 2.3: Sistema de Partidos Offline
+### 🏑 TASK 2.3: Sistema de Partidos Offline
 **Prioridad:** 🔥 CRÍTICA  
 **Estimación:** 5-6 días  
 **Estado:** ⏳ Pendiente
@@ -622,7 +622,7 @@ export const StatisticsPanel: React.FC<StatisticsPanelProps> = ({ match }) => {
 }
 ```
 
-### ⚽ TASK 4.3: Sistema de Partidos Tiempo Real
+### 🏑 TASK 4.3: Sistema de Partidos Tiempo Real
 **Prioridad:** 🔥 CRÍTICA  
 **Estimación:** 6-7 días  
 **Estado:** ⏳ Pendiente

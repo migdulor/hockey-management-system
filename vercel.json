@@ -20,6 +20,10 @@
       "destination": "/frontend/assets/$1"
     },
     {
+      "source": "/hockey-background.jpg",
+      "destination": "/frontend/hockey-background.jpg"
+    },
+    {
       "source": "/login.html",
       "destination": "/frontend/login.html"
     },

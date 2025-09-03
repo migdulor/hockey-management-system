@@ -918,7 +918,7 @@
     <div class="dashboard-container">
         <!-- Header -->
         <div class="header">
-            <h1>🏒 Hockey Management - Dashboard</h1>
+            <h1>Hockey Management - Dashboard</h1>
             <div class="user-info">
                 <span id="user-name">Cargando...</span>
                 <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
@@ -933,7 +933,7 @@
                 <button class="nav-tab" onclick="showTab('players')">🏃‍♀️ Jugadores</button>
                 <button class="nav-tab" onclick="showTab('attendance')">📋 Asistencias</button>
                 <button class="nav-tab" onclick="showTab('formations')">🏑 Formaciones</button>
-                <button class="nav-tab" onclick="showTab('matches')">⚽ Partidos</button>
+                <button class="nav-tab" onclick="showTab('matches')">🏑 Partidos</button>
                 <button class="nav-tab" onclick="showTab('reports')">📈 Reportes</button>
             </div>
         </div>
@@ -985,7 +985,7 @@
                         </p>
                     </div>
                     <div class="feature-card">
-                        <h3>⚽ Gestión de Partidos</h3>
+                        <h3>🏑 Gestión de Partidos</h3>
                         <p>
                             Registra acciones en tiempo real durante los partidos con capacidad offline. 
                             Control de tiempos y cambios de jugadoras automático.
@@ -1053,6 +1053,14 @@
                             <input type="number" id="max-players" name="max_players" min="10" max="22" value="20">
                             <small style="color: #666; font-size: 0.9em; display: block; margin-top: 5px;">Número máximo de jugadores permitidos en el equipo (por defecto: 25)</small>
                         </div>
+                        <div class="form-group">
+                            <label>Foto de la Camiseta del Equipo</label>
+                            <input type="file" id="team-jersey-photo" name="team_jersey_photo" accept="image/*">
+                            <small style="color: #666; font-size: 0.9em; display: block; margin-top: 5px;">Imagen de la camiseta sin jugadora (será usada como imagen por defecto en formaciones). Formatos: JPG, PNG, WEBP (máx. 2MB)</small>
+                            <div id="team-jersey-preview" style="margin-top: 10px; display: none;">
+                                <img id="team-jersey-img" style="max-width: 100px; max-height: 100px; border-radius: 8px; border: 1px solid #ddd;">
+                            </div>
+                        </div>
                         <div class="button-group">
                             <button type="button" class="btn btn-secondary" onclick="closeTeamModal()">
                                 Cancelar
@@ -1114,6 +1122,14 @@
                         <div class="form-group">
                             <label>Número de Camiseta</label>
                             <input type="number" id="player-jersey" name="jersey_number" min="1" max="99">
+                        </div>
+                        <div class="form-group">
+                            <label>Foto de la Jugadora</label>
+                            <input type="file" id="player-photo" name="player_photo" accept="image/*">
+                            <small style="color: #666; font-size: 0.9em; display: block; margin-top: 5px;">Formatos: JPG, PNG, WEBP (máx. 2MB)</small>
+                            <div id="player-photo-preview" style="margin-top: 10px; display: none;">
+                                <img id="player-photo-img" style="max-width: 100px; max-height: 100px; border-radius: 8px; border: 1px solid #ddd;">
+                            </div>
                         </div>
                         <div class="button-group">
                             <button type="button" class="btn btn-secondary" onclick="closePlayerModal()">
@@ -1196,7 +1212,7 @@
                                 style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 16px;">
                             <option value="">Seleccionar tipo...</option>
                             <option value="training">🏋️ Entrenamiento</option>
-                            <option value="match">⚽ Partido</option>
+                            <option value="match">🏑 Partido</option>
                             <option value="meeting">👥 Reunión</option>
                             <option value="other">📝 Otro</option>
                         </select>
@@ -1271,7 +1287,7 @@
         <!-- Tab: Partidos -->
         <div id="matches-tab" class="tab-content">
             <div class="coming-soon">
-                <div class="icon">⚽</div>
+                <div class="icon">🏑</div>
                 <h3>Gestión de Partidos</h3>
                 <p>Funcionalidades avanzadas de registro de partidos en desarrollo.</p>
                 <p>Incluirá capacidades offline, control de tiempos y registro de acciones en tiempo real.</p>
@@ -1505,6 +1521,20 @@
         // Load dashboard statistics
         async function loadDashboardStats() {
             try {
+                // Run database migration for image fields (one-time)
+                if (!sessionStorage.getItem('migration_images_done')) {
+                    try {
+                        const migrationResponse = await fetch('/api/admin/migrate-images', {
+                            method: 'POST'
+                        });
+                        const migrationResult = await migrationResponse.json();
+                        console.log('🔧 Image migration result:', migrationResult);
+                        sessionStorage.setItem('migration_images_done', 'true');
+                    } catch (error) {
+                        console.log('🔧 Migration not needed or already done:', error);
+                    }
+                }
+                
                 // Cargar información del usuario para obtener max_teams
                 const userResponse = await fetch('/api/profile', {
                     headers: getAuthHeaders()
@@ -1657,7 +1687,7 @@
             if (teams.length === 0) {
                 return `
                     <div style="text-align: center; padding: 40px; color: #666;">
-                        <div style="font-size: 3em; margin-bottom: 20px;">🏒</div>
+                        <div style="font-size: 3em; margin-bottom: 20px;">�</div>
                         <h3>No tienes equipos creados</h3>
                         <p>Crea tu primer equipo para comenzar a gestionar jugadoras</p>
                         <button class="btn btn-primary" onclick="showCreateTeamModal()" style="margin-top: 20px;">
@@ -1724,9 +1754,15 @@
             document.getElementById('modal-title').textContent = 'Crear Nuevo Equipo';
             document.getElementById('team-form').reset();
             
+            // Reset image previews
+            document.getElementById('team-jersey-preview').style.display = 'none';
+            
             // Resetear el select de divisiones
             const divisionSelect = document.getElementById('team-division');
             divisionSelect.innerHTML = '<option value="">Primero selecciona el género...</option>';
+            
+            // Setup image preview
+            setupImagePreview('team-jersey-photo', 'team-jersey-preview', 'team-jersey-img');
             
             // Verificar token antes de abrir el modal
             const token = localStorage.getItem('hockey_token');
@@ -1981,6 +2017,19 @@
                     const formData = new FormData(this);
                     const teamData = Object.fromEntries(formData.entries());
                     
+                    // Handle team jersey photo
+                    const jerseyPhotoInput = document.getElementById('team-jersey-photo');
+                    if (jerseyPhotoInput && jerseyPhotoInput.files[0]) {
+                        try {
+                            const jerseyPhotoBase64 = await convertImageToBase64(jerseyPhotoInput.files[0]);
+                            teamData.team_jersey_photo = jerseyPhotoBase64;
+                        } catch (error) {
+                            console.error('Error converting team jersey photo:', error);
+                            showMessage('Error procesando la imagen de la camiseta', 'error');
+                            return;
+                        }
+                    }
+                    
                     // Check if we're editing or creating
                     const mode = this.getAttribute('data-mode') || 'create';
                     const teamId = this.getAttribute('data-team-id');
@@ -2046,8 +2095,34 @@
                     }
                     
                     const formData = new FormData(this);
-                    const playerData = Object.fromEntries(formData.entries());
-                    playerData.teamId = window.currentTeamId;
+                    
+                    // Construir playerData manualmente para evitar campos vacíos
+                    const playerData = {
+                        teamId: window.currentTeamId,
+                        name: formData.get('name') || '',
+                        nickname: formData.get('nickname') || '',
+                        birth_date: formData.get('birth_date') || '',
+                        position: formData.get('position') || '',
+                        jersey_number: formData.get('jersey_number') || ''
+                    };
+                    
+                    // Handle player photo
+                    const playerPhotoInput = document.getElementById('player-photo');
+                    if (playerPhotoInput && playerPhotoInput.files && playerPhotoInput.files.length > 0) {
+                        try {
+                            const playerPhotoBase64 = await convertImageToBase64(playerPhotoInput.files[0]);
+                            if (playerPhotoBase64 && playerPhotoBase64.trim().length > 0) {
+                                playerData.player_photo = playerPhotoBase64;
+                            }
+                        } catch (error) {
+                            console.error('Error converting player photo:', error);
+                            showMessage('Error procesando la imagen del jugador', 'error');
+                            return;
+                        }
+                    }
+                    // No agregar player_photo si no hay imagen válida
+                    
+                    console.log('📤 Sending player data:', playerData);
                     
                     try {
                         let response;
@@ -2117,6 +2192,23 @@
             window.currentTeamName = teamName;
             window.currentTeamGender = teamGender;
             
+            // Obtener información del equipo para la foto de camiseta
+            try {
+                const teamResponse = await fetch(`/api/teams/${teamId}`, {
+                    headers: getAuthHeaders()
+                });
+                
+                if (teamResponse.ok) {
+                    const teamData = await teamResponse.json();
+                    if (teamData.success) {
+                        window.currentTeamJerseyPhoto = teamData.team?.team_jersey_photo || null;
+                    }
+                }
+            } catch (error) {
+                console.warn('No se pudo obtener la información del equipo:', error);
+                window.currentTeamJerseyPhoto = null;
+            }
+            
             container.innerHTML = '<div class="loading">Cargando jugadores...</div>';
             
             try {
@@ -2170,6 +2262,9 @@
             players.forEach(player => {
                 html += `
                     <div class="player-card">
+                        <div class="player-photo-container" style="text-align: center; margin-bottom: 10px;">
+                            ${generatePlayerImageHTML(player)}
+                        </div>
                         <div class="player-header">
                             <h4>${player.name}</h4>
                             ${player.nickname ? `<span class="player-nickname">"${player.nickname}"</span>` : ''}
@@ -2179,7 +2274,7 @@
                             <span class="player-position">${player.position || 'Sin posición'}</span>
                         </div>
                         <div class="player-actions">
-                            <button class="btn btn-sm btn-warning" onclick="editPlayer('${player.id}', '${player.name}', '${player.nickname || ''}', '${player.birth_date || ''}', '${player.position || ''}', '${player.jersey_number || ''}')" title="Editar jugador">
+                            <button class="btn btn-sm btn-warning" onclick="editPlayer('${player.id}', '${player.name}', '${player.nickname || ''}', '${player.birth_date && player.birth_date !== 'null' ? player.birth_date : ''}', '${player.position || ''}', '${player.jersey_number || ''}')" title="Editar jugador">
                                 ✏️ Editar
                             </button>
                             <button class="btn btn-sm btn-danger" onclick="removePlayerFromTeam('${player.id}', '${player.name}')" title="Eliminar del equipo">
@@ -2222,10 +2317,17 @@
             document.getElementById('player-modal-title').textContent = `Agregar Jugador a: ${window.currentTeamName}`;
             document.getElementById('player-form').reset();
             
+            // Reset image previews
+            document.getElementById('player-photo-preview').style.display = 'none';
+            
             // Clear edit mode data
             delete window.editingPlayerId;
             
             loadPlayerPositions();
+            
+            // Setup image preview
+            setupImagePreview('player-photo', 'player-photo-preview', 'player-photo-img');
+            
             document.getElementById('player-modal').style.display = 'block';
         }
 
@@ -2241,11 +2343,18 @@
             // Set modal title for editing
             document.getElementById('player-modal-title').textContent = `Editar Jugador: ${name}`;
             
-            // Fill form with current player data
-            document.getElementById('player-name').value = name;
-            document.getElementById('player-nickname').value = nickname === 'null' ? '' : nickname;
-            document.getElementById('player-birth-date').value = birthDate === 'null' ? '' : birthDate;
-            document.getElementById('player-jersey').value = jerseyNumber === 'null' || jerseyNumber === '' ? '' : jerseyNumber;
+            // Fill form with current player data - handle 'null' strings properly
+            document.getElementById('player-name').value = name || '';
+            document.getElementById('player-nickname').value = (nickname === 'null' || nickname === null || nickname === undefined) ? '' : nickname;
+            document.getElementById('player-birth-date').value = (birthDate === 'null' || birthDate === null || birthDate === undefined) ? '' : birthDate;
+            document.getElementById('player-jersey').value = (jerseyNumber === 'null' || jerseyNumber === '' || jerseyNumber === null || jerseyNumber === undefined) ? '' : jerseyNumber;
+            
+            console.log('Form filled with:', {
+                name: document.getElementById('player-name').value,
+                nickname: document.getElementById('player-nickname').value,
+                birthDate: document.getElementById('player-birth-date').value,
+                jerseyNumber: document.getElementById('player-jersey').value
+            });
             
             // Store the player ID for editing
             window.editingPlayerId = playerId;
@@ -2253,7 +2362,7 @@
             // Load positions and set current position
             loadPlayerPositions();
             setTimeout(() => {
-                if (position && position !== 'null') {
+                if (position && position !== 'null' && position !== null && position !== undefined) {
                     document.getElementById('player-position').value = position;
                 }
             }, 100);
@@ -2676,12 +2785,100 @@
             }
         }
         
+        // Helper function to format date without timezone issues
+        function formatDateSafe(dateString) {
+            if (!dateString) return '';
+            
+            // If it's already in YYYY-MM-DD format, parse it directly
+            const parts = dateString.split('T')[0].split('-');
+            if (parts.length === 3) {
+                const year = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1; // JavaScript months are 0-indexed
+                const day = parseInt(parts[2]);
+                
+                // Create date in local timezone
+                const date = new Date(year, month, day);
+                return date.toLocaleDateString('es-ES');
+            }
+            
+            // Fallback for other formats
+            return new Date(dateString).toLocaleDateString('es-ES');
+        }
+
+        // Helper function to parse date without timezone issues for comparisons
+        function parseDateSafe(dateString) {
+            if (!dateString) return null;
+            
+            // If it's already in YYYY-MM-DD format, parse it directly
+            const parts = dateString.split('T')[0].split('-');
+            if (parts.length === 3) {
+                const year = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1; // JavaScript months are 0-indexed
+                const day = parseInt(parts[2]);
+                
+                // Create date in local timezone
+                return new Date(year, month, day);
+            }
+            
+            // Fallback for other formats
+            return new Date(dateString);
+        }
+
+        // Helper function to handle image preview
+        function setupImagePreview(inputId, previewContainerId, imgId) {
+            const input = document.getElementById(inputId);
+            const previewContainer = document.getElementById(previewContainerId);
+            const img = document.getElementById(imgId);
+            
+            if (!input || !previewContainer || !img) return;
+            
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // Validate file size (2MB max)
+                    if (file.size > 2 * 1024 * 1024) {
+                        showMessage('La imagen es demasiado grande. Máximo 2MB permitido.', 'error');
+                        input.value = '';
+                        previewContainer.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Validate file type
+                    if (!file.type.startsWith('image/')) {
+                        showMessage('Por favor selecciona un archivo de imagen válido.', 'error');
+                        input.value = '';
+                        previewContainer.style.display = 'none';
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        img.src = e.target.result;
+                        previewContainer.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    previewContainer.style.display = 'none';
+                }
+            });
+        }
+
+        // Helper function to convert image to base64
+        async function convertImageToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
         // Generate trainings grid HTML
         function generateTrainingsGrid(trainings) {
             let html = '<div style="display: grid; gap: 15px;">';
             
             trainings.forEach(training => {
-                const date = new Date(training.training_date).toLocaleDateString('es-ES');
+                const date = formatDateSafe(training.training_date);
                 const time = training.start_time || '';
                 
                 html += `
@@ -2891,12 +3088,16 @@
                     const teamSelect = document.getElementById('attendance-team-select');
                     const formData = new FormData(this);
                     
+                    // Get the date and ensure it's in correct format
+                    const dateInput = document.getElementById('attendance-date');
+                    const selectedDate = dateInput.value; // Format: YYYY-MM-DD
+                    
                     const attendanceData = {
                         teamId: teamSelect.value,
                         name: `${document.getElementById('attendance-type').value === 'training' ? 'Entrenamiento' : 
                                document.getElementById('attendance-type').value === 'match' ? 'Partido' : 
-                               document.getElementById('attendance-type').value === 'meeting' ? 'Reunión' : 'Actividad'} - ${document.getElementById('attendance-date').value}`,
-                        trainingDate: document.getElementById('attendance-date').value,
+                               document.getElementById('attendance-type').value === 'meeting' ? 'Reunión' : 'Actividad'} ${selectedDate}`,
+                        trainingDate: selectedDate, // Send as YYYY-MM-DD format
                         startTime: '18:00', // Hora por defecto
                         location: '',
                         notes: document.getElementById('attendance-description').value || ''
@@ -3043,7 +3244,7 @@
                             let filteredTrainings = trainingsData.trainings;
                             if (filters.dateFrom || filters.dateTo) {
                                 filteredTrainings = trainingsData.trainings.filter(training => {
-                                    const trainingDate = new Date(training.training_date);
+                                    const trainingDate = parseDateSafe(training.training_date);
                                     const isAfterFrom = !filters.dateFrom || trainingDate >= new Date(filters.dateFrom);
                                     const isBeforeTo = !filters.dateTo || trainingDate <= new Date(filters.dateTo);
                                     return isAfterFrom && isBeforeTo;
@@ -3678,7 +3879,7 @@
                         let filteredTrainings = trainingsData.trainings;
                         if (filters.dateFrom || filters.dateTo) {
                             filteredTrainings = trainingsData.trainings.filter(training => {
-                                const trainingDate = new Date(training.training_date);
+                                const trainingDate = parseDateSafe(training.training_date);
                                 const isAfterFrom = !filters.dateFrom || trainingDate >= new Date(filters.dateFrom);
                                 const isBeforeTo = !filters.dateTo || trainingDate <= new Date(filters.dateTo);
                                 return isAfterFrom && isBeforeTo;
@@ -3882,7 +4083,7 @@
                             <table>
                                 <thead>
                                     <tr style="background: #17a2b8; color: white;">
-                                        <th style="padding: 15px; text-align: left; position: sticky; top: 0; z-index: 10;">🏒 Equipo</th>
+                                        <th style="padding: 15px; text-align: left; position: sticky; top: 0; z-index: 10;">� Equipo</th>
                                         <th style="padding: 15px; text-align: center; position: sticky; top: 0; z-index: 10;">👥 Jugadores</th>
                                         <th style="padding: 15px; text-align: center; position: sticky; top: 0; z-index: 10;">🏃 Entrenamientos</th>
                                         <th style="padding: 15px; text-align: center; position: sticky; top: 0; z-index: 10;">✅ Asistencias</th>
@@ -4028,6 +4229,48 @@
         }
         
         // ==========================================
+        // PLAYER IMAGE FUNCTIONS
+        // ==========================================
+        
+        // Generate player image HTML with fallback to team jersey
+        function generatePlayerImageHTML(player, size = '60px') {
+            // Debug logging
+            if (player.name === 'Abdo Martina') {
+                console.log('� DEBUG - Abdo Martina image data:', {
+                    playerPhoto: player.player_photo,
+                    playerPhotoType: typeof player.player_photo,
+                    playerPhotoLength: player.player_photo ? player.player_photo.length : 0,
+                    teamJerseyPhoto: window.currentTeamJerseyPhoto ? 'exists' : 'null',
+                    teamName: window.currentTeamName
+                });
+            }
+            
+            // Check for valid player photo
+            if (player.player_photo && 
+                typeof player.player_photo === 'string' && 
+                player.player_photo.trim().length > 10 &&
+                player.player_photo.startsWith('data:image')) {
+                return `<img src="${player.player_photo}" alt="${player.name}" style="width: ${size}; height: ${size}; border-radius: 50%; object-fit: cover; border: 2px solid #28a745;" title="Foto personal de ${player.name}">`;
+            }
+            
+            // Fallback to team jersey photo
+            if (window.currentTeamJerseyPhoto && 
+                typeof window.currentTeamJerseyPhoto === 'string' && 
+                window.currentTeamJerseyPhoto.trim().length > 10 &&
+                window.currentTeamJerseyPhoto.startsWith('data:image')) {
+                return `<div style="position: relative; display: inline-block;">
+                    <img src="${window.currentTeamJerseyPhoto}" alt="Camiseta ${window.currentTeamName || 'equipo'}" style="width: ${size}; height: ${size}; border-radius: 50%; object-fit: cover; border: 2px solid #007bff; opacity: 0.8;" title="Usando imagen de camiseta del equipo (${player.name} no tiene foto personal)">
+                    <div style="position: absolute; bottom: -2px; right: -2px; background: #007bff; color: white; border-radius: 50%; width: ${parseInt(size) * 0.25}px; height: ${parseInt(size) * 0.25}px; display: flex; align-items: center; justify-content: center; font-size: ${parseInt(size) * 0.15}px; border: 1px solid white;" title="Imagen de camiseta del equipo">👕</div>
+                </div>`;
+            }
+            
+            // Default avatar
+            return `<div style="width: ${size}; height: ${size}; border-radius: 50%; background: linear-gradient(45deg, #f0f0f0, #e0e0e0); display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 2px solid #ddd;" title="Sin foto - ${player.name}">
+                        <span style="font-size: ${parseInt(size) * 0.4}px; color: #666;">👤</span>
+                    </div>`;
+        }
+
+        // ==========================================
         // END REPORTS FUNCTIONS
         // ==========================================
         
@@ -4049,3 +4292,4 @@
     </script>
 </body>
 </html>
+

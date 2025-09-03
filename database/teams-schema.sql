@@ -1,4 +1,4 @@
--- 🏒 Hockey Management System - Esquema adicional para equipos y jugadores
+-- � Hockey Management System - Esquema adicional para equipos y jugadores
 -- Extensión del schema existente
 
 -- Tabla de equipos

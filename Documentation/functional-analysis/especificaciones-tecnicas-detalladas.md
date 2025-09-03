@@ -164,7 +164,7 @@ Partido completo: 60 minutos
 
 ---
 
-## 🏒 DIVISIONES Y EDADES CONFIRMADAS
+## � DIVISIONES Y EDADES CONFIRMADAS
 
 ### Categorías Femeninas:
 ```

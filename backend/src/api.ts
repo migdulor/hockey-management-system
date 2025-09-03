@@ -47,15 +47,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { url, method } = req;
   console.log('🟦 URL and method extracted:', { url, method });
   
-  // Extract pathname without query parameters
   const urlObj = new URL(url || '', 'http://localhost');
   console.log('🟦 URL object created');
   
   const path = urlObj.pathname.replace('/api', '') || '';
   console.log('🟦 Path processed:', path);
-  
+
   // DEBUG: Log all requests temporarily
   console.log(`📍 API Request: ${method} ${path}`);
+
+  // Admin endpoint for database migrations (temporary)
+  if (path === '/admin/migrate-images' && method === 'POST') {
+    try {
+      await sql`ALTER TABLE teams ADD COLUMN IF NOT EXISTS team_jersey_photo TEXT`;
+      await sql`ALTER TABLE players ADD COLUMN IF NOT EXISTS player_photo TEXT`;
+      return res.status(200).json({ success: true, message: 'Migration completed' });
+    } catch (error) {
+      return res.status(500).json({ success: false, message: 'Migration failed' });
+    }
+  }
   
   // Log más detallado para requests PATCH
   if (method === 'PATCH') {
@@ -625,7 +635,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // POST /api/teams - Create new team
         if (path === '/teams' && method === 'POST') {
           const body = await parseBody(req);
-          const { name, club_name, division_id, division, max_players } = body;
+          const { name, club_name, division_id, division, max_players, team_jersey_photo } = body;
 
           if (!name || !club_name) {
             return res.status(400).json({
@@ -638,7 +648,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(200).json({
               success: true,
               message: 'Equipo creado (demo)',
-              team: { id: Date.now(), name, club_name, division_id: division_id || division, max_players }
+              team: { id: Date.now(), name, club_name, division_id: division_id || division, max_players, team_jersey_photo }
             });
           }
 
@@ -699,8 +709,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
 
           const newTeam = await sql`
-            INSERT INTO teams (name, club_name, division_id, user_id, max_players, is_active, created_at, updated_at)
-            VALUES (${name}, ${club_name}, ${finalDivisionId || null}, ${decoded.userId}, ${max_players || 20}, true, NOW(), NOW())
+            INSERT INTO teams (name, club_name, division_id, user_id, max_players, team_jersey_photo, is_active, created_at, updated_at)
+            VALUES (${name}, ${club_name}, ${finalDivisionId || null}, ${decoded.userId}, ${max_players || 20}, ${team_jersey_photo || null}, true, NOW(), NOW())
             RETURNING *
           `;
 
@@ -718,7 +728,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (path.startsWith('/teams/') && method === 'PUT') {
           const teamId = path.split('/teams/')[1];
           const body = await parseBody(req);
-          const { name, club_name, division_id, division, max_players } = body;
+          const { name, club_name, division_id, division, max_players, team_jersey_photo } = body;
+
+          console.log('🔧 PUT Team - Data received:', {
+            teamId,
+            name,
+            club_name,
+            division_id,
+            division,
+            max_players,
+            hasTeamJerseyPhoto: !!team_jersey_photo
+          });
 
           if (!teamId) {
             return res.status(400).json({
@@ -726,6 +746,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               message: 'ID del equipo es requerido'
             });
           }
+
+          // Intentar crear las columnas de imágenes si no existen (auto-migración)
+          console.log('✅ Database columns already exist - proceeding with team update');
 
           // Verificar que el equipo pertenezca al usuario
           const existingTeam = await sql`
@@ -752,17 +775,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
           }
 
-          const updatedTeam = await sql`
-            UPDATE teams 
-            SET 
-              name = ${name || existingTeam.rows[0].name},
-              club_name = ${club_name || existingTeam.rows[0].club_name},
-              division_id = ${finalDivisionId},
-              max_players = ${max_players || existingTeam.rows[0].max_players},
-              updated_at = NOW()
-            WHERE id = ${teamId} AND user_id = ${decoded.userId}
-            RETURNING *
-          `;
+          let updatedTeam;
+          
+          if (team_jersey_photo !== undefined) {
+            updatedTeam = await sql`
+              UPDATE teams 
+              SET 
+                name = ${name || existingTeam.rows[0].name},
+                club_name = ${club_name || existingTeam.rows[0].club_name},
+                division_id = ${finalDivisionId},
+                max_players = ${max_players || existingTeam.rows[0].max_players},
+                team_jersey_photo = ${team_jersey_photo},
+                updated_at = NOW()
+              WHERE id = ${teamId} AND user_id = ${decoded.userId}
+              RETURNING *
+            `;
+          } else {
+            updatedTeam = await sql`
+              UPDATE teams 
+              SET 
+                name = ${name || existingTeam.rows[0].name},
+                club_name = ${club_name || existingTeam.rows[0].club_name},
+                division_id = ${finalDivisionId},
+                max_players = ${max_players || existingTeam.rows[0].max_players},
+                updated_at = NOW()
+              WHERE id = ${teamId} AND user_id = ${decoded.userId}
+              RETURNING *
+            `;
+          }
 
           return res.status(200).json({
             success: true,
@@ -919,7 +959,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               p.nickname, 
               p.birth_date, 
               p.position, 
-              p.photo_url, 
+              p.player_photo, 
               tp.jersey_number, 
               tp.is_active as team_active
             FROM players p
@@ -937,7 +977,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // POST /api/players - Create new player
         if (path === '/players' && method === 'POST') {
           const body = await parseBody(req);
-          const { teamId, name, nickname, position, birth_date, jersey_number } = body;
+          const { teamId, name, nickname, position, birth_date, jersey_number, player_photo } = body;
 
           if (!teamId || !name || !birth_date) {
             return res.status(400).json({
@@ -950,11 +990,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(200).json({
               success: true,
               message: 'Jugador creado (demo)',
-              player: { id: Date.now(), name, nickname, jersey_number }
+              player: { id: Date.now(), name, nickname, jersey_number, player_photo }
             });
           }
 
           try {
+            console.log('✅ Database columns already exist - proceeding with creation');
+
             // Verificar que el número de camiseta no esté ocupado en el equipo
             if (jersey_number) {
               const existingJerseyQuery = await sql`
@@ -971,11 +1013,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
 
             // Crear el jugador en la tabla players
-            const newPlayerQuery = await sql`
-              INSERT INTO players (name, nickname, birth_date, position, is_active, created_at, updated_at)
-              VALUES (${name}, ${nickname || null}, ${birth_date}, ${position || null}, true, NOW(), NOW())
-              RETURNING *
-            `;
+            let newPlayerQuery;
+            
+            // Solo incluir player_photo si realmente se envió una imagen válida
+            const hasValidPhoto = player_photo && 
+                                  typeof player_photo === 'string' && 
+                                  player_photo.trim().length > 0 && 
+                                  player_photo.startsWith('data:image');
+                                  
+            if (hasValidPhoto) {
+              newPlayerQuery = await sql`
+                INSERT INTO players (name, nickname, birth_date, position, player_photo, is_active, created_at, updated_at)
+                VALUES (${name}, ${nickname || null}, ${birth_date}, ${position || null}, ${player_photo}, true, NOW(), NOW())
+                RETURNING *
+              `;
+            } else {
+              newPlayerQuery = await sql`
+                INSERT INTO players (name, nickname, birth_date, position, is_active, created_at, updated_at)
+                VALUES (${name}, ${nickname || null}, ${birth_date}, ${position || null}, true, NOW(), NOW())
+                RETURNING *
+              `;
+            }
 
             const newPlayer = newPlayerQuery.rows[0];
 
@@ -997,9 +1055,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
           } catch (error) {
             console.error('Error creating player:', error);
+            console.error('Error details:', {
+              message: (error as Error).message,
+              stack: (error as Error).stack
+            });
+            
             return res.status(500).json({
               success: false,
-              message: 'Error interno del servidor al crear jugador'
+              message: `Error interno del servidor: ${(error as Error).message}`
             });
           }
         }
@@ -1008,7 +1071,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (path.match(/^\/players\/[^\/]+$/) && method === 'PUT') {
           const playerId = path.split('/')[2];
           const body = await parseBody(req);
-          const { teamId, name, nickname, position, birth_date, jersey_number } = body;
+          const { teamId, name, nickname, position, birth_date, jersey_number, player_photo } = body;
+
+          console.log('🔧 PUT Player - Data received:', {
+            playerId,
+            teamId,
+            name,
+            nickname,
+            position,
+            birth_date,
+            jersey_number,
+            hasPlayerPhoto: !!player_photo
+          });
 
           if (!playerId || !teamId || !name || !birth_date) {
             return res.status(400).json({
@@ -1026,6 +1100,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
 
           try {
+            console.log('✅ Database columns already exist - proceeding with update');
+
             // Verificar que el jugador existe en el equipo
             const existingPlayerQuery = await sql`
               SELECT tp.id, tp.jersey_number 
@@ -1058,17 +1134,49 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
 
             // Actualizar datos del jugador en la tabla players
-            const updatePlayerQuery = await sql`
-              UPDATE players 
-              SET 
-                name = ${name}, 
-                nickname = ${nickname || null}, 
-                birth_date = ${birth_date}, 
-                position = ${position || null}, 
-                updated_at = NOW()
-              WHERE id = ${playerId}
-              RETURNING *
-            `;
+            let updateQuery;
+            let updateValues = {
+              name,
+              nickname: nickname || null,
+              birth_date,
+              position: position || null,
+              updated_at: 'NOW()'
+            };
+
+            // Solo incluir player_photo si realmente se envió una imagen válida
+            const hasValidPhoto = player_photo && 
+                                  typeof player_photo === 'string' && 
+                                  player_photo.trim().length > 0 && 
+                                  player_photo.startsWith('data:image');
+                                  
+            if (hasValidPhoto) {
+              updateQuery = sql`
+                UPDATE players 
+                SET 
+                  name = ${name}, 
+                  nickname = ${nickname || null}, 
+                  birth_date = ${birth_date}, 
+                  position = ${position || null},
+                  player_photo = ${player_photo}, 
+                  updated_at = NOW()
+                WHERE id = ${playerId}
+                RETURNING *
+              `;
+            } else {
+              updateQuery = sql`
+                UPDATE players 
+                SET 
+                  name = ${name}, 
+                  nickname = ${nickname || null}, 
+                  birth_date = ${birth_date}, 
+                  position = ${position || null},
+                  updated_at = NOW()
+                WHERE id = ${playerId}
+                RETURNING *
+              `;
+            }
+            
+            const updatePlayerQuery = await updateQuery;
 
             if (updatePlayerQuery.rows.length === 0) {
               return res.status(404).json({
@@ -1081,8 +1189,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const updateTeamPlayerQuery = await sql`
               UPDATE team_players 
               SET 
-                jersey_number = ${jersey_number || null}, 
-                updated_at = NOW()
+                jersey_number = ${jersey_number || null}
               WHERE player_id = ${playerId} AND team_id = ${teamId}
               RETURNING *
             `;
@@ -1098,9 +1205,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
           } catch (error) {
             console.error('Error updating player:', error);
+            console.error('Error details:', {
+              message: (error as Error).message,
+              stack: (error as Error).stack,
+              playerPhoto: !!player_photo,
+              playerPhotoType: typeof player_photo
+            });
+            
             return res.status(500).json({
               success: false,
-              message: 'Error interno del servidor al actualizar jugador'
+              message: `Error interno del servidor: ${(error as Error).message}`
             });
           }
         }
@@ -1240,9 +1354,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             });
           }
 
+          // Ensure the date is properly formatted as local date
+          const localDate = new Date(trainingDate + 'T12:00:00').toISOString().split('T')[0];
+
           const newTraining = await sql`
             INSERT INTO training_sessions (team_id, name, date, time, location, notes, type, created_at, updated_at)
-            VALUES (${teamId}, ${name}, ${trainingDate}, ${startTime}, ${location || null}, ${notes || null}, 'regular', NOW(), NOW())
+            VALUES (${teamId}, ${name}, ${localDate}, ${startTime}, ${location || null}, ${notes || null}, 'regular', NOW(), NOW())
             RETURNING *
           `;
 

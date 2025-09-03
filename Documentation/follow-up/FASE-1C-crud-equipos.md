@@ -193,7 +193,7 @@ Implementar CRUD completo de equipos con todas las validaciones específicas de 
 
 ## 🔧 VALIDACIONES ESPECÍFICAS DE HOCKEY
 
-### 🏒 **Reglas de División por Edad:**
+### � **Reglas de División por Edad:**
 ```typescript
 const DIVISION_RULES = {
   'Sub14': { minBirthYear: 2011, maxBirthYear: null, allowsShootout: false },
@@ -213,7 +213,7 @@ const PLAN_LIMITS = {
 };
 ```
 
-### ⚽ **Reglas de Participación:**
+### 🏑 **Reglas de Participación:**
 - Máximo **2 divisiones por club** por jugadora
 - Solo divisiones **iguales o inferiores** (Sub19 puede jugar Inter, pero no Primera)
 - **20 jugadoras máximo** por equipo (11 titulares + 9 suplentes)

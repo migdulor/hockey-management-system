@@ -125,7 +125,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏒 Gestión de Equipos y Jugadores</h1>
+            <h1>� Gestión de Equipos y Jugadores</h1>
             <p>Módulo 2: Alta de Equipos y Gestión de Jugadores</p>
         </div>
 
@@ -136,13 +136,13 @@
         </div>
 
         <div class="tabs">
-            <button class="tab active" onclick="showTab('teams')">🏒 Mis Equipos</button>
+            <button class="tab active" onclick="showTab('teams')">� Mis Equipos</button>
             <button class="tab" onclick="showTab('create-team')">➕ Crear Equipo</button>
             <button class="tab" onclick="showTab('players')">👥 Jugadores</button>
         </div>
 
         <div id="teams-tab" class="tab-content active">
-            <h2>🏒 Mis Equipos</h2>
+            <h2>� Mis Equipos</h2>
             <div id="teamsList">
                 <p>Cargando equipos...</p>
             </div>
@@ -304,7 +304,7 @@
 
             teamsList.innerHTML = userTeams.map(team => `
                 <div class="team-card">
-                    <h3>🏒 ${team.name}</h3>
+                    <h3>� ${team.name}</h3>
                     <p><strong>Categoría:</strong> ${team.category.charAt(0).toUpperCase() + team.category.slice(1)}</p>
                     <p><strong>Jugadores:</strong> ${team.players_count}</p>
                     <p><strong>Descripción:</strong> ${team.description || 'Sin descripción'}</p>

@@ -1,4 +1,4 @@
--- 🏒 Hockey Management System Database Schema
+-- � Hockey Management System Database Schema
 -- Inicialización de tablas para Vercel Postgres
 
 -- Extension para UUID

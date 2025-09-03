@@ -60,7 +60,7 @@ Documentation/
 🎯 **NUEVO:** [`functional-analysis/ejemplos-casos-uso-reales.md`](./functional-analysis/ejemplos-casos-uso-reales.md)
 
 **Contiene:**
-- ⚽ Ejemplo registro gol con sector área rival
+- 🏑 Ejemplo registro gol con sector área rival
 - 🔄 Ejemplo cambio jugadora con tiempo automático  
 - � Ejemplo sanción con cálculo automático reingreso
 - �️ Ejemplo recuperación bocha para mapa calor
@@ -100,7 +100,7 @@ Documentation/
 - 👥 **Gestión Equipos:** CRUD con validaciones de negocio
 - 📊 **Asistencias:** Registro y control de entrenamientos
 - 🏗️ **Formaciones:** Planificación táctica visual
-- ⚽ **Partidos:** Registro tiempo real con capacidad offline
+- 🏑 **Partidos:** Registro tiempo real con capacidad offline
 - 📈 **Reportes:** Estadísticas y mapas de calor
 - 🎨 **Frontend:** 100% de las interfaces por desarrollar
 
@@ -131,7 +131,7 @@ Documentation/
 
 4. **📊 Sistema de asistencias**
 5. **🏗️ Formaciones básicas**
-6. **⚽ Registro de partidos offline**
+6. **🏑 Registro de partidos offline**
 7. **🎨 Frontend básico funcional**
 
 ---
@@ -145,7 +145,7 @@ Documentation/
 | 👤 Jugadores | ✅ Completo | 100% | ✅ COMPLETO |
 | 📊 Asistencias | ❌ Sin implementar | 0% | 🟡 ALTA |
 | 🏗️ Formaciones | ❌ Sin implementar | 0% | 🟡 ALTA |
-| ⚽ Partidos | ❌ Sin implementar | 0% | 🔥 CRÍTICA |
+| 🏑 Partidos | ❌ Sin implementar | 0% | 🔥 CRÍTICA |
 | 📈 Reportes | ❌ Sin implementar | 0% | 🟡 ALTA |
 | 🎨 Frontend | 🟡 Estructura | 5% | 🟡 ALTA |
 
