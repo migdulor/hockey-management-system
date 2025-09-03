@@ -921,7 +921,6 @@
             <h1>🏒 Hockey Management - Dashboard</h1>
             <div class="user-info">
                 <span id="user-name">Cargando...</span>
-                <button class="btn" onclick="checkTokenStatus()" style="background: #17a2b8; color: white; margin-right: 10px; font-size: 0.8rem;">🔍 Debug Token</button>
                 <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
             </div>
         </div>
@@ -1412,9 +1411,12 @@
         function getAuthHeaders() {
             const token = localStorage.getItem('hockey_token');
             if (!token) {
+                console.log('No token in getAuthHeaders, redirecting...');
                 window.location.href = 'login.html';
                 return {};
             }
+            
+            console.log('Using token in headers:', token.substring(0, 20) + '...');
             return {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -1440,16 +1442,34 @@
         async function checkCoachAccess() {
             const token = localStorage.getItem('hockey_token');
             if (!token) {
+                console.log('No token found, redirecting to login');
                 window.location.href = 'login.html';
                 return;
             }
+            
+            console.log('Token found, checking profile...');
             
             try {
                 const response = await fetch('/api/profile', {
                     headers: getAuthHeaders()
                 });
                 
+                console.log('Profile response status:', response.status);
+                
+                // Handle 401 specifically
+                if (response.status === 401) {
+                    console.log('401 Unauthorized - Token expired or invalid, clearing localStorage');
+                    localStorage.removeItem('hockey_token');
+                    localStorage.removeItem('hockey_user');
+                    showMessage('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'error');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                    return;
+                }
+                
                 const data = await response.json();
+                console.log('Profile data:', data);
                 
                 if (!data.success) {
                     throw new Error('Token inválido');
@@ -1489,6 +1509,16 @@
                 const userResponse = await fetch('/api/profile', {
                     headers: getAuthHeaders()
                 });
+                
+                // Handle 401 specifically
+                if (userResponse.status === 401) {
+                    console.log('401 in loadDashboardStats - redirecting to login');
+                    localStorage.removeItem('hockey_token');
+                    localStorage.removeItem('hockey_user');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
                 const userData = await userResponse.json();
                 
                 console.log('=== USER DATA DEBUG ===');
@@ -1505,6 +1535,16 @@
                 const teamsResponse = await fetch('/api/teams', {
                     headers: getAuthHeaders()
                 });
+                
+                // Handle 401 for teams request too
+                if (teamsResponse.status === 401) {
+                    console.log('401 in teams request - redirecting to login');
+                    localStorage.removeItem('hockey_token');
+                    localStorage.removeItem('hockey_user');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
                 const teamsData = await teamsResponse.json();
                 
                 console.log('Teams data:', teamsData);
@@ -3894,64 +3934,6 @@
         // ==========================================
         // END REPORTS FUNCTIONS
         // ==========================================
-        
-        // Debug function to check token status
-        async function checkTokenStatus() {
-            const token = localStorage.getItem('hockey_token');
-            const user = localStorage.getItem('hockey_user');
-            
-            console.log('=== TOKEN & USER DEBUG ===');
-            console.log('Token exists:', !!token);
-            console.log('Token length:', token ? token.length : 0);
-            console.log('User data:', user);
-            
-            if (token) {
-                try {
-                    const response = await fetch('/api/profile', {
-                        headers: getAuthHeaders()
-                    });
-                    
-                    console.log('Profile response status:', response.status);
-                    const data = await response.json();
-                    console.log('Profile response data:', data);
-                    
-                    if (response.status === 200 && data.success) {
-                        console.log('=== USER LIMITS ===');
-                        console.log('Max teams allowed:', data.data.maxTeams);
-                        console.log('Plan:', data.data.plan);
-                        console.log('Role:', data.data.role);
-                        
-                        const maxTeams = data.data.maxTeams || 0;
-                        let limitMessage;
-                        if (maxTeams === 0) {
-                            limitMessage = 'No puede crear equipos';
-                        } else {
-                            limitMessage = `Max equipos: ${maxTeams}`;
-                        }
-                        
-                        showMessage(`Token válido. Usuario: ${data.data.firstName} ${data.data.lastName}. ${limitMessage}`, 'success');
-                        
-                        // También obtener equipos actuales
-                        const teamsResponse = await fetch('/api/teams', {
-                            headers: getAuthHeaders()
-                        });
-                        const teamsData = await teamsResponse.json();
-                        
-                        if (teamsData.success) {
-                            console.log('Current teams:', teamsData.teams.length);
-                            console.log('Can create more teams:', maxTeams > 0 && teamsData.teams.length < maxTeams);
-                        }
-                    } else {
-                        showMessage(`Token inválido. Status: ${response.status}`, 'error');
-                    }
-                } catch (error) {
-                    console.error('Error checking token:', error);
-                    showMessage(`Error verificando token: ${error.message}`, 'error');
-                }
-            } else {
-                showMessage('No hay token guardado', 'warning');
-            }
-        }
         
         // Export functions for comparative report
         function exportComparativeReport(format) {
