@@ -921,6 +921,7 @@
             <h1>🏒 Hockey Management - Dashboard</h1>
             <div class="user-info">
                 <span id="user-name">Cargando...</span>
+                <button class="btn" onclick="checkTokenStatus()" style="background: #17a2b8; color: white; margin-right: 10px; font-size: 0.8rem;">🔍 Debug Token</button>
                 <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
             </div>
         </div>
@@ -1424,9 +1425,12 @@
         function handleAuthError(error, response = null) {
             if (response && response.status === 401) {
                 console.log('Token expired or invalid, redirecting to login');
+                showMessage('Sesión expirada. Por favor, inicia sesión nuevamente.', 'error');
                 localStorage.removeItem('hockey_token');
                 localStorage.removeItem('hockey_user');
-                window.location.href = 'login.html';
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
                 return;
             }
             console.error('Auth error:', error);
@@ -1671,6 +1675,35 @@
             const divisionSelect = document.getElementById('team-division');
             divisionSelect.innerHTML = '<option value="">Primero selecciona el género...</option>';
             
+            // Verificar token antes de abrir el modal
+            const token = localStorage.getItem('hockey_token');
+            if (!token) {
+                showMessage('Sesión expirada. Por favor, inicia sesión nuevamente.', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
+            }
+            
+            // Verificar que el token sea válido
+            try {
+                const response = await fetch('/api/profile', {
+                    headers: getAuthHeaders()
+                });
+                
+                if (response.status === 401) {
+                    showMessage('Sesión expirada. Por favor, inicia sesión nuevamente.', 'error');
+                    setTimeout(() => {
+                        localStorage.removeItem('hockey_token');
+                        localStorage.removeItem('hockey_user');
+                        window.location.href = 'login.html';
+                    }, 2000);
+                    return;
+                }
+            } catch (error) {
+                console.error('Error verifying token:', error);
+            }
+            
             document.getElementById('team-modal').style.display = 'block';
         }
 
@@ -1721,22 +1754,37 @@
             divisionSelect.innerHTML = '<option value="">Cargando divisiones...</option>';
             
             try {
-                const response = await fetch(`/api/divisions?gender=${gender}`, {
+                const response = await fetch(`/api/divisions?gender=${encodeURIComponent(gender)}`, {
                     headers: getAuthHeaders()
                 });
+                
+                console.log(`Loading divisions for gender: ${gender}`);
+                console.log('Response status:', response.status);
+                
+                // Manejar error de autenticación
+                if (response.status === 401) {
+                    handleAuthError(new Error('Unauthorized'), response);
+                    return;
+                }
+                
                 const data = await response.json();
+                console.log('Divisions data:', data);
                 
                 if (data.success) {
                     // Limpiar select
                     divisionSelect.innerHTML = '<option value="">Seleccionar división (opcional)...</option>';
                     
-                    // Agregar divisiones filtradas por género
-                    data.divisions.forEach(division => {
-                        const option = document.createElement('option');
-                        option.value = division.id;
-                        option.textContent = division.name;
-                        divisionSelect.appendChild(option);
-                    });
+                    // Verificar que hay divisiones para el género seleccionado
+                    if (data.divisions && data.divisions.length > 0) {
+                        data.divisions.forEach(division => {
+                            const option = document.createElement('option');
+                            option.value = division.id;
+                            option.textContent = `${division.name} (${division.gender === 'male' ? 'Masculino' : 'Femenino'})`;
+                            divisionSelect.appendChild(option);
+                        });
+                    } else {
+                        divisionSelect.innerHTML = `<option value="">No hay divisiones para ${gender === 'male' ? 'masculino' : 'femenino'}</option>`;
+                    }
                 } else {
                     divisionSelect.innerHTML = '<option value="">Error cargando divisiones</option>';
                     console.error('Error loading divisions:', data.message);
@@ -1772,6 +1820,13 @@
                         });
                         
                         console.log('Response status:', response.status);
+                        
+                        // Manejar error de autenticación
+                        if (response.status === 401) {
+                            handleAuthError(new Error('Unauthorized'), response);
+                            return;
+                        }
+                        
                         const data = await response.json();
                         console.log('Response data:', data);
                         
@@ -1782,13 +1837,6 @@
                             loadDashboardStats(); // Actualizar estadísticas
                         } else {
                             showMessage(`Error: ${data.message || data.error}`, 'error');
-                            
-                            // Si es error de token, redirigir al login
-                            if (data.message && data.message.includes('Token inválido')) {
-                                localStorage.removeItem('hockey_token');
-                                localStorage.removeItem('hockey_user');
-                                window.location.href = 'login.html';
-                            }
                         }
                     } catch (error) {
                         console.error('Error in team creation:', error);
@@ -3793,6 +3841,40 @@
         // ==========================================
         // END REPORTS FUNCTIONS
         // ==========================================
+        
+        // Debug function to check token status
+        async function checkTokenStatus() {
+            const token = localStorage.getItem('hockey_token');
+            const user = localStorage.getItem('hockey_user');
+            
+            console.log('=== TOKEN DEBUG ===');
+            console.log('Token exists:', !!token);
+            console.log('Token length:', token ? token.length : 0);
+            console.log('User data:', user);
+            
+            if (token) {
+                try {
+                    const response = await fetch('/api/profile', {
+                        headers: getAuthHeaders()
+                    });
+                    
+                    console.log('Profile response status:', response.status);
+                    const data = await response.json();
+                    console.log('Profile response data:', data);
+                    
+                    if (response.status === 200) {
+                        showMessage(`Token válido. Usuario: ${data.data.firstName} ${data.data.lastName}`, 'success');
+                    } else {
+                        showMessage(`Token inválido. Status: ${response.status}`, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error checking token:', error);
+                    showMessage(`Error verificando token: ${error.message}`, 'error');
+                }
+            } else {
+                showMessage('No hay token guardado', 'warning');
+            }
+        }
         
         // Export functions for comparative report
         function exportComparativeReport(format) {
