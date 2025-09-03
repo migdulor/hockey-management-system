@@ -1496,7 +1496,7 @@
                 console.log('Max teams from API:', userData.data ? userData.data.maxTeams : 'No data');
                 
                 if (userData.success) {
-                    const maxTeams = userData.data.maxTeams || 2;
+                    const maxTeams = userData.data.maxTeams !== undefined ? userData.data.maxTeams : 0;
                     document.getElementById('max-teams-display').textContent = maxTeams;
                     console.log('Setting max teams display to:', maxTeams);
                 }

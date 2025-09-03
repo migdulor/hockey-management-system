@@ -217,7 +217,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         // Get user info from database
         const userResult = await sql`
-          SELECT id, email, first_name, last_name, role, plan, club_name, is_active, created_at
+          SELECT id, email, first_name, last_name, role, max_teams, club_name, is_active, created_at
           FROM users 
           WHERE id = ${decoded.userId} AND is_active = true
         `;
@@ -239,7 +239,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             role: user.role,
             firstName: user.first_name,
             lastName: user.last_name,
-            plan: user.plan,
+            maxTeams: user.max_teams,
             clubName: user.club_name,
             createdAt: user.created_at
           }
@@ -385,7 +385,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // Get user from database
         const userResult = await sql`
-          SELECT id, email, first_name, last_name, role, plan, club_name, is_active, created_at, last_login
+          SELECT id, email, first_name, last_name, role, max_teams, club_name, is_active, created_at, last_login
           FROM users 
           WHERE id = ${decoded.userId} AND is_active = true
         `;
@@ -406,7 +406,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             firstName: user.first_name,
             lastName: user.last_name,
             role: user.role,
-            plan: user.plan,
+            maxTeams: user.max_teams,
             clubName: user.club_name,
             isActive: user.is_active,
             createdAt: user.created_at,
