@@ -811,6 +811,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           });
         }
 
+        // GET /api/teams/:id - Get specific team
+        if (path.startsWith('/teams/') && method === 'GET') {
+          const teamId = path.split('/teams/')[1];
+
+          if (!teamId) {
+            return res.status(400).json({
+              success: false,
+              message: 'ID del equipo es requerido'
+            });
+          }
+
+          // Verificar que el equipo pertenezca al usuario
+          const team = await sql`
+            SELECT t.*, d.name as division_name
+            FROM teams t
+            LEFT JOIN divisions d ON t.division_id = d.id
+            WHERE t.id = ${teamId} AND t.user_id = ${decoded.userId} AND t.is_active = true
+          `;
+
+          if (team.rows.length === 0) {
+            return res.status(404).json({
+              success: false,
+              message: 'Equipo no encontrado o no tienes permisos para acceder a él'
+            });
+          }
+
+          return res.status(200).json({
+            success: true,
+            team: team.rows[0]
+          });
+        }
+
         // DELETE /api/teams/:id - Delete team (only if no players)
         if (path.startsWith('/teams/') && method === 'DELETE') {
           const teamId = path.split('/teams/')[1];
