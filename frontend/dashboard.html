@@ -1491,8 +1491,14 @@
                 });
                 const userData = await userResponse.json();
                 
+                console.log('=== USER DATA DEBUG ===');
+                console.log('User response:', userData);
+                console.log('Max teams from API:', userData.data ? userData.data.maxTeams : 'No data');
+                
                 if (userData.success) {
-                    document.getElementById('max-teams-display').textContent = userData.data.maxTeams || 2;
+                    const maxTeams = userData.data.maxTeams || 2;
+                    document.getElementById('max-teams-display').textContent = maxTeams;
+                    console.log('Setting max teams display to:', maxTeams);
                 }
 
                 // Cargar equipos del entrenador
@@ -1501,8 +1507,12 @@
                 });
                 const teamsData = await teamsResponse.json();
                 
+                console.log('Teams data:', teamsData);
+                
                 if (teamsData.success) {
-                    document.getElementById('total-teams').textContent = teamsData.teams.length;
+                    const currentTeams = teamsData.teams.length;
+                    document.getElementById('total-teams').textContent = currentTeams;
+                    console.log('Current teams count:', currentTeams);
                     
                     // Calcular total de jugadoras (cuando tengamos los datos)
                     let totalPlayers = 0;
@@ -1685,7 +1695,7 @@
                 return;
             }
             
-            // Verificar que el token sea válido
+            // Verificar que el token sea válido y obtener límites de equipos
             try {
                 const response = await fetch('/api/profile', {
                     headers: getAuthHeaders()
@@ -1700,6 +1710,32 @@
                     }, 2000);
                     return;
                 }
+                
+                const userData = await response.json();
+                if (userData.success) {
+                    const maxTeams = userData.data.maxTeams || 2;
+                    
+                    // Verificar equipos actuales
+                    const teamsResponse = await fetch('/api/teams', {
+                        headers: getAuthHeaders()
+                    });
+                    const teamsData = await teamsResponse.json();
+                    
+                    if (teamsData.success) {
+                        const currentTeams = teamsData.teams.length;
+                        
+                        console.log('=== TEAM LIMITS CHECK ===');
+                        console.log('Current teams:', currentTeams);
+                        console.log('Max teams allowed:', maxTeams);
+                        console.log('Can create more:', currentTeams < maxTeams);
+                        
+                        if (currentTeams >= maxTeams) {
+                            showMessage(`Has alcanzado el límite máximo de ${maxTeams} equipos. Para crear más equipos, contacta al administrador.`, 'warning');
+                            return;
+                        }
+                    }
+                }
+                
             } catch (error) {
                 console.error('Error verifying token:', error);
             }
@@ -3847,7 +3883,7 @@
             const token = localStorage.getItem('hockey_token');
             const user = localStorage.getItem('hockey_user');
             
-            console.log('=== TOKEN DEBUG ===');
+            console.log('=== TOKEN & USER DEBUG ===');
             console.log('Token exists:', !!token);
             console.log('Token length:', token ? token.length : 0);
             console.log('User data:', user);
@@ -3862,8 +3898,24 @@
                     const data = await response.json();
                     console.log('Profile response data:', data);
                     
-                    if (response.status === 200) {
-                        showMessage(`Token válido. Usuario: ${data.data.firstName} ${data.data.lastName}`, 'success');
+                    if (response.status === 200 && data.success) {
+                        console.log('=== USER LIMITS ===');
+                        console.log('Max teams allowed:', data.data.maxTeams);
+                        console.log('Plan:', data.data.plan);
+                        console.log('Role:', data.data.role);
+                        
+                        showMessage(`Token válido. Usuario: ${data.data.firstName} ${data.data.lastName}. Max equipos: ${data.data.maxTeams || 2}`, 'success');
+                        
+                        // También obtener equipos actuales
+                        const teamsResponse = await fetch('/api/teams', {
+                            headers: getAuthHeaders()
+                        });
+                        const teamsData = await teamsResponse.json();
+                        
+                        if (teamsData.success) {
+                            console.log('Current teams:', teamsData.teams.length);
+                            console.log('Can create more teams:', teamsData.teams.length < (data.data.maxTeams || 2));
+                        }
                     } else {
                         showMessage(`Token inválido. Status: ${response.status}`, 'error');
                     }
