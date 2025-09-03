@@ -796,7 +796,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
           // Verificar que no tenga jugadores
           const playersCount = await sql`
-            SELECT COUNT(*) as count FROM players WHERE team_id = ${teamId} AND is_active = true
+            SELECT COUNT(*) as count FROM team_players WHERE team_id = ${teamId} AND is_active = true
           `;
 
           const playerCount = parseInt(playersCount.rows[0].count);
