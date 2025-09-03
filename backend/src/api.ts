@@ -622,7 +622,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // POST /api/teams - Create new team
         if (path === '/teams' && method === 'POST') {
           const body = await parseBody(req);
-          const { name, club_name, division_id, max_players } = body;
+          const { name, club_name, division_id, division, max_players } = body;
 
           if (!name || !club_name) {
             return res.status(400).json({
@@ -635,7 +635,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(200).json({
               success: true,
               message: 'Equipo creado (demo)',
-              team: { id: Date.now(), name, club_name, division_id, max_players }
+              team: { id: Date.now(), name, club_name, division_id: division_id || division, max_players }
             });
           }
 
@@ -681,12 +681,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             });
           }
 
-          // Si no se proporciona division_id, usar un UUID temporal o NULL
-          const divisionValue = division_id || null;
-          
+          // Handle division - support both division_id and division (string)
+          let finalDivisionId = division_id;
+          if (!finalDivisionId && division) {
+            // If division is a string, try to find the division ID
+            if (typeof division === 'string') {
+              const divisionResult = await sql`
+                SELECT id FROM divisions WHERE LOWER(name) = LOWER(${division}) LIMIT 1
+              `;
+              if (divisionResult.rows.length > 0) {
+                finalDivisionId = divisionResult.rows[0].id;
+              }
+            }
+          }
+
           const newTeam = await sql`
             INSERT INTO teams (name, club_name, division_id, user_id, max_players, is_active, created_at, updated_at)
-            VALUES (${name}, ${club_name}, ${divisionValue}, ${decoded.userId}, ${max_players || 20}, true, NOW(), NOW())
+            VALUES (${name}, ${club_name}, ${finalDivisionId || null}, ${decoded.userId}, ${max_players || 20}, true, NOW(), NOW())
             RETURNING *
           `;
 
@@ -716,6 +727,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(403).json({
             success: false,
             message: error.message
+          });
+        }
+        
+        // Check if it's a not-null constraint violation
+        if (error.code === '23502') {
+          if (error.column === 'division_id') {
+            return res.status(400).json({
+              success: false,
+              message: 'Debes seleccionar una división válida para el equipo'
+            });
+          }
+          return res.status(400).json({
+            success: false,
+            message: 'Faltan campos obligatorios'
           });
         }
         
