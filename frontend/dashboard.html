@@ -1957,10 +1957,23 @@
                     document.getElementById('total-teams').textContent = currentTeams;
                     console.log('Current teams count:', currentTeams);
                     
-                    // Calcular total de jugadoras (cuando tengamos los datos)
+                    // Calcular total de jugadoras de todos los equipos
                     let totalPlayers = 0;
-                    // TODO: Sumar jugadoras de todos los equipos
+                    for (const team of teamsData.teams) {
+                        try {
+                            const playersResponse = await fetch(`/api/teams/${team.id}/players`, {
+                                headers: getAuthHeaders()
+                            });
+                            const playersData = await playersResponse.json();
+                            if (playersData.success) {
+                                totalPlayers += playersData.players.length;
+                            }
+                        } catch (error) {
+                            console.error(`Error loading players for team ${team.id}:`, error);
+                        }
+                    }
                     document.getElementById('total-players').textContent = totalPlayers;
+                    console.log('Total players count:', totalPlayers);
                 }
                 
             } catch (error) {
