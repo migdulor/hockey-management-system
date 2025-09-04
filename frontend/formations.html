@@ -114,20 +114,21 @@
             position: relative;
             background: #2a7f3e;
             border-radius: 15px;
-            min-height: 600px;
+            min-height: 700px;
+            max-height: 800px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
             overflow: hidden;
             border: 4px solid #ffffff;
-            perspective: 1200px;
+            perspective: 1500px;
         }
 
         .field-3d {
             position: relative;
             width: 100%;
             height: 100%;
-            min-height: 600px;
+            min-height: 700px;
             transform-style: preserve-3d;
-            transform: rotateX(45deg);
+            transform: rotateX(25deg) rotateZ(0deg);
             background: #2a7f3e;
             /* Textura del césped */
             background-image: repeating-linear-gradient(
@@ -622,6 +623,37 @@
             margin-bottom: 0.5rem;
         }
 
+        .club-selection {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .club-selection h4 {
+            color: #2563eb;
+            margin-bottom: 0.5rem;
+        }
+
+        #clubSelect {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        #clubSelect:focus {
+            border-color: #2563eb;
+            outline: none;
+        }
+
+        #teamSelect:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+
         #teamSelect {
             width: 100%;
             padding: 0.5rem;
@@ -643,6 +675,34 @@
         .players-count-header div {
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             border: 1px solid #dee2e6;
+        }
+
+        /* Estilos para posiciones en el campo */
+        .position-slot {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            border: 3px dashed rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transform: translateX(-50%) translateY(-50%);
+            transition: all 0.3s ease;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+        }
+
+        .position-slot:hover {
+            background: rgba(255, 255, 255, 0.5);
+            border-color: rgba(255, 255, 255, 0.9);
+            transform: translateX(-50%) translateY(-50%) scale(1.1);
+        }
+
+        .position-slot.occupied {
+            display: none;
         }
 
         .player-item.assigned {
@@ -743,20 +803,31 @@
         <aside class="sidebar">
             <h3>📋 Información del Partido</h3>
             
-            <!-- Paso 1: Selección de Equipo -->
+            <!-- Paso 1: Selección de Club -->
+            <div class="club-selection">
+                <h4>1. Selección de Club</h4>
+                <div class="form-group">
+                    <label>Mi Club</label>
+                    <select id="clubSelect">
+                        <option value="">-- Elegir Club --</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Paso 2: Selección de Equipo -->
             <div class="team-selection">
-                <h4>1. Selección de Equipo</h4>
+                <h4>2. Selección de Equipo</h4>
                 <div class="form-group">
                     <label>Mi Equipo</label>
-                    <select id="teamSelect">
-                        <option value="">-- Elegir Equipo --</option>
+                    <select id="teamSelect" disabled>
+                        <option value="">-- Primero elige un club --</option>
                     </select>
                 </div>
             </div>
             
-            <!-- Paso 2: Datos del Encuentro -->
+            <!-- Paso 3: Datos del Encuentro -->
             <div class="match-info">
-                <h4>2. Datos del Encuentro</h4>
+                <h4>3. Datos del Encuentro</h4>
                 
                 <div class="form-group">
                     <label>Equipo Adversario</label>
@@ -788,9 +859,9 @@
 
         <!-- Sidebar - Formación y Jugadoras -->
         <aside class="sidebar">
-            <!-- Paso 3: Formación Táctica -->
+            <!-- Paso 4: Formación Táctica -->
             <div class="formation-selection">
-                <h3>⚽ 3. Formación Táctica</h3>
+                <h3>⚽ 4. Formación Táctica</h3>
                 <div class="formation-selector">
                     <div class="formation-grid">
                         <button class="formation-btn" data-formation="1-4-3-3">1-4-3-3</button>
@@ -801,8 +872,8 @@
                 </div>
             </div>
 
-            <!-- Paso 4: Jugadoras Disponibles -->
-            <h3>👥 4. Jugadoras Disponibles</h3>
+            <!-- Paso 5: Jugadoras Disponibles -->
+            <h3>👥 5. Jugadoras Disponibles</h3>
             
             <div class="division-filter">
                 <div class="form-group">
@@ -923,7 +994,9 @@
             : '/api';  // Producción Vercel (URL relativa)
         
         // Variables globales
+        let selectedClub = null; // Club seleccionado
         let selectedTeam = null; // Equipo seleccionado
+        let availableClubs = []; // Lista de todos los clubs disponibles
         let availableTeams = []; // Lista de todos los equipos disponibles
         
         // Imagen estándar para jugadoras sin foto
@@ -957,47 +1030,129 @@
         
         // Variables para rotación de cancha
         let currentRotation = 0;
-        let currentTilt = 45;
+        let currentTilt = 25; // Cambiado de 45 a 25 grados
 
         // Elementos del DOM
         const field = document.getElementById('field');
         const playersList = document.getElementById('playersList');
         const formationName = document.getElementById('formationName');
+        const clubSelect = document.getElementById('clubSelect');
         const teamSelect = document.getElementById('teamSelect');
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', async () => {
-            await loadAvailableTeams();
+            await loadAvailableClubs();
             setupEventListeners();
             applyFormation('1-4-3-3'); // Formación inicial
         });
 
-        // Cargar equipos disponibles
-        async function loadAvailableTeams() {
+        // Cargar clubs disponibles
+        async function loadAvailableClubs() {
             try {
                 const response = await fetch(`${API_BASE_URL}/teams`);
                 if (response.ok) {
-                    availableTeams = await response.json();
-                    populateTeamSelect();
-                    console.log('✅ Equipos cargados:', availableTeams.length);
+                    const allTeams = await response.json();
+                    
+                    // Extraer clubs únicos de los equipos
+                    const clubsSet = new Set();
+                    allTeams.forEach(team => {
+                        if (team.club) {
+                            clubsSet.add(JSON.stringify({
+                                id: team.club,
+                                name: team.club
+                            }));
+                        }
+                    });
+                    
+                    availableClubs = Array.from(clubsSet).map(clubStr => JSON.parse(clubStr));
+                    populateClubSelect();
+                    console.log('✅ Clubs cargados:', availableClubs.length);
                 } else {
-                    console.error('❌ Error al cargar equipos');
-                    showMockTeams();
+                    console.error('❌ Error al cargar clubs');
+                    showMockClubs();
                 }
             } catch (error) {
-                console.error('❌ Error conectando con API de equipos:', error);
-                showMockTeams();
+                console.error('❌ Error conectando con API de clubs:', error);
+                showMockClubs();
             }
         }
 
-        // Mostrar equipos de prueba si no hay API
-        function showMockTeams() {
+        // Mostrar clubs de prueba si no hay API
+        function showMockClubs() {
+            availableClubs = [
+                { id: 'club-atletico-ejemplo', name: 'Club Atlético Ejemplo' },
+                { id: 'hockey-club-central', name: 'Hockey Club Central' },
+                { id: 'deportivo-municipal', name: 'Deportivo Municipal' }
+            ];
+            populateClubSelect();
+        }
+
+        // Poblar el selector de clubs
+        function populateClubSelect() {
+            clubSelect.innerHTML = '<option value="">-- Elegir Club --</option>';
+            availableClubs.forEach(club => {
+                const option = document.createElement('option');
+                option.value = club.id;
+                option.textContent = club.name;
+                clubSelect.appendChild(option);
+            });
+        }
+
+        // Manejar selección de club
+        function handleClubSelection() {
+            const clubId = clubSelect.value;
+            if (!clubId) {
+                selectedClub = null;
+                clearTeamSelection();
+                return;
+            }
+
+            selectedClub = availableClubs.find(club => club.id === clubId);
+            console.log('✅ Club seleccionado:', selectedClub);
+            
+            // Cargar equipos del club seleccionado
+            loadTeamsByClub();
+        }
+
+        // Limpiar selección de equipo
+        function clearTeamSelection() {
+            selectedTeam = null;
+            teamSelect.innerHTML = '<option value="">-- Primero elige un club --</option>';
+            teamSelect.disabled = true;
+            clearPlayersList();
+        }
+
+        // Cargar equipos por club
+        async function loadTeamsByClub() {
+            if (!selectedClub) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/teams`);
+                if (response.ok) {
+                    const allTeams = await response.json();
+                    
+                    // Filtrar equipos del club seleccionado
+                    availableTeams = allTeams.filter(team => team.club === selectedClub.name);
+                    populateTeamSelect();
+                    console.log('✅ Equipos del club cargados:', availableTeams.length);
+                } else {
+                    console.error('❌ Error al cargar equipos del club');
+                    showMockTeamsForClub();
+                }
+            } catch (error) {
+                console.error('❌ Error conectando con API de equipos:', error);
+                showMockTeamsForClub();
+            }
+        }
+
+        // Mostrar equipos de prueba para el club
+        function showMockTeamsForClub() {
             availableTeams = [
-                { id: 1, name: 'Sub 14 Femenino', division: 'sub14-femenino' },
-                { id: 2, name: 'Sub 16 Femenino', division: 'sub16-femenino' },
-                { id: 3, name: 'Sub 19 Femenino', division: 'sub19-femenino' },
-                { id: 4, name: 'Intermedia Femenino', division: 'intermedia-femenino' },
-                { id: 5, name: 'Primera Femenino', division: 'primera-femenino' }
+                { id: 1, name: 'Sub 14 Femenino', division: 'sub14-femenino', club: selectedClub.name },
+                { id: 2, name: 'Sub 16 Femenino', division: 'sub16-femenino', club: selectedClub.name },
+                { id: 3, name: 'Sub 19 Femenino', division: 'sub19-femenino', club: selectedClub.name },
+                { id: 4, name: 'Intermedia Femenino', division: 'intermedia-femenino', club: selectedClub.name },
+                { id: 5, name: 'Primera Femenino', division: 'primera-femenino', club: selectedClub.name }
             ];
             populateTeamSelect();
         }
@@ -1005,6 +1160,8 @@
         // Poblar el selector de equipos
         function populateTeamSelect() {
             teamSelect.innerHTML = '<option value="">-- Elegir Equipo --</option>';
+            teamSelect.disabled = false;
+            
             availableTeams.forEach(team => {
                 const option = document.createElement('option');
                 option.value = team.id;
@@ -1260,7 +1417,8 @@
 
         // Configurar event listeners
         function setupEventListeners() {
-            // Selección de equipo
+            // Selección de club y equipo
+            clubSelect.addEventListener('change', handleClubSelection);
             teamSelect.addEventListener('change', handleTeamSelection);
             
             // Botones de formación predefinida
