@@ -917,7 +917,7 @@
         .formation-step {
             background: #f8f9fa;
             border-radius: 10px;
-            padding: 20px;
+            padding: 15px;
             margin-bottom: 15px;
             border: 2px solid #e9ecef;
             transition: all 0.3s ease;
@@ -928,13 +928,14 @@
             box-shadow: 0 4px 15px rgba(42, 82, 152, 0.1);
         }
 
+        /* Campo 3D móvil mejorado */
         #hockey-field {
             position: relative;
             background: #2a7f3e;
             border-radius: 15px;
             border: 4px solid #fff;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            min-height: 600px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            min-height: 500px;
             perspective: 1500px;
         }
 
@@ -942,7 +943,7 @@
             position: relative;
             width: 100%;
             height: 100%;
-            min-height: 600px;
+            min-height: 500px;
             transform-style: preserve-3d;
             transform: rotateX(20deg) rotateZ(0deg);
             background: #2a7f3e;
@@ -958,8 +959,8 @@
 
         .field-position-slot {
             position: absolute;
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             border: 3px dashed rgba(255,255,255,0.6);
             border-radius: 50%;
             transform: translate(-50%, -50%);
@@ -982,29 +983,38 @@
             background: #28a745 !important;
             margin-right: 5px;
             margin-bottom: 5px;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
         .formation-preset-btn:hover {
             background: #218838 !important;
+            transform: translateY(-1px);
         }
 
         .player-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px;
+            gap: 8px;
+            padding: 8px;
             background: #f8f9fa;
             border-radius: 8px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             cursor: pointer;
             border: 2px solid transparent;
             transition: all 0.3s ease;
+            font-size: 0.85rem;
         }
 
         .player-item:hover {
             background: #e9ecef;
             border-color: #2a5298;
-            transform: translateX(5px);
+            transform: translateX(3px);
         }
 
         .player-item.selected {
@@ -1020,16 +1030,58 @@
             cursor: grabbing;
         }
 
+        .player-on-field {
+            position: absolute;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            border: 3px solid #fff;
+            cursor: move;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 0.7rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+            animation: playerPulse 2s infinite;
+        }
+
+        .player-on-field:hover {
+            transform: scale(1.1) translateZ(10px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .player-on-field.goalkeeper {
+            background: linear-gradient(45deg, #4ecdc4, #44d9cc);
+        }
+
+        .player-on-field.defender {
+            background: linear-gradient(45deg, #45b7d1, #69c7e5);
+        }
+
+        .player-on-field.midfielder {
+            background: linear-gradient(45deg, #f9ca24, #f0932b);
+        }
+
+        .player-on-field.forward {
+            background: linear-gradient(45deg, #eb4d4b, #ff6348);
+        }
+
         .substitute-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px;
+            gap: 6px;
+            padding: 6px;
             background: #f8f9fa;
-            border-radius: 8px;
-            margin-bottom: 5px;
+            border-radius: 6px;
+            margin-bottom: 4px;
             border: 1px solid #dee2e6;
             transition: all 0.3s ease;
+            font-size: 0.8rem;
         }
 
         .substitute-item:hover {
@@ -1040,9 +1092,10 @@
             border: 2px dashed #dee2e6;
             border-radius: 8px;
             padding: 10px;
-            min-height: 150px;
+            min-height: 120px;
             background: white;
             transition: all 0.3s ease;
+            position: relative;
         }
 
         #substitutes-area.drag-over {
@@ -1050,12 +1103,7 @@
             background: #f8fff8;
         }
 
-        /* Área de drop para suplentes */
-        #substitutes-area {
-            position: relative;
-        }
-
-        #substitutes-area::after {
+        #substitutes-area:empty::after {
             content: "↓ Zona de Suplentes ↓";
             position: absolute;
             top: 50%;
@@ -1067,64 +1115,10 @@
             pointer-events: none;
             text-align: center;
             z-index: 1;
-        }
-
-        #substitutes-area:not(:empty)::after {
-            display: none;
-        }
-
-        /* Estilos responsive para formaciones */
-        @media (max-width: 1024px) {
-            #formation-steps > div:nth-child(3) > div:nth-child(3) {
-                display: block !important;
-                grid-template-columns: 1fr !important;
-                height: auto !important;
-            }
-
-            #hockey-field {
-                height: 400px !important;
-                min-height: 400px !important;
-                margin-bottom: 20px;
-            }
-
-            .field-3d {
-                min-height: 400px !important;
-                transform: rotateX(15deg);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .formation-step {
-                padding: 15px;
-            }
-
-            #formation-steps > div:nth-child(3) > div:nth-child(3) > div:nth-child(1),
-            #formation-steps > div:nth-child(3) > div:nth-child(3) > div:nth-child(3) {
-                width: 100%;
-                margin-bottom: 15px;
-            }
-
-            #hockey-field {
-                height: 300px !important;
-                min-height: 300px !important;
-            }
-
-            .field-3d {
-                min-height: 300px !important;
-                transform: rotateX(10deg);
-            }
-
-            .field-position-slot {
-                width: 40px;
-                height: 40px;
-            }
+            font-size: 0.8rem;
         }
 
         /* Animaciones para jugadoras */
-        .player-on-field {
-            animation: playerPulse 2s infinite;
-        }
-
         @keyframes playerPulse {
             0%, 100% { 
                 transform: translate(-50%, -50%) scale(1);
@@ -1151,6 +1145,302 @@
 
         .field-position-slot[data-role="forward"] {
             border-color: rgba(235, 77, 75, 0.8);
+        }
+
+        /* RESPONSIVE DESIGNS FOR FORMATIONS */
+        @media (max-width: 1200px) {
+            #formations-layout {
+                grid-template-columns: 1fr !important;
+            }
+
+            #hockey-field {
+                min-height: 400px !important;
+                margin-bottom: 20px;
+            }
+
+            .field-3d {
+                min-height: 400px !important;
+                transform: rotateX(15deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .formation-step {
+                padding: 10px;
+            }
+
+            .formation-preset-btn {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+
+            #hockey-field {
+                min-height: 350px !important;
+            }
+
+            .field-3d {
+                min-height: 350px !important;
+                transform: rotateX(10deg);
+            }
+
+            .field-position-slot {
+                width: 35px;
+                height: 35px;
+            }
+
+            .player-on-field {
+                width: 30px;
+                height: 30px;
+                font-size: 0.6rem;
+            }
+
+            .player-item {
+                font-size: 0.75rem;
+                padding: 6px;
+            }
+
+            .substitute-item {
+                font-size: 0.7rem;
+                padding: 4px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #formation-steps {
+                padding: 10px;
+            }
+
+            .formation-step h3 {
+                font-size: 1.1rem;
+            }
+
+            #hockey-field {
+                min-height: 300px !important;
+                border-width: 2px;
+            }
+
+            .field-3d {
+                min-height: 300px !important;
+                transform: rotateX(5deg);
+            }
+
+            .formation-preset-btn {
+                font-size: 0.7rem;
+                padding: 5px 10px;
+                margin-right: 3px;
+                margin-bottom: 3px;
+            }
+
+            .field-position-slot {
+                width: 30px;
+                height: 30px;
+                border-width: 2px;
+            }
+
+            .player-on-field {
+                width: 25px;
+                height: 25px;
+                font-size: 0.5rem;
+                border-width: 2px;
+            }
+
+            .player-item {
+                font-size: 0.7rem;
+                padding: 5px;
+                gap: 5px;
+            }
+
+            .substitute-item {
+                font-size: 0.65rem;
+                padding: 3px;
+                gap: 4px;
+            }
+
+            #substitutes-area {
+                min-height: 80px;
+                padding: 5px;
+            }
+
+            #substitutes-area:empty::after {
+                font-size: 0.7rem;
+            }
+        }
+
+        /* Menús móviles */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .mobile-menu-header h4 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .mobile-menu-content {
+            background: white;
+            max-height: 70vh;
+            overflow-y: auto;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 20px;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .player-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+            gap: 12px;
+        }
+
+        .player-option:hover {
+            background: #f8f9fa;
+        }
+
+        .player-option:last-child {
+            border-bottom: none;
+        }
+
+        .player-details {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            gap: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            background: #667eea;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .remove-btn {
+            background: #dc3545;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        .player-jersey {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            border: 3px solid white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-name {
+            font-weight: bold;
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .player-position {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        /* Toast messages */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background: #333;
+            color: white;
+            border-radius: 5px;
+            z-index: 10001;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.warning {
+            background: #ff9800;
+        }
+
+        .toast.success {
+            background: #4caf50;
+        }
+
+        .toast.error {
+            background: #f44336;
         }
     </style>
     
@@ -1516,7 +1806,7 @@
                 <h2 style="margin-bottom: 20px; color: #1e3c72;">🏑 Gestión de Formaciones del Equipo</h2>
                 
                 <!-- Pasos de configuración -->
-                <div id="formation-steps" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                <div id="formation-steps" style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px;">
                     
                     <!-- Paso 1: Selección de Equipo -->
                     <div id="step1" class="formation-step" style="display: block;">
@@ -1533,7 +1823,7 @@
                     <!-- Paso 2: Información del Partido -->
                     <div id="step2" class="formation-step" style="display: none;">
                         <h3 style="color: #2a5298; margin-bottom: 15px;">🏑 2. Información del Partido</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
                             <div class="form-group">
                                 <label>Rival:</label>
                                 <input type="text" id="match-rival" placeholder="Nombre del equipo rival" style="width: 100%; padding: 8px; border: 2px solid #e9ecef; border-radius: 5px;">
@@ -1550,6 +1840,10 @@
                                 <label>Hora:</label>
                                 <input type="time" id="match-time" style="width: 100%; padding: 8px; border: 2px solid #e9ecef; border-radius: 5px;">
                             </div>
+                            <div class="form-group">
+                                <label>Hora de Presentación:</label>
+                                <input type="time" id="presentation-time" style="width: 100%; padding: 8px; border: 2px solid #e9ecef; border-radius: 5px;">
+                            </div>
                         </div>
                         <div style="margin-top: 15px;">
                             <button id="step2-back" class="btn" style="background: #6c757d; margin-right: 10px;">← Atrás</button>
@@ -1562,80 +1856,112 @@
                         <h3 style="color: #2a5298; margin-bottom: 15px;">🏑 3. Formación Táctica</h3>
                         
                         <!-- Controles de la cancha -->
-                        <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
-                            <button id="formation-4-3-3" class="formation-preset-btn btn" style="background: #28a745;">4-3-3</button>
-                            <button id="formation-4-4-2" class="formation-preset-btn btn" style="background: #28a745;">4-4-2</button>
-                            <button id="formation-3-5-2" class="formation-preset-btn btn" style="background: #28a745;">3-5-2</button>
-                            <button id="formation-5-3-2" class="formation-preset-btn btn" style="background: #28a745;">5-3-2</button>
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center;">
+                            <button id="formation-1-4-3-3" class="formation-preset-btn btn" style="background: #28a745;">1-4-3-3</button>
+                            <button id="formation-1-3-4-3" class="formation-preset-btn btn" style="background: #28a745;">1-3-4-3</button>
+                            <button id="formation-1-4-4-2" class="formation-preset-btn btn" style="background: #28a745;">1-4-4-2</button>
                             <button id="clear-formation" class="btn btn-danger">🔄 Limpiar</button>
                         </div>
 
-                        <!-- Campo de hockey integrado -->
-                        <div style="display: grid; grid-template-columns: 300px 1fr 250px; gap: 20px; height: 600px;">
+                        <!-- Campo de hockey mobile-friendly -->
+                        <div id="formations-layout" style="display: grid; grid-template-columns: 1fr; gap: 20px;">
                             
-                            <!-- Lista de jugadoras disponibles -->
-                            <div style="background: #f8f9fa; border-radius: 10px; padding: 15px; overflow-y: auto;">
-                                <h4 style="margin-bottom: 10px; text-align: center;">🏃‍♀️ Jugadoras Disponibles</h4>
-                                <div id="available-players-list" style="min-height: 500px;">
-                                    <div style="text-align: center; color: #666; padding: 20px;">
-                                        Selecciona un equipo para ver las jugadoras
+                            <!-- Campo de hockey 3D -->
+                            <div class="container" style="perspective: 1200px; width: 100%; max-width: 800px; margin: 0 auto;">
+                                <div class="field-wrapper" id="fieldWrapper" style="width: 100%; transform-style: preserve-3d; transform: rotateX(45deg) rotateZ(0deg); transition: transform 0.3s ease;">
+                                    <div id="hockey-field" class="field" style="width: 100%; height: 550px; position: relative; background: #2a7f3e; border: 4px solid #ffffff; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3); overflow: hidden;">
+                                        
+                                        <!-- Textura del césped -->
+                                        <div class="grass-texture" style="position: absolute; width: 100%; height: 100%; opacity: 0.3; background-image: repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(0, 0, 0, 0.03) 10px, rgba(0, 0, 0, 0.03) 20px);"></div>
+                                        
+                                        <!-- Líneas del campo -->
+                                        <div class="field-lines" style="position: absolute; width: 100%; height: 100%;">
+                                            <!-- Línea central -->
+                                            <div class="center-line" style="position: absolute; top: 50%; left: 0; right: 0; height: 3px; background: white; transform: translateY(-50%);"></div>
+                                            
+                                            <!-- Líneas de cuarto -->
+                                            <div class="quarter-line top" style="position: absolute; top: 25%; left: 0; right: 0; height: 3px; background: white;"></div>
+                                            <div class="quarter-line bottom" style="position: absolute; bottom: 25%; left: 0; right: 0; height: 3px; background: white;"></div>
+                                            
+                                            <!-- Círculo central -->
+                                            <div class="center-circle" style="position: absolute; top: 50%; left: 50%; width: 120px; height: 120px; border: 3px solid white; border-radius: 50%; transform: translate(-50%, -50%);"></div>
+                                            <div class="center-dot" style="position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; background: white; border-radius: 50%; transform: translate(-50%, -50%);"></div>
+                                            
+                                            <!-- Áreas de gol -->
+                                            <div class="goal-area top" style="position: absolute; top: 0; left: 50%; width: 300px; height: 120px; transform: translateX(-50%); border: 3px solid white; border-top: none; border-radius: 0 0 150px 150px;"></div>
+                                            <div class="goal-area bottom" style="position: absolute; bottom: 0; left: 50%; width: 300px; height: 120px; transform: translateX(-50%); border: 3px solid white; border-bottom: none; border-radius: 150px 150px 0 0;"></div>
+                                            
+                                            <!-- Porterías -->
+                                            <div class="goal top" style="position: absolute; top: -25px; left: 50%; width: 120px; height: 25px; background: linear-gradient(to bottom, #f0f0f0, #ffffff); transform: translateX(-50%); box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);"></div>
+                                            <div class="goal bottom" style="position: absolute; bottom: -25px; left: 50%; width: 120px; height: 25px; background: linear-gradient(to top, #f0f0f0, #ffffff); transform: translateX(-50%); box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);"></div>
+                                            
+                                            <!-- Puntos de penalti -->
+                                            <div class="penalty-spot top" style="position: absolute; top: 80px; width: 8px; height: 8px; background: white; border-radius: 50%; left: 50%; transform: translateX(-50%);"></div>
+                                            <div class="penalty-spot bottom" style="position: absolute; bottom: 80px; width: 8px; height: 8px; background: white; border-radius: 50%; left: 50%; transform: translateX(-50%);"></div>
+                                        </div>
+                                        
+                                        <!-- Posiciones de jugadoras -->
+                                        <div id="field-positions" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                                            <!-- Las posiciones se generan dinámicamente -->
+                                        </div>
+                                        
+                                        <!-- Sombras laterales para profundidad -->
+                                        <div style="content: ''; position: absolute; top: 0; width: 100%; height: 20px; background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), transparent);"></div>
+                                        <div style="content: ''; position: absolute; bottom: 0; width: 100%; height: 20px; background: linear-gradient(to top, rgba(0, 0, 0, 0.2), transparent);"></div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <!-- Campo de hockey -->
-                            <div id="hockey-field" style="position: relative; background: #2a7f3e; border-radius: 15px; border: 4px solid #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.3); min-height: 600px;">
-                                <!-- Líneas del campo -->
-                                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;">
-                                    <!-- Línea central -->
-                                    <div style="position: absolute; top: 50%; left: 0; right: 0; height: 3px; background: white; transform: translateY(-50%);"></div>
-                                    
-                                    <!-- Líneas de cuartos -->
-                                    <div style="position: absolute; top: 25%; left: 0; right: 0; height: 3px; background: white;"></div>
-                                    <div style="position: absolute; bottom: 25%; left: 0; right: 0; height: 3px; background: white;"></div>
-                                    
-                                    <!-- Áreas de gol -->
-                                    <div style="position: absolute; top: 0; left: 50%; width: 300px; height: 120px; transform: translateX(-50%); border: 3px solid white; border-top: none; border-radius: 0 0 150px 150px;"></div>
-                                    <div style="position: absolute; bottom: 0; left: 50%; width: 300px; height: 120px; transform: translateX(-50%); border: 3px solid white; border-bottom: none; border-radius: 150px 150px 0 0;"></div>
-                                    
-                                    <!-- Porterías -->
-                                    <div style="position: absolute; top: -25px; left: 50%; width: 120px; height: 25px; background: white; transform: translateX(-50%); box-shadow: 0 5px 10px rgba(0,0,0,0.3);"></div>
-                                    <div style="position: absolute; bottom: -25px; left: 50%; width: 120px; height: 25px; background: white; transform: translateX(-50%); box-shadow: 0 5px 10px rgba(0,0,0,0.3);"></div>
+                                
+                                <!-- Controles del campo 3D -->
+                                <div class="controls" style="margin-top: 20px; text-align: center;">
+                                    <button onclick="rotateField('left')" style="background: #2a7f3e; color: white; border: none; padding: 8px 15px; margin: 0 3px; border-radius: 5px; cursor: pointer; font-size: 14px;">⬅ Rotar Izq</button>
+                                    <button onclick="rotateField('reset')" style="background: #2a7f3e; color: white; border: none; padding: 8px 15px; margin: 0 3px; border-radius: 5px; cursor: pointer; font-size: 14px;">🔄 Reset</button>
+                                    <button onclick="rotateField('right')" style="background: #2a7f3e; color: white; border: none; padding: 8px 15px; margin: 0 3px; border-radius: 5px; cursor: pointer; font-size: 14px;">Rotar Der ➡</button>
                                 </div>
-
-                                <!-- Posiciones predefinidas en el campo -->
-                                <div id="field-positions"></div>
+                            </div>
                             </div>
 
-                            <!-- Panel de suplentes e información -->
-                            <div style="background: #f8f9fa; border-radius: 10px; padding: 15px;">
-                                <h4 style="margin-bottom: 10px; text-align: center;">👥 Suplentes</h4>
-                                <div id="substitutes-area" style="border: 2px dashed #dee2e6; border-radius: 8px; padding: 10px; min-height: 150px; background: white;">
-                                    <div style="text-align: center; color: #666; padding: 20px;">
-                                        Arrastra jugadoras aquí para suplentes
+                            <!-- Panel de control móvil -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <!-- Lista de jugadoras disponibles -->
+                                <div style="background: #f8f9fa; border-radius: 10px; padding: 15px; min-height: 300px;">
+                                    <h4 style="margin-bottom: 10px; text-align: center; font-size: 1rem;">🏃‍♀️ Jugadoras Disponibles</h4>
+                                    <div id="available-players-list" style="max-height: 250px; overflow-y: auto;">
+                                        <div style="text-align: center; color: #666; padding: 20px; font-size: 0.9rem;">
+                                            Selecciona un equipo para ver las jugadoras
+                                        </div>
                                     </div>
                                 </div>
-                                <div style="text-align: center; margin-top: 10px; color: #666;">
-                                    <span id="substitutes-count">0</span>/9 suplentes
-                                </div>
 
-                                <!-- Estadísticas de formación -->
-                                <div style="background: white; border-radius: 8px; padding: 15px; margin-top: 15px;">
-                                    <h5 style="margin-bottom: 10px; color: #1e3c72;">📊 Estadísticas</h5>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 14px;">
-                                        <div>Porteras: <span id="goalkeepers-count">0</span></div>
-                                        <div>Defensas: <span id="defenders-count">0</span></div>
-                                        <div>Mediocampistas: <span id="midfielders-count">0</span></div>
-                                        <div>Delanteras: <span id="forwards-count">0</span></div>
-                                        <div style="grid-column: 1/-1; border-top: 1px solid #eee; padding-top: 5px; margin-top: 5px; font-weight: bold;">
-                                            Total en campo: <span id="total-on-field">0</span>/11
+                                <!-- Panel de suplentes e información -->
+                                <div style="background: #f8f9fa; border-radius: 10px; padding: 15px;">
+                                    <h4 style="margin-bottom: 10px; text-align: center; font-size: 1rem;">👥 Suplentes</h4>
+                                    <div id="substitutes-area" style="border: 2px dashed #dee2e6; border-radius: 8px; padding: 10px; min-height: 120px; background: white; margin-bottom: 10px; position: relative;">
+                                        <div style="text-align: center; color: #666; padding: 10px; font-size: 0.8rem; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;">
+                                            Arrastra aquí para suplentes
+                                        </div>
+                                    </div>
+                                    <div style="text-align: center; margin-bottom: 10px; color: #666; font-size: 0.9rem;">
+                                        <span id="substitutes-count">0</span>/9 suplentes
+                                    </div>
+
+                                    <!-- Estadísticas de formación -->
+                                    <div style="background: white; border-radius: 8px; padding: 10px;">
+                                        <h5 style="margin-bottom: 8px; color: #1e3c72; font-size: 0.9rem;">📊 Estadísticas</h5>
+                                        <div style="display: grid; grid-template-columns: 1fr; gap: 3px; font-size: 0.8rem;">
+                                            <div>Arqueras: <span id="goalkeepers-count">0</span></div>
+                                            <div>Defensoras: <span id="defenders-count">0</span></div>
+                                            <div>Mediocampistas: <span id="midfielders-count">0</span></div>
+                                            <div>Delanteras: <span id="forwards-count">0</span></div>
+                                            <div style="border-top: 1px solid #eee; padding-top: 5px; margin-top: 5px; font-weight: bold;">
+                                                Total en campo: <span id="total-on-field">0</span>/11
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div style="margin-top: 15px;">
+                        <div style="margin-top: 15px; text-align: center;">
                             <button id="step3-back" class="btn" style="background: #6c757d; margin-right: 10px;">← Atrás</button>
                             <button id="step3-save" class="btn btn-success">💾 Guardar Formación</button>
                             <button id="step3-export" class="btn" style="background: #17a2b8; margin-left: 10px;">📸 Exportar Imagen</button>
@@ -4803,42 +5129,49 @@
         let fieldPositions = [];
         let substitutePlayers = [];
         
-        // Datos de formaciones predefinidas
+        // Datos de formaciones predefinidas según especificaciones exactas
         const formationPresets = {
-            '4-3-3': {
-                name: '4-3-3 Ofensiva',
+            '1-4-3-3': {
+                name: '1-4-3-3 (1 Arquera, 4 Defensoras, 3 Mediocampistas, 3 Delanteras)',
                 positions: [
-                    {x: 50, y: 90, role: 'goalkeeper'}, // Portera
-                    {x: 20, y: 70, role: 'defender'}, {x: 40, y: 70, role: 'defender'}, {x: 60, y: 70, role: 'defender'}, {x: 80, y: 70, role: 'defender'}, // 4 defensas
-                    {x: 30, y: 45, role: 'midfielder'}, {x: 50, y: 45, role: 'midfielder'}, {x: 70, y: 45, role: 'midfielder'}, // 3 mediocampistas
-                    {x: 25, y: 20, role: 'forward'}, {x: 50, y: 15, role: 'forward'}, {x: 75, y: 20, role: 'forward'} // 3 delanteras
+                    // Arquera
+                    {x: 50, y: 92, role: 'goalkeeper'},
+                    // Defensoras (4)
+                    {x: 20, y: 75, role: 'defender'}, {x: 40, y: 75, role: 'defender'}, 
+                    {x: 60, y: 75, role: 'defender'}, {x: 80, y: 75, role: 'defender'},
+                    // Mediocampistas (3)
+                    {x: 30, y: 50, role: 'midfielder'}, {x: 50, y: 50, role: 'midfielder'}, {x: 70, y: 50, role: 'midfielder'},
+                    // Delanteras (3)
+                    {x: 30, y: 25, role: 'forward'}, {x: 50, y: 25, role: 'forward'}, {x: 70, y: 25, role: 'forward'}
                 ]
             },
-            '4-4-2': {
-                name: '4-4-2 Equilibrada',
+            '1-3-4-3': {
+                name: '1-3-4-3 (1 Arquera, 3 Defensoras, 4 Mediocampistas, 3 Delanteras)',
                 positions: [
-                    {x: 50, y: 90, role: 'goalkeeper'},
-                    {x: 20, y: 70, role: 'defender'}, {x: 40, y: 70, role: 'defender'}, {x: 60, y: 70, role: 'defender'}, {x: 80, y: 70, role: 'defender'},
-                    {x: 20, y: 45, role: 'midfielder'}, {x: 40, y: 45, role: 'midfielder'}, {x: 60, y: 45, role: 'midfielder'}, {x: 80, y: 45, role: 'midfielder'},
-                    {x: 35, y: 20, role: 'forward'}, {x: 65, y: 20, role: 'forward'}
+                    // Arquera
+                    {x: 50, y: 92, role: 'goalkeeper'},
+                    // Defensoras (3)
+                    {x: 30, y: 75, role: 'defender'}, {x: 50, y: 75, role: 'defender'}, {x: 70, y: 75, role: 'defender'},
+                    // Mediocampistas (4)
+                    {x: 20, y: 50, role: 'midfielder'}, {x: 40, y: 50, role: 'midfielder'}, 
+                    {x: 60, y: 50, role: 'midfielder'}, {x: 80, y: 50, role: 'midfielder'},
+                    // Delanteras (3)
+                    {x: 30, y: 25, role: 'forward'}, {x: 50, y: 25, role: 'forward'}, {x: 70, y: 25, role: 'forward'}
                 ]
             },
-            '3-5-2': {
-                name: '3-5-2 Mediocampo',
+            '1-4-4-2': {
+                name: '1-4-4-2 (1 Arquera, 4 Defensoras, 4 Mediocampistas, 2 Delanteras)',
                 positions: [
-                    {x: 50, y: 90, role: 'goalkeeper'},
-                    {x: 30, y: 70, role: 'defender'}, {x: 50, y: 70, role: 'defender'}, {x: 70, y: 70, role: 'defender'},
-                    {x: 15, y: 45, role: 'midfielder'}, {x: 35, y: 45, role: 'midfielder'}, {x: 50, y: 45, role: 'midfielder'}, {x: 65, y: 45, role: 'midfielder'}, {x: 85, y: 45, role: 'midfielder'},
-                    {x: 35, y: 20, role: 'forward'}, {x: 65, y: 20, role: 'forward'}
-                ]
-            },
-            '5-3-2': {
-                name: '5-3-2 Defensiva',
-                positions: [
-                    {x: 50, y: 90, role: 'goalkeeper'},
-                    {x: 15, y: 70, role: 'defender'}, {x: 30, y: 70, role: 'defender'}, {x: 50, y: 70, role: 'defender'}, {x: 70, y: 70, role: 'defender'}, {x: 85, y: 70, role: 'defender'},
-                    {x: 30, y: 45, role: 'midfielder'}, {x: 50, y: 45, role: 'midfielder'}, {x: 70, y: 45, role: 'midfielder'},
-                    {x: 35, y: 20, role: 'forward'}, {x: 65, y: 20, role: 'forward'}
+                    // Arquera
+                    {x: 50, y: 92, role: 'goalkeeper'},
+                    // Defensoras (4)
+                    {x: 20, y: 75, role: 'defender'}, {x: 40, y: 75, role: 'defender'}, 
+                    {x: 60, y: 75, role: 'defender'}, {x: 80, y: 75, role: 'defender'},
+                    // Mediocampistas (4)
+                    {x: 20, y: 50, role: 'midfielder'}, {x: 40, y: 50, role: 'midfielder'}, 
+                    {x: 60, y: 50, role: 'midfielder'}, {x: 80, y: 50, role: 'midfielder'},
+                    // Delanteras (2)
+                    {x: 40, y: 25, role: 'forward'}, {x: 60, y: 25, role: 'forward'}
                 ]
             }
         };
@@ -4978,64 +5311,155 @@
             formationCurrentStep = step;
         }
 
-        // Cargar jugadoras para formación
+        // Cargar jugadoras para formación - CORREGIDO
         async function loadPlayersForFormation() {
             if (!formationSelectedTeam) return;
 
             const container = document.getElementById('available-players-list');
-            container.innerHTML = '<div style="text-align: center; padding: 20px;">Cargando jugadoras...</div>';
+            container.innerHTML = '<div style="text-align: center; padding: 20px; font-size: 0.9rem;">Cargando jugadoras...</div>';
 
             try {
-                const response = await fetch(`/api/teams/${formationSelectedTeam}/players`, {
+                // CORREGIDO: Usar la ruta correcta que funciona en el backend
+                const response = await fetch(`/api/players?team_id=${formationSelectedTeam}`, {
                     headers: getAuthHeaders()
                 });
+                
+                if (response.status === 401) {
+                    handleAuthError('Token expired', response);
+                    return;
+                }
+                
                 const data = await response.json();
+                console.log('🔍 DEBUG: Players data received:', data);
 
-                if (data.success && data.players.length > 0) {
-                    formationPlayers = data.players;
+                if (data.success && data.players && data.players.length > 0) {
+                    formationPlayers = data.players.map(player => ({
+                        ...player,
+                        assigned: false,
+                        isSubstitute: false
+                    }));
+                    console.log('✅ Jugadoras cargadas:', formationPlayers.length);
                     renderAvailablePlayers();
                     createFieldPositions();
                 } else {
-                    container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No hay jugadoras en este equipo</div>';
+                    container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666; font-size: 0.9rem;">No hay jugadoras en este equipo</div>';
+                    console.log('⚠️ No players found for team:', formationSelectedTeam);
                 }
             } catch (error) {
-                console.error('Error cargando jugadoras:', error);
-                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #dc3545;">Error cargando jugadoras</div>';
+                console.error('❌ Error cargando jugadoras:', error);
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #dc3545; font-size: 0.9rem;">Error cargando jugadoras</div>';
             }
         }
 
-        // Renderizar jugadoras disponibles
+        // Renderizar jugadoras disponibles - MEJORADO MOBILE-FRIENDLY
         function renderAvailablePlayers() {
             const container = document.getElementById('available-players-list');
             container.innerHTML = '';
 
-            formationPlayers.forEach(player => {
-                if (!player.assigned && !player.isSubstitute) {
-                    const playerDiv = document.createElement('div');
-                    playerDiv.className = 'player-item';
-                    playerDiv.draggable = true;
-                    playerDiv.dataset.playerId = player.id;
-                    
-                    const positionColor = getPositionColor(player.main_position);
-                    
-                    playerDiv.innerHTML = `
-                        <div style="width: 30px; height: 30px; border-radius: 50%; background: ${positionColor}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px;">
-                            ${player.jersey_number || '?'}
-                        </div>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600;">${player.first_name} ${player.last_name}</div>
-                            <div style="font-size: 12px; color: #666;">${player.main_position || 'Sin posición'}</div>
-                        </div>
-                    `;
+            const availablePlayers = formationPlayers.filter(player => !player.assigned && !player.isSubstitute);
+            
+            if (availablePlayers.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 15px; color: #666; font-size: 0.85rem;">Todas las jugadoras están asignadas</div>';
+                return;
+            }
 
-                    // Eventos drag and drop
-                    playerDiv.addEventListener('dragstart', function(e) {
-                        e.dataTransfer.setData('text/plain', player.id);
-                        e.dataTransfer.setData('player-data', JSON.stringify(player));
-                    });
+            availablePlayers.forEach(player => {
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'player-item';
+                playerDiv.draggable = true;
+                playerDiv.dataset.playerId = player.id;
+                
+                const positionColor = getPositionColor(player.main_position || player.position);
+                const playerName = player.name || `${player.first_name || ''} ${player.last_name || ''}`.trim();
+                
+                playerDiv.style.cssText = `
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 8px 12px;
+                    margin-bottom: 6px;
+                    background: white;
+                    border-radius: 8px;
+                    cursor: grab;
+                    transition: all 0.2s ease;
+                    border: 2px solid transparent;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                `;
+                
+                playerDiv.innerHTML = `
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: ${positionColor}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.8rem; flex-shrink: 0; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                        ${player.jersey_number || '?'}
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 600; font-size: 0.85rem; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #333;">${playerName}</div>
+                        ${player.nickname ? `<div style="font-size: 0.7rem; color: #888; line-height: 1;">"${player.nickname}"</div>` : ''}
+                        <div style="font-size: 0.7rem; color: #666; line-height: 1;">${player.main_position || player.position || 'Sin posición'}</div>
+                    </div>
+                `;
 
-                    container.appendChild(playerDiv);
-                }
+                // Hover effects
+                playerDiv.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.15)';
+                    this.style.borderColor = positionColor;
+                });
+
+                playerDiv.addEventListener('mouseleave', function() {
+                    if (!this.classList.contains('selected')) {
+                        this.style.transform = 'translateY(0)';
+                        this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                        this.style.borderColor = 'transparent';
+                    }
+                });
+
+                // Eventos drag and drop
+                playerDiv.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', player.id);
+                    e.dataTransfer.setData('player-data', JSON.stringify(player));
+                    this.style.cursor = 'grabbing';
+                    this.style.opacity = '0.7';
+                });
+
+                playerDiv.addEventListener('dragend', function(e) {
+                    this.style.cursor = 'grab';
+                    this.style.opacity = '1';
+                });
+
+                // Evento click mejorado para móviles
+                playerDiv.addEventListener('click', function(e) {
+                    // Limpiar selecciones anteriores
+                    const selected = document.querySelector('.player-item.selected');
+                    if (selected) {
+                        selected.classList.remove('selected');
+                        selected.style.borderColor = 'transparent';
+                        selected.style.transform = 'translateY(0)';
+                        selected.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                    }
+
+                    // Seleccionar esta jugadora
+                    playerDiv.classList.add('selected');
+                    playerDiv.style.borderColor = positionColor;
+                    playerDiv.style.transform = 'translateY(-2px)';
+                    playerDiv.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+                    
+                    window.selectedPlayerForPosition = player;
+                    
+                    // Mostrar feedback visual
+                    showToast(`${playerName} seleccionada. Toca una posición en el campo.`, 'success');
+                    
+                    // Auto-limpiar después de 10 segundos si no se usa
+                    setTimeout(() => {
+                        if (window.selectedPlayerForPosition === player) {
+                            window.selectedPlayerForPosition = null;
+                            playerDiv.classList.remove('selected');
+                            playerDiv.style.borderColor = 'transparent';
+                            playerDiv.style.transform = 'translateY(0)';
+                            playerDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                        }
+                    }, 10000);
+                });
+
+                container.appendChild(playerDiv);
             });
         }
 
@@ -5051,14 +5475,14 @@
             return colors[position] || '#6c757d';
         }
 
-        // Crear posiciones en el campo
+        // Crear posiciones en el campo - MEJORADO PARA CAMPO 3D
         function createFieldPositions() {
             const field = document.getElementById('field-positions');
             field.innerHTML = '';
             fieldPositions = [];
 
-            // Crear 11 posiciones predefinidas en formación 4-4-2
-            const defaultPositions = formationPresets['4-4-2'].positions;
+            // Crear 11 posiciones predefinidas en formación 1-4-3-3 (la primera de nuestras formaciones)
+            const defaultPositions = formationPresets['1-4-3-3'].positions;
             
             defaultPositions.forEach((pos, index) => {
                 const positionSlot = document.createElement('div');
@@ -5069,30 +5493,55 @@
                     top: ${pos.y}%;
                     width: 50px;
                     height: 50px;
-                    border: 3px dashed rgba(255,255,255,0.6);
+                    border: 3px dashed rgba(255,255,255,0.8);
                     border-radius: 50%;
                     transform: translate(-50%, -50%);
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    background: rgba(255,255,255,0.1);
+                    background: rgba(255,255,255,0.2);
                     backdrop-filter: blur(5px);
                     transition: all 0.3s ease;
+                    pointer-events: auto;
+                    cursor: pointer;
+                    z-index: 10;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
                 `;
                 
                 positionSlot.dataset.positionIndex = index;
                 positionSlot.dataset.role = pos.role;
 
-                // Eventos drop
+                // Hover effect
+                positionSlot.addEventListener('mouseenter', function() {
+                    if (!fieldPositions[index].player) {
+                        this.style.background = 'rgba(255,255,255,0.4)';
+                        this.style.borderColor = 'white';
+                        this.style.transform = 'translate(-50%, -50%) scale(1.1)';
+                    }
+                });
+
+                positionSlot.addEventListener('mouseleave', function() {
+                    if (!fieldPositions[index].player) {
+                        this.style.background = 'rgba(255,255,255,0.2)';
+                        this.style.borderColor = 'rgba(255,255,255,0.8)';
+                        this.style.transform = 'translate(-50%, -50%) scale(1)';
+                    }
+                });
+
+                // Eventos drag & drop
                 positionSlot.addEventListener('dragover', function(e) {
                     e.preventDefault();
-                    this.style.background = 'rgba(255,255,255,0.3)';
-                    this.style.borderColor = 'white';
+                    this.style.background = 'rgba(46, 213, 115, 0.4)';
+                    this.style.borderColor = '#2ed573';
+                    this.style.transform = 'translate(-50%, -50%) scale(1.1)';
                 });
 
                 positionSlot.addEventListener('dragleave', function(e) {
-                    this.style.background = 'rgba(255,255,255,0.1)';
-                    this.style.borderColor = 'rgba(255,255,255,0.6)';
+                    if (!fieldPositions[index].player) {
+                        this.style.background = 'rgba(255,255,255,0.2)';
+                        this.style.borderColor = 'rgba(255,255,255,0.8)';
+                        this.style.transform = 'translate(-50%, -50%) scale(1)';
+                    }
                 });
 
                 positionSlot.addEventListener('drop', function(e) {
@@ -5101,13 +5550,35 @@
                     const playerData = JSON.parse(e.dataTransfer.getData('player-data'));
                     
                     assignPlayerToPosition(playerData, index);
-                    this.style.background = 'rgba(255,255,255,0.1)';
-                    this.style.borderColor = 'rgba(255,255,255,0.6)';
+                    this.style.transform = 'translate(-50%, -50%) scale(1)';
+                });
+
+                // Funcionalidad de click mejorada
+                positionSlot.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    // Si hay jugadora seleccionada para asignar
+                    if (window.selectedPlayerForPosition) {
+                        assignPlayerToPosition(window.selectedPlayerForPosition, index);
+                        window.selectedPlayerForPosition = null;
+                        clearPlayerSelection();
+                    } else if (fieldPositions[index].player) {
+                        // Si hay jugadora en la posición, mostrar opciones
+                        showPositionMenu(index, e);
+                    } else {
+                        // Mostrar lista de jugadoras disponibles
+                        showPlayerSelectionMenu(index, e);
+                    }
                 });
 
                 field.appendChild(positionSlot);
                 fieldPositions.push({ element: positionSlot, player: null, role: pos.role });
             });
+
+            // Configurar interacción del campo después de crear posiciones
+            setTimeout(() => {
+                setupFieldInteraction();
+            }, 100);
         }
 
         // Asignar jugadora a posición
@@ -5156,6 +5627,119 @@
                 renderAvailablePlayers();
                 updateFormationStats();
             }
+        }
+
+        // Funciones para dispositivos móviles
+        function showPlayerSelectionMenu(positionIndex, event) {
+            hideAllMenus();
+            
+            const availablePlayers = formationPlayers.filter(player => !player.assigned);
+            if (availablePlayers.length === 0) {
+                showToast('No hay jugadoras disponibles', 'warning');
+                return;
+            }
+
+            const menu = document.createElement('div');
+            menu.className = 'mobile-menu';
+            menu.innerHTML = `
+                <div class="mobile-menu-header">
+                    <h4>Seleccionar Jugadora</h4>
+                    <button onclick="hideAllMenus()" class="close-btn">×</button>
+                </div>
+                <div class="mobile-menu-content">
+                    ${availablePlayers.map(player => `
+                        <div class="player-option" onclick="selectPlayerForPositionById(${player.id}, ${positionIndex})">
+                            <div class="player-jersey" style="background: ${getPositionColor(player.main_position)};">
+                                ${player.jersey_number || '?'}
+                            </div>
+                            <div class="player-info">
+                                <div class="player-name">${player.name}</div>
+                                <div class="player-position">${player.main_position}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            document.body.appendChild(menu);
+            setTimeout(() => menu.classList.add('show'), 10);
+        }
+
+        function showPositionMenu(positionIndex, event) {
+            hideAllMenus();
+            
+            const player = fieldPositions[positionIndex].player;
+            const menu = document.createElement('div');
+            menu.className = 'mobile-menu';
+            menu.innerHTML = `
+                <div class="mobile-menu-header">
+                    <h4>${player.name}</h4>
+                    <button onclick="hideAllMenus()" class="close-btn">×</button>
+                </div>
+                <div class="mobile-menu-content">
+                    <div class="player-details">
+                        <div class="player-jersey" style="background: ${getPositionColor(player.main_position)};">
+                            ${player.jersey_number || '?'}
+                        </div>
+                        <div class="player-info">
+                            <div class="player-name">${player.name}</div>
+                            <div class="player-position">${player.main_position}</div>
+                        </div>
+                    </div>
+                    <button class="action-btn remove-btn" onclick="removePlayerFromPosition(${positionIndex}); hideAllMenus();">
+                        Quitar de Posición
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(menu);
+            setTimeout(() => menu.classList.add('show'), 10);
+        }
+
+        function selectPlayerForPosition(player, positionIndex) {
+            assignPlayerToPosition(player, positionIndex);
+            hideAllMenus();
+        }
+
+        function selectPlayerForPositionById(playerId, positionIndex) {
+            const player = formationPlayers.find(p => p.id === playerId);
+            if (player) {
+                assignPlayerToPosition(player, positionIndex);
+                hideAllMenus();
+            }
+        }
+
+        function clearPlayerSelection() {
+            document.querySelectorAll('.player-item.selected').forEach(item => {
+                item.classList.remove('selected');
+            });
+        }
+
+        function hideAllMenus() {
+            document.querySelectorAll('.mobile-menu').forEach(menu => {
+                menu.classList.remove('show');
+                setTimeout(() => menu.remove(), 300);
+            });
+        }
+
+        // Mostrar toast messages
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
         }
 
         // Actualizar estadísticas de formación
@@ -5271,6 +5855,7 @@
                 rival_team: document.getElementById('match-rival').value,
                 venue: document.getElementById('match-venue').value,
                 match_time: document.getElementById('match-time').value,
+                presentation_time: document.getElementById('presentation-time').value,
                 tactical_formation: getCurrentFormationData(),
                 players_data: getPlayersFormationData(),
                 substitutes_data: substitutePlayers.map(p => ({ player_id: p.id, jersey_number: p.jersey_number }))
@@ -5413,6 +5998,68 @@
                 console.error('Error eliminando formación:', error);
                 showMessage('Error de conexión al eliminar formación', 'error');
             }
+        }
+
+        // =============================================
+        // FUNCIONES DEL CAMPO 3D
+        // =============================================
+        
+        let currentRotation = 0;
+        let currentTilt = 45;
+
+        function rotateField(direction) {
+            const fieldWrapper = document.getElementById('fieldWrapper');
+            if (!fieldWrapper) return;
+            
+            switch(direction) {
+                case 'left':
+                    currentRotation -= 15;
+                    break;
+                case 'right':
+                    currentRotation += 15;
+                    break;
+                case 'reset':
+                    currentRotation = 0;
+                    currentTilt = 45;
+                    break;
+            }
+            
+            fieldWrapper.style.transform = `rotateX(${currentTilt}deg) rotateZ(${currentRotation}deg)`;
+        }
+
+        // Configurar interacción con mouse para rotar el campo
+        function setupFieldInteraction() {
+            const fieldWrapper = document.getElementById('fieldWrapper');
+            if (!fieldWrapper) return;
+            
+            let isDragging = false;
+            let startX = 0;
+            let startRotation = 0;
+
+            fieldWrapper.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startX = e.clientX;
+                startRotation = currentRotation;
+                fieldWrapper.style.cursor = 'grabbing';
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    const deltaX = e.clientX - startX;
+                    currentRotation = startRotation + (deltaX * 0.5);
+                    fieldWrapper.style.transform = `rotateX(${currentTilt}deg) rotateZ(${currentRotation}deg)`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                if (fieldWrapper) {
+                    fieldWrapper.style.cursor = 'grab';
+                }
+            });
+
+            fieldWrapper.style.cursor = 'grab';
         }
 
         // Initialize dashboard on page load
