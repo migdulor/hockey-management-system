@@ -1992,13 +1992,16 @@
                     totalTeamsElement.textContent = currentTeams;
                     console.log('✅ Current teams count set to:', currentTeams);
                     
+                    // ===== NUEVA VERSIÓN OPTIMIZADA - DICIEMBRE 2024 =====
                     // Calcular total de jugadores usando el player_count que viene de /api/teams
+                    console.log('🆕 NUEVA LÓGICA: Usando player_count directamente de API teams');
                     let totalPlayers = 0;
                     teamsData.teams.forEach(team => {
                         const teamPlayerCount = team.player_count || 0;
-                        console.log(`📊 Equipo ${team.name}: ${teamPlayerCount} jugadores`);
+                        console.log(`📊 Equipo ${team.name}: ${teamPlayerCount} jugadores (desde team.player_count)`);
                         totalPlayers += teamPlayerCount;
                     });
+                    console.log('🎯 NO se hacen llamadas individuales a /api/teams/{id}/players');
                     
                     totalPlayersElement.textContent = totalPlayers;
                     console.log('✅ Total players count final:', totalPlayers);
