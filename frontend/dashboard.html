@@ -1212,16 +1212,6 @@
                     capacidades offline durante los juegos.
                 </p>
 
-                <!-- Botón temporal de debug -->
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <button onclick="loadDashboardStats()" style="background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
-                        🔧 Debug: Recargar Stats
-                    </button>
-                    <small style="display: block; margin-top: 5px; color: #666;">
-                        Si ves 0 jugadores, haz clic aquí y revisa la consola (F12)
-                    </small>
-                </div>
-
                 <div class="feature-grid">
                     <div class="feature-card">
                         <h3>📋 Registro de Asistencias</h3>
@@ -1902,12 +1892,8 @@
         }
         
         // Load dashboard statistics
-        // ============ VERSIÓN CORREGIDA - FORZAR ACTUALIZACIÓN ============
         async function loadDashboardStats() {
-            alert('🆕 NUEVA VERSIÓN CARGADA - Si ves este alert, la nueva versión funciona!');
-            console.log('🚀 loadDashboardStats iniciada - VERSION: 2024-12-07-OPTIMIZED');
-            console.log('🔍 Usando player_count de /api/teams en lugar de múltiples llamadas');
-            console.log('💥 ALERTA: Esta es la versión NUEVA - sin llamadas a /api/teams/{id}/players');
+            console.log('🚀 Cargando estadísticas del dashboard');
             
             // Verificar que los elementos DOM existen
             const totalTeamsElement = document.getElementById('total-teams');
@@ -1995,16 +1981,13 @@
                     totalTeamsElement.textContent = currentTeams;
                     console.log('✅ Current teams count set to:', currentTeams);
                     
-                    // ===== NUEVA VERSIÓN OPTIMIZADA - DICIEMBRE 2024 =====
                     // Calcular total de jugadores usando el player_count que viene de /api/teams
-                    console.log('🆕 NUEVA LÓGICA: Usando player_count directamente de API teams');
                     let totalPlayers = 0;
                     teamsData.teams.forEach(team => {
                         const teamPlayerCount = team.player_count || 0;
-                        console.log(`📊 Equipo ${team.name}: ${teamPlayerCount} jugadores (desde team.player_count)`);
+                        console.log(`📊 Equipo ${team.name}: ${teamPlayerCount} jugadores`);
                         totalPlayers += teamPlayerCount;
                     });
-                    console.log('🎯 NO se hacen llamadas individuales a /api/teams/{id}/players');
                     
                     totalPlayersElement.textContent = totalPlayers;
                     console.log('✅ Total players count final:', totalPlayers);
