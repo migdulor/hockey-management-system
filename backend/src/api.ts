@@ -605,23 +605,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
           let teamsQuery;
           if (decoded.role === 'admin') {
-            // Admin can see all teams
+            // Admin can see all teams with player count
             teamsQuery = await sql`
-              SELECT t.*, u.first_name as coach_first_name, u.last_name as coach_last_name, d.gender as team_gender
+              SELECT 
+                t.*, 
+                u.first_name as coach_first_name, 
+                u.last_name as coach_last_name, 
+                d.gender as team_gender,
+                COALESCE(COUNT(tp.player_id), 0)::int as player_count
               FROM teams t
               LEFT JOIN users u ON t.user_id = u.id
               LEFT JOIN divisions d ON t.division_id = d.id
+              LEFT JOIN team_players tp ON t.id = tp.team_id AND tp.is_active = true
               WHERE t.is_active = true
+              GROUP BY t.id, u.first_name, u.last_name, d.gender
               ORDER BY t.created_at DESC
             `;
           } else {
-            // Coaches can only see their teams
+            // Coaches can only see their teams with player count
             teamsQuery = await sql`
-              SELECT t.*, u.first_name as coach_first_name, u.last_name as coach_last_name, d.gender as team_gender
+              SELECT 
+                t.*, 
+                u.first_name as coach_first_name, 
+                u.last_name as coach_last_name, 
+                d.gender as team_gender,
+                COALESCE(COUNT(tp.player_id), 0)::int as player_count
               FROM teams t
               LEFT JOIN users u ON t.user_id = u.id
               LEFT JOIN divisions d ON t.division_id = d.id
+              LEFT JOIN team_players tp ON t.id = tp.team_id AND tp.is_active = true
               WHERE t.user_id = ${decoded.userId} AND t.is_active = true
+              GROUP BY t.id, u.first_name, u.last_name, d.gender
               ORDER BY t.created_at DESC
             `;
           }

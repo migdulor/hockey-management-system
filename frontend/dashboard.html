@@ -1991,49 +1991,16 @@
                     totalTeamsElement.textContent = currentTeams;
                     console.log('✅ Current teams count set to:', currentTeams);
                     
-                    if (currentTeams === 0) {
-                        console.log('⚠️ No hay equipos, total de jugadores será 0');
-                        totalPlayersElement.textContent = '0';
-                        return;
-                    }
-                    
-                    // Calcular total de jugadoras de todos los equipos
-                    console.log('🔍 Iniciando conteo de jugadores para', currentTeams, 'equipos');
+                    // Calcular total de jugadores usando el player_count que viene de /api/teams
                     let totalPlayers = 0;
-                    
-                    // Usar Promise.all para hacer las peticiones en paralelo
-                    const playerCountPromises = teamsData.teams.map(async (team) => {
-                        try {
-                            console.log(`🔍 Cargando jugadores para equipo ${team.id} (${team.name})`);
-                            const playersResponse = await fetch(`/api/teams/${team.id}/players`, {
-                                headers: getAuthHeaders()
-                            });
-                            
-                            console.log(`📊 Players response status for team ${team.id}:`, playersResponse.status);
-                            
-                            if (!playersResponse.ok) {
-                                console.error(`❌ Error en respuesta para equipo ${team.id}:`, playersResponse.status);
-                                return 0;
-                            }
-                            
-                            const playersData = await playersResponse.json();
-                            console.log(`📊 Players data for team ${team.name}:`, playersData);
-                            
-                            const playerCount = playersData.success && playersData.players ? playersData.players.length : 0;
-                            console.log(`📊 Equipo ${team.name}: ${playerCount} jugadores`);
-                            return playerCount;
-                        } catch (error) {
-                            console.error(`❌ Error loading players for team ${team.id}:`, error);
-                            return 0;
-                        }
+                    teamsData.teams.forEach(team => {
+                        const teamPlayerCount = team.player_count || 0;
+                        console.log(`📊 Equipo ${team.name}: ${teamPlayerCount} jugadores`);
+                        totalPlayers += teamPlayerCount;
                     });
-                    
-                    const playerCounts = await Promise.all(playerCountPromises);
-                    totalPlayers = playerCounts.reduce((sum, count) => sum + count, 0);
                     
                     totalPlayersElement.textContent = totalPlayers;
                     console.log('✅ Total players count final:', totalPlayers);
-                    console.log('✅ Player counts por equipo:', playerCounts);
                     
                     // También actualizar el KPI de total players si existe
                     const kpiTotalPlayers = document.getElementById('kpi-total-players');
