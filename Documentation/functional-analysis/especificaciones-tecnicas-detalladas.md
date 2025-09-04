@@ -424,3 +424,94 @@ INSERT INTO action_types (name, requires_player, requires_zone, icon, color) VAL
 
 **✅ ESPECIFICACIONES COMPLETAS Y CONFIRMADAS**
 **📋 LISTO PARA IMPLEMENTACIÓN TÉCNICA DETALLADA**
+
+---
+
+## 🏑 GESTIÓN DE FORMACIONES - PROCESO COMPLETO
+
+### Flujo de Trabajo del Entrenador
+
+#### 1. **Selección de Equipo**
+- El entrenador debe elegir primero el equipo para el cual va a armar la formación
+- Se cargan automáticamente todos los jugadores disponibles de ese equipo
+- Los jugadores aparecen en la lista lateral para ser seleccionados
+
+#### 2. **Información del Partido**
+El entrenador debe completar los siguientes campos obligatorios:
+- **Equipo Adversario**: Nombre del equipo rival
+- **Lugar del Partido**: Ubicación donde se jugará
+- **Fecha del Partido**: Día del encuentro
+- **Hora del Partido**: Horario de inicio del juego
+- **Hora de Presentación**: Horario que deben llegar los jugadores
+
+#### 3. **Selección de Formación Táctica**
+Elegir entre las formaciones disponibles:
+- **1-4-3-3**: 1 Arquera, 4 Defensoras, 3 Mediocampistas, 3 Delanteras
+- **1-3-4-3**: 1 Arquera, 3 Defensoras, 4 Mediocampistas, 3 Delanteras  
+- **1-4-4-2**: 1 Arquera, 4 Defensoras, 4 Mediocampistas, 2 Delanteras
+
+#### 4. **Asignación de Jugadoras por Posición**
+- **Proceso**: Hacer clic en una posición del campo → Elegir jugadora de la lista
+- **Sistema de Imágenes** (en orden de prioridad):
+  1. **Imagen de la Jugadora** (si está cargada)
+  2. **Imagen del Equipo** (camiseta con overlay de nickname + nro jersey)
+  3. **Imagen Genérica** (avatar default con overlay de nickname + nro jersey)
+- **Información Mostrada**: Siempre acompañado de Nickname y Número de Jersey
+
+#### 5. **Convocatorias Inter-Divisiones**
+- Opción para elegir jugadoras de otros equipos/divisiones
+- Funcionalidad para convocar refuerzos según necesidades del partido
+- Mantener el mismo sistema de imágenes y información
+
+#### 6. **Deshabilitación Automática de Jugadoras Asignadas**
+- **Funcionalidad**: Cuando una jugadora es asignada a una posición titular o suplente, automáticamente se deshabilita en la lista de jugadoras disponibles
+- **Objetivo**: Evitar duplicaciones y agilizar el proceso de armado de formaciones
+- **Comportamiento**:
+  - Jugadora asignada como titular → No aparece en lista disponible
+  - Jugadora asignada como suplente → No aparece en lista disponible  
+  - Al remover jugadora de posición/suplencia → Vuelve a aparecer en lista disponible
+- **Visual**: Lista se actualiza dinámicamente sin jugadoras ya utilizadas
+- **Beneficio**: El entrenador ve solo opciones válidas, haciendo más eficiente la selección
+
+### Formaciones Tácticas Implementadas
+
+#### Formación 1-4-3-3
+```
+           FW    FW    FW
+              MF    MF    MF
+        DF        DF        DF        DF
+                      GK
+```
+
+#### Formación 1-3-4-3  
+```
+           FW    FW    FW
+        MF     MF     MF     MF
+           DF     DF     DF
+                  GK
+```
+
+#### Formación 1-4-4-2
+```
+              FW         FW
+        MF     MF     MF     MF
+        DF        DF        DF        DF
+                      GK
+```
+
+### Sistema de Imágenes de Jugadoras
+
+#### Niveles de Fallback (3 niveles):
+1. **Foto Personal** → Usar imagen específica de la jugadora
+2. **Camiseta del Equipo** → Camiseta + overlay (nickname + número)
+3. **Imagen Default** → Avatar genérico + overlay (nickname + número)
+
+#### Overlay de Información:
+- **Nickname** de la jugadora
+- **Número de Jersey** asignado
+- **Bordes con colores** del equipo
+
+---
+
+**✅ ESPECIFICACIONES COMPLETAS Y CONFIRMADAS**
+**📋 LISTO PARA IMPLEMENTACIÓN TÉCNICA DETALLADA**

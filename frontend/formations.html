@@ -594,6 +594,57 @@
             background: #fff8f8;
         }
 
+        .player-item.my-team {
+            border-left: 4px solid #28a745;
+            background: #f8fff8;
+        }
+
+        .player-item.other-team {
+            border-left: 4px solid #ffc107;
+            background: #fffbf0;
+        }
+
+        .player-external {
+            font-size: 0.7rem;
+            color: #ff6b6b;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+
+        .team-selection {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .team-selection h4 {
+            color: #2563eb;
+            margin-bottom: 0.5rem;
+        }
+
+        #teamSelect {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        #teamSelect:focus {
+            border-color: #2563eb;
+            outline: none;
+        }
+
+        .players-count-header {
+            font-weight: 500;
+        }
+
+        .players-count-header div {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 1px solid #dee2e6;
+        }
+
         .player-item.assigned {
             opacity: 0.5;
             background: #e9ecef;
@@ -692,8 +743,20 @@
         <aside class="sidebar">
             <h3>📋 Información del Partido</h3>
             
+            <!-- Paso 1: Selección de Equipo -->
+            <div class="team-selection">
+                <h4>1. Selección de Equipo</h4>
+                <div class="form-group">
+                    <label>Mi Equipo</label>
+                    <select id="teamSelect">
+                        <option value="">-- Elegir Equipo --</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Paso 2: Datos del Encuentro -->
             <div class="match-info">
-                <h4>Datos del Encuentro</h4>
+                <h4>2. Datos del Encuentro</h4>
                 
                 <div class="form-group">
                     <label>Equipo Adversario</label>
@@ -720,32 +783,30 @@
                         <input type="time" id="matchTime">
                     </div>
                 </div>
-                
-                <div class="form-group">
-                    <label>División</label>
-                    <select id="matchDivision">
-                        <option value="">Seleccionar división</option>
-                        <option value="sub14-femenino">Sub 14 Femenino</option>
-                        <option value="sub16-femenino">Sub 16 Femenino</option>
-                        <option value="sub19-femenino">Sub 19 Femenino</option>
-                        <option value="intermedia-femenino">Intermedia Femenino</option>
-                        <option value="primera-femenino">Primera Femenino</option>
-                        <option value="sub15-masculino">Sub 15 Masculino</option>
-                        <option value="sub19-masculino">Sub 19 Masculino</option>
-                        <option value="intermedia-masculino">Intermedia Masculino</option>
-                        <option value="primera-masculino">Primera Masculino</option>
-                    </select>
-                </div>
             </div>
         </aside>
 
-        <!-- Sidebar - Jugadoras disponibles -->
+        <!-- Sidebar - Formación y Jugadoras -->
         <aside class="sidebar">
-            <h3>👥 Jugadoras Disponibles</h3>
+            <!-- Paso 3: Formación Táctica -->
+            <div class="formation-selection">
+                <h3>⚽ 3. Formación Táctica</h3>
+                <div class="formation-selector">
+                    <div class="formation-grid">
+                        <button class="formation-btn" data-formation="1-4-3-3">1-4-3-3</button>
+                        <button class="formation-btn" data-formation="1-3-4-3">1-3-4-3</button>
+                        <button class="formation-btn" data-formation="1-4-4-2">1-4-4-2</button>
+                        <button class="formation-btn" data-formation="custom">Custom</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paso 4: Jugadoras Disponibles -->
+            <h3>👥 4. Jugadoras Disponibles</h3>
             
             <div class="division-filter">
                 <div class="form-group">
-                    <label>Filtrar por División</label>
+                    <label>Filtrar División</label>
                     <select id="divisionFilter">
                         <option value="all">Todas las divisiones</option>
                         <option value="same">Solo mi división</option>
@@ -755,16 +816,6 @@
                         <option value="intermedia-femenino">Intermedia Femenino</option>
                         <option value="primera-femenino">Primera Femenino</option>
                     </select>
-                </div>
-            </div>
-            
-            <div class="formation-selector">
-                <h4 style="margin-bottom: 0.5rem; color: #666;">Formaciones:</h4>
-                <div class="formation-grid">
-                    <button class="formation-btn" data-formation="1-4-3-3">1-4-3-3</button>
-                    <button class="formation-btn" data-formation="1-3-4-3">1-3-4-3</button>
-                    <button class="formation-btn" data-formation="1-4-4-2">1-4-4-2</button>
-                    <button class="formation-btn" data-formation="custom">Custom</button>
                 </div>
             </div>
 
@@ -866,23 +917,14 @@
 
     <!-- Script principal -->
     <script>
-        // Configuración de la API - detecta automáticamente entre desarrollo y producción
+        // Configuración de la API - detecta automáticamente entre desarrollo y producción  
         const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:3001/api'  // Desarrollo local
-            : 'https://hockey-management.vercel.app/api';  // Producción Vercel
+            : '/api';  // Producción Vercel (URL relativa)
         
-        // Información del equipo (normalmente vendría de la API)
-        const teamInfo = {
-            id: 'team-sub16-femenino',
-            name: 'Sub 16 Femenino',
-            division: 'sub16-femenino',
-            jerseyPhoto: '/images/teams/sub16-femenino-jersey.svg', // Foto de la camiseta del equipo
-            clubLogo: '/images/club/logo.png',
-            colors: {
-                primary: '#2563eb', // Azul
-                secondary: '#ffffff' // Blanco
-            }
-        };
+        // Variables globales
+        let selectedTeam = null; // Equipo seleccionado
+        let availableTeams = []; // Lista de todos los equipos disponibles
         
         // Imagen estándar para jugadoras sin foto
         const DEFAULT_PLAYER_IMAGE = '/images/defaults/default-player.svg';
@@ -895,6 +937,7 @@
             players: new Map(), // positionId -> playerData
             positions: new Map(), // positionId -> {x, y, position}
             substitutes: new Map(), // playerId -> playerData
+            teamId: null, // ID del equipo seleccionado
             matchInfo: {
                 rivalTeam: '',
                 venue: '',
@@ -920,16 +963,85 @@
         const field = document.getElementById('field');
         const playersList = document.getElementById('playersList');
         const formationName = document.getElementById('formationName');
+        const teamSelect = document.getElementById('teamSelect');
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', async () => {
-            await loadAvailablePlayers();
+            await loadAvailableTeams();
             setupEventListeners();
             applyFormation('1-4-3-3'); // Formación inicial
         });
 
-        // Cargar jugadoras disponibles (mock data con diferentes divisiones)
+        // Cargar equipos disponibles
+        async function loadAvailableTeams() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/teams`);
+                if (response.ok) {
+                    availableTeams = await response.json();
+                    populateTeamSelect();
+                    console.log('✅ Equipos cargados:', availableTeams.length);
+                } else {
+                    console.error('❌ Error al cargar equipos');
+                    showMockTeams();
+                }
+            } catch (error) {
+                console.error('❌ Error conectando con API de equipos:', error);
+                showMockTeams();
+            }
+        }
+
+        // Mostrar equipos de prueba si no hay API
+        function showMockTeams() {
+            availableTeams = [
+                { id: 1, name: 'Sub 14 Femenino', division: 'sub14-femenino' },
+                { id: 2, name: 'Sub 16 Femenino', division: 'sub16-femenino' },
+                { id: 3, name: 'Sub 19 Femenino', division: 'sub19-femenino' },
+                { id: 4, name: 'Intermedia Femenino', division: 'intermedia-femenino' },
+                { id: 5, name: 'Primera Femenino', division: 'primera-femenino' }
+            ];
+            populateTeamSelect();
+        }
+
+        // Poblar el selector de equipos
+        function populateTeamSelect() {
+            teamSelect.innerHTML = '<option value="">-- Elegir Equipo --</option>';
+            availableTeams.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team.id;
+                option.textContent = team.name;
+                option.dataset.division = team.division;
+                teamSelect.appendChild(option);
+            });
+        }
+
+        // Manejar selección de equipo
+        function handleTeamSelection() {
+            const teamId = teamSelect.value;
+            if (!teamId) {
+                selectedTeam = null;
+                currentFormation.teamId = null;
+                clearPlayersList();
+                return;
+            }
+
+            selectedTeam = availableTeams.find(team => team.id == teamId);
+            currentFormation.teamId = teamId;
+            currentFormation.matchInfo.division = selectedTeam.division;
+            
+            console.log('✅ Equipo seleccionado:', selectedTeam);
+            
+            // Cargar jugadoras del equipo seleccionado
+            loadAvailablePlayers();
+        }
+
+        // Cargar jugadoras disponibles
         async function loadAvailablePlayers() {
+            // Si no hay equipo seleccionado, mostrar mensaje
+            if (!selectedTeam) {
+                showSelectTeamMessage();
+                return;
+            }
+
             try {
                 // Intentar cargar desde la API real
                 const response = await fetch(`${API_BASE_URL}/players`);
@@ -942,7 +1054,8 @@
                         name: `${player.first_name} ${player.last_name}`,
                         position: player.position,
                         number: player.jersey_number || player.id,
-                        division: player.division || 'sub16-femenino',
+                        division: player.division || selectedTeam.division,
+                        teamId: player.team_id,
                         nickname: player.nickname || player.first_name,
                         playerPhoto: player.player_photo || null
                     }));
@@ -954,49 +1067,108 @@
             } catch (error) {
                 console.warn('⚠️ Error conectando con API, usando datos mock:', error.message);
                 
-                // Datos mock con diferentes divisiones y gestión de imágenes
-                allPlayers = [
-                    // División actual (Sub 16 Femenino - ejemplo)
-                    { id: 1, name: 'Ana García', position: 'GK', number: 1, division: 'sub16-femenino', nickname: 'Ana', playerPhoto: '/images/players/ana-garcia.jpg' },
-                    { id: 2, name: 'María López', position: 'DF', number: 2, division: 'sub16-femenino', nickname: 'Mari', playerPhoto: null },
-                    { id: 3, name: 'Carmen Ruiz', position: 'DF', number: 3, division: 'sub16-femenino', nickname: 'Carmen', playerPhoto: '/images/players/carmen-ruiz.jpg' },
-                    { id: 4, name: 'Laura Martín', position: 'DF', number: 4, division: 'sub16-femenino', nickname: 'Lau', playerPhoto: null },
-                    { id: 5, name: 'Sara González', position: 'DF', number: 5, division: 'sub16-femenino', nickname: 'Sara', playerPhoto: '/images/players/sara-gonzalez.jpg' },
-                    { id: 6, name: 'Elena Rodríguez', position: 'MF', number: 6, division: 'sub16-femenino', nickname: 'Ele', playerPhoto: null },
-                    { id: 7, name: 'Julia Fernández', position: 'MF', number: 7, division: 'sub16-femenino', nickname: 'Juli', playerPhoto: '/images/players/julia-fernandez.jpg' },
-                    { id: 8, name: 'Patricia Jiménez', position: 'MF', number: 8, division: 'sub16-femenino', nickname: 'Patri', playerPhoto: null },
-                    { id: 9, name: 'Andrea Moreno', position: 'MF', number: 9, division: 'sub16-femenino', nickname: 'Andre', playerPhoto: '/images/players/andrea-moreno.jpg' },
-                    { id: 10, name: 'Cristina Álvarez', position: 'FW', number: 10, division: 'sub16-femenino', nickname: 'Cris', playerPhoto: null },
-                    { id: 11, name: 'Beatriz Romero', position: 'FW', number: 11, division: 'sub16-femenino', nickname: 'Bea', playerPhoto: '/images/players/beatriz-romero.jpg' },
-                    { id: 12, name: 'Isabel Torres', position: 'GK', number: 12, division: 'sub16-femenino', nickname: 'Isa', playerPhoto: null },
-                    { id: 13, name: 'Mónica Navarro', position: 'DF', number: 13, division: 'sub16-femenino', nickname: 'Moni', playerPhoto: '/images/players/monica-navarro.jpg' },
-                    { id: 14, name: 'Rosa Herrera', position: 'MF', number: 14, division: 'sub16-femenino', nickname: 'Rosa', playerPhoto: null },
-                    { id: 15, name: 'Silvia Castro', position: 'FW', number: 15, division: 'sub16-femenino', nickname: 'Silvi', playerPhoto: '/images/players/silvia-castro.jpg' },
-                    
-                    // Jugadoras de otras divisiones (pueden ser elegidas)
-                    { id: 16, name: 'Lucia Morales', position: 'GK', number: 1, division: 'sub14-femenino', nickname: 'Lu', playerPhoto: '/images/players/lucia-morales.jpg' },
-                    { id: 17, name: 'Sofia Ramírez', position: 'DF', number: 2, division: 'sub14-femenino', nickname: 'Sofi', playerPhoto: null },
-                    { id: 18, name: 'Valentina Cruz', position: 'MF', number: 8, division: 'sub14-femenino', nickname: 'Vale', playerPhoto: '/images/players/valentina-cruz.jpg' },
-                    { id: 19, name: 'Camila Vargas', position: 'FW', number: 10, division: 'sub14-femenino', nickname: 'Cami', playerPhoto: null },
-                    
-                    { id: 20, name: 'Adriana Pérez', position: 'GK', number: 1, division: 'sub19-femenino', nickname: 'Adri', playerPhoto: '/images/players/adriana-perez.jpg' },
-                    { id: 21, name: 'Carolina Silva', position: 'DF', number: 3, division: 'sub19-femenino', nickname: 'Caro', playerPhoto: null },
-                    { id: 22, name: 'Fernanda Ramos', position: 'MF', number: 7, division: 'sub19-femenino', nickname: 'Fer', playerPhoto: '/images/players/fernanda-ramos.jpg' },
-                    { id: 23, name: 'Daniela Vega', position: 'FW', number: 9, division: 'sub19-femenino', nickname: 'Dani', playerPhoto: null },
-                    
-                    { id: 24, name: 'Victoria Mendoza', position: 'GK', number: 1, division: 'intermedia-femenino', nickname: 'Vicky', playerPhoto: '/images/players/victoria-mendoza.jpg' },
-                    { id: 25, name: 'Gabriela Ortiz', position: 'DF', number: 4, division: 'intermedia-femenino', nickname: 'Gaby', playerPhoto: null },
-                    { id: 26, name: 'Alejandra Castro', position: 'MF', number: 6, division: 'intermedia-femenino', nickname: 'Ale', playerPhoto: '/images/players/alejandra-castro.jpg' },
-                    { id: 27, name: 'Natalia Herrera', position: 'FW', number: 11, division: 'intermedia-femenino', nickname: 'Naty', playerPhoto: null }
-                ];
+                // Datos mock basados en el equipo seleccionado
+                allPlayers = generateMockPlayersForTeam(selectedTeam);
             }
             
-            availablePlayers = [...allPlayers];
+            // Filtrar jugadoras: mostrar equipo seleccionado + otras divisiones
+            filterPlayersByTeam();
             renderPlayersList();
         }
-                console.error('Error cargando jugadoras:', error);
-                showError('Error cargando la lista de jugadoras');
+
+        // Generar jugadoras mock para el equipo seleccionado
+        function generateMockPlayersForTeam(team) {
+            const mockNames = [
+                'Ana García', 'María López', 'Carmen Ruiz', 'Laura Martín', 'Sara González',
+                'Elena Rodríguez', 'Julia Fernández', 'Patricia Jiménez', 'Andrea Moreno',
+                'Cristina Álvarez', 'Beatriz Romero', 'Isabel Torres', 'Mónica Navarro',
+                'Rosa Herrera', 'Silvia Castro', 'Lucia Morales', 'Sofia Ramírez',
+                'Valentina Cruz', 'Camila Vargas', 'Adriana Pérez'
+            ];
+
+            const positions = ['GK', 'DF', 'MF', 'FW'];
+            const mockPlayers = [];
+
+            // Generar jugadoras del equipo seleccionado
+            for (let i = 0; i < 15; i++) {
+                mockPlayers.push({
+                    id: i + 1,
+                    name: mockNames[i % mockNames.length],
+                    position: positions[Math.floor(Math.random() * positions.length)],
+                    number: i + 1,
+                    division: team.division,
+                    teamId: team.id,
+                    nickname: mockNames[i % mockNames.length].split(' ')[0],
+                    playerPhoto: Math.random() > 0.5 ? `/images/players/player${i+1}.jpg` : null
+                });
             }
+
+            // Agregar algunas jugadoras de otras divisiones
+            const otherDivisions = [
+                'sub14-femenino', 'sub16-femenino', 'sub19-femenino', 
+                'intermedia-femenino', 'primera-femenino'
+            ].filter(div => div !== team.division);
+
+            otherDivisions.forEach((division, divIndex) => {
+                for (let i = 0; i < 3; i++) {
+                    const playerIndex = 15 + (divIndex * 3) + i;
+                    mockPlayers.push({
+                        id: playerIndex + 1,
+                        name: mockNames[(playerIndex) % mockNames.length],
+                        position: positions[Math.floor(Math.random() * positions.length)],
+                        number: i + 1,
+                        division: division,
+                        teamId: divIndex + 10, // IDs diferentes para otros equipos
+                        nickname: mockNames[playerIndex % mockNames.length].split(' ')[0],
+                        playerPhoto: Math.random() > 0.7 ? `/images/players/player${playerIndex+1}.jpg` : null
+                    });
+                }
+            });
+
+            return mockPlayers;
+        }
+
+        // Filtrar jugadoras por equipo seleccionado
+        function filterPlayersByTeam() {
+            if (!selectedTeam) {
+                availablePlayers = [];
+                return;
+            }
+
+            const divisionFilter = document.getElementById('divisionFilter').value;
+            
+            if (divisionFilter === 'all') {
+                availablePlayers = [...allPlayers];
+            } else if (divisionFilter === 'same') {
+                availablePlayers = allPlayers.filter(player => 
+                    player.teamId == selectedTeam.id
+                );
+            } else {
+                availablePlayers = allPlayers.filter(player => 
+                    player.division === divisionFilter
+                );
+            }
+        }
+
+        // Mostrar mensaje para seleccionar equipo
+        function showSelectTeamMessage() {
+            playersList.innerHTML = `
+                <div style="text-align: center; color: #666; padding: 2rem;">
+                    <p>👆 Primero selecciona un equipo</p>
+                    <p>Para poder gestionar las formaciones</p>
+                </div>
+            `;
+        }
+
+        // Limpiar lista de jugadoras
+        function clearPlayersList() {
+            playersList.innerHTML = `
+                <div style="text-align: center; color: #666; padding: 2rem;">
+                    <p>Selecciona un equipo para ver las jugadoras</p>
+                </div>
+            `;
+            allPlayers = [];
+            availablePlayers = [];
         }
 
         // Renderizar lista de jugadoras
@@ -1018,48 +1190,79 @@
 
             playersList.innerHTML = '';
             
-            availablePlayers
-                .filter(player => !assignedPlayers.has(player.id))
-                .forEach(player => {
-                    const isFromOtherDivision = player.division !== 'sub16-femenino';
-                    const assignedClass = assignedPlayers.has(player.id) ? 'assigned' : '';
-                    const otherDivisionClass = isFromOtherDivision ? 'from-other-division' : '';
-                    
-                    // Crear elemento de jugadora
-                    const playerItem = document.createElement('div');
-                    playerItem.className = `player-item ${assignedClass} ${otherDivisionClass}`;
-                    playerItem.setAttribute('data-player-id', player.id);
-                    playerItem.setAttribute('draggable', 'true');
-                    
-                    // Crear imagen con la nueva lógica
-                    const playerImageElement = createPlayerImageElement(player, '40px');
-                    
-                    playerItem.innerHTML = `
-                        <div class="player-avatar-container"></div>
-                        <div class="player-info">
-                            <div class="player-name">${player.name}</div>
-                            <div class="player-position">${positionNames[player.position] || player.position}</div>
-                            <div class="player-division">${divisionNames[player.division] || player.division}</div>
-                        </div>
-                    `;
-                    
-                    // Insertar la imagen en el contenedor
-                    playerItem.querySelector('.player-avatar-container').appendChild(playerImageElement);
-                    
-                    // Agregar a la lista
-                    playersList.appendChild(playerItem);
-                    
-                    // Event listeners para drag & drop
-                    if (!assignedPlayers.has(player.id)) {
-                        playerItem.addEventListener('dragstart', handlePlayerDragStart);
-                        playerItem.addEventListener('click', selectPlayer);
-                    }
-                });
-        }
+            if (!selectedTeam) {
+                showSelectTeamMessage();
+                return;
+            }
+
+            // Filtrar jugadoras disponibles (no asignadas)
+            const unassignedPlayers = availablePlayers.filter(player => !assignedPlayers.has(player.id));
+            
+            // Mostrar contador de jugadoras disponibles
+            if (unassignedPlayers.length === 0) {
+                playersList.innerHTML = `
+                    <div style="text-align: center; color: #666; padding: 2rem;">
+                        <p>🎯 Todas las jugadoras disponibles han sido asignadas</p>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+                            ${assignedPlayers.size} jugadoras en formación
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Agregar contador en la parte superior
+            const countHeader = document.createElement('div');
+            countHeader.className = 'players-count-header';
+            countHeader.innerHTML = `
+                <div style="padding: 0.5rem; text-align: center; background: #f8f9fa; border-radius: 5px; margin-bottom: 0.5rem; font-size: 0.9rem; color: #666;">
+                    📋 ${unassignedPlayers.length} jugadoras disponibles (${assignedPlayers.size} ya asignadas)
+                </div>
+            `;
+            playersList.appendChild(countHeader);
+
+            unassignedPlayers.forEach(player => {
+                const isFromMyTeam = player.teamId == selectedTeam.id;
+                const isFromOtherDivision = player.division !== selectedTeam.division;
+                const otherDivisionClass = isFromOtherDivision ? 'from-other-division' : '';
+                const myTeamClass = isFromMyTeam ? 'my-team' : 'other-team';
+                
+                // Crear elemento de jugadora
+                const playerItem = document.createElement('div');
+                playerItem.className = `player-item ${otherDivisionClass} ${myTeamClass}`;
+                playerItem.setAttribute('data-player-id', player.id);
+                playerItem.setAttribute('draggable', 'true');
+                
+                // Crear imagen con la nueva lógica
+                const playerImageElement = createPlayerImageElement(player, '40px');
+                
+                playerItem.innerHTML = `
+                    <div class="player-avatar-container"></div>
+                    <div class="player-info">
+                        <div class="player-name">${player.name}</div>
+                        <div class="player-position">${positionNames[player.position] || player.position}</div>
+                        <div class="player-division">${divisionNames[player.division] || player.division}</div>
+                        ${!isFromMyTeam ? '<div class="player-external">🔄 Externa</div>' : ''}
+                    </div>
+                `;
+                
+                // Insertar la imagen en el contenedor
+                playerItem.querySelector('.player-avatar-container').appendChild(playerImageElement);
+                
+                // Agregar a la lista
+                playersList.appendChild(playerItem);
+                
+                // Event listeners para drag & drop (solo jugadoras disponibles)
+                playerItem.addEventListener('dragstart', handlePlayerDragStart);
+                playerItem.addEventListener('click', selectPlayer);
+            });
         }
 
         // Configurar event listeners
         function setupEventListeners() {
+            // Selección de equipo
+            teamSelect.addEventListener('change', handleTeamSelection);
+            
             // Botones de formación predefinida
             document.querySelectorAll('.formation-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
@@ -1101,7 +1304,6 @@
             document.getElementById('matchDate').addEventListener('change', updateMatchInfo);
             document.getElementById('presentationTime').addEventListener('change', updateMatchInfo);
             document.getElementById('matchTime').addEventListener('change', updateMatchInfo);
-            document.getElementById('matchDivision').addEventListener('change', updateMatchInfo);
         }
 
         // Aplicar formación predefinida
@@ -1340,16 +1542,12 @@
         
         // Manejar filtro por división
         function handleDivisionFilter(e) {
-            const selectedDivision = e.target.value;
-            
-            if (selectedDivision === 'all') {
-                availablePlayers = [...allPlayers];
-            } else if (selectedDivision === 'same') {
-                availablePlayers = allPlayers.filter(player => player.division === 'sub16-femenino');
-            } else {
-                availablePlayers = allPlayers.filter(player => player.division === selectedDivision);
+            if (!selectedTeam) {
+                showSelectTeamMessage();
+                return;
             }
             
+            filterPlayersByTeam();
             renderPlayersList();
         }
 
@@ -1655,6 +1853,11 @@
         }
 
         async function saveFormation() {
+            if (!selectedTeam) {
+                showError('Debes seleccionar un equipo primero');
+                return;
+            }
+
             if (currentFormation.players.size === 0) {
                 showError('No hay jugadoras en la formación para guardar');
                 return;
@@ -1667,15 +1870,15 @@
                 // Preparar datos para la API
                 const formationData = {
                     name: name,
-                    description: `Formación ${currentFormation.type} creada el ${new Date().toLocaleDateString()}`,
+                    description: `Formación ${currentFormation.type} para ${selectedTeam.name} creada el ${new Date().toLocaleDateString()}`,
                     tactical_system: currentFormation.type,
                     formation_type: 'balanced',
-                    team_id: 1, // Por ahora hardcodeado
+                    team_id: selectedTeam.id,
                     is_template: true,
                     // Información del partido si está disponible
-                    rival_team_name: matchInfo.rivalTeam || null,
-                    match_date: matchInfo.date ? new Date(matchInfo.date + 'T' + (matchInfo.time || '15:00')) : null,
-                    match_location: matchInfo.venue || null,
+                    rival_team_name: currentFormation.matchInfo.rivalTeam || null,
+                    match_date: currentFormation.matchInfo.date ? new Date(currentFormation.matchInfo.date + 'T' + (currentFormation.matchInfo.matchTime || '15:00')) : null,
+                    match_location: currentFormation.matchInfo.venue || null,
                     // Configuración de exportación
                     export_settings: {
                         width: 1080,

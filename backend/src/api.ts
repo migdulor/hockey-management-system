@@ -1958,6 +1958,197 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    // === FORMACIONES ENDPOINTS ===
+    
+    // GET /api/formations - List formations
+    if (path === '/formations' && method === 'GET') {
+      try {
+        if (!process.env.POSTGRES_URL) {
+          return res.status(200).json({
+            success: true,
+            formations: [],
+            message: 'Demo mode - no formations'
+          });
+        }
+
+        const formationsQuery = await sql`
+          SELECT 
+            f.id,
+            f.name,
+            f.strategy,
+            f.team_id,
+            f.match_id,
+            f.description,
+            f.created_at,
+            f.updated_at
+          FROM formations f
+          ORDER BY f.created_at DESC
+        `;
+
+        return res.status(200).json({
+          success: true,
+          formations: formationsQuery.rows
+        });
+
+      } catch (error) {
+        console.error('Error fetching formations:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Error al obtener formaciones'
+        });
+      }
+    }
+
+    // POST /api/formations - Create formation
+    if (path === '/formations' && method === 'POST') {
+      const body = await parseBody(req);
+      const { name, strategy, teamId, matchId, description } = body;
+
+      if (!name || !strategy) {
+        return res.status(400).json({
+          success: false,
+          message: 'Nombre y estrategia son requeridos'
+        });
+      }
+
+      try {
+        if (!process.env.POSTGRES_URL) {
+          return res.status(200).json({
+            success: true,
+            message: 'Formación creada (demo)',
+            formation: { 
+              id: `formation_${Date.now()}`, 
+              name, 
+              strategy, 
+              teamId, 
+              matchId, 
+              description,
+              created_at: new Date().toISOString()
+            }
+          });
+        }
+
+        const newFormationQuery = await sql`
+          INSERT INTO formations (id, name, strategy, team_id, match_id, description, created_at, updated_at)
+          VALUES (${`formation_${Date.now()}`}, ${name}, ${strategy}, ${teamId || null}, ${matchId || null}, ${description || null}, NOW(), NOW())
+          RETURNING *
+        `;
+
+        return res.status(201).json({
+          success: true,
+          formation: newFormationQuery.rows[0]
+        });
+
+      } catch (error) {
+        console.error('Error creating formation:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Error al crear formación'
+        });
+      }
+    }
+
+    // POST /api/formation-players - Add players to formation
+    if (path === '/formation-players' && method === 'POST') {
+      const body = await parseBody(req);
+      const { formationId, players } = body;
+
+      if (!formationId || !players || !Array.isArray(players)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Formation ID y lista de jugadores son requeridos'
+        });
+      }
+
+      try {
+        if (!process.env.POSTGRES_URL) {
+          return res.status(200).json({
+            success: true,
+            message: 'Jugadores agregados a formación (demo)',
+            formationPlayers: players.map((p: any, i: number) => ({
+              id: `fp_${Date.now()}_${i}`,
+              formation_id: formationId,
+              player_id: p.playerId,
+              position_x: p.positionX,
+              position_y: p.positionY,
+              created_at: new Date().toISOString()
+            }))
+          });
+        }
+
+        // Delete existing formation players first
+        await sql`DELETE FROM formation_players WHERE formation_id = ${formationId}`;
+
+        // Insert new formation players
+        const formationPlayers = [];
+        for (const player of players) {
+          const fpQuery = await sql`
+            INSERT INTO formation_players (id, formation_id, player_id, position_x, position_y, created_at, updated_at)
+            VALUES (${`fp_${Date.now()}_${Math.random()}`}, ${formationId}, ${player.playerId}, ${player.positionX}, ${player.positionY}, NOW(), NOW())
+            RETURNING *
+          `;
+          formationPlayers.push(fpQuery.rows[0]);
+        }
+
+        return res.status(201).json({
+          success: true,
+          formationPlayers
+        });
+
+      } catch (error) {
+        console.error('Error adding players to formation:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Error al agregar jugadores a formación'
+        });
+      }
+    }
+
+    // GET /api/formation-players/:formationId - Get formation players
+    if (path.startsWith('/formation-players/') && method === 'GET') {
+      const formationId = path.split('/')[2];
+
+      try {
+        if (!process.env.POSTGRES_URL) {
+          return res.status(200).json({
+            success: true,
+            formationPlayers: [],
+            message: 'Demo mode - no formation players'
+          });
+        }
+
+        const formationPlayersQuery = await sql`
+          SELECT 
+            fp.id,
+            fp.formation_id,
+            fp.player_id,
+            fp.position_x,
+            fp.position_y,
+            p.name as player_name,
+            p.nickname,
+            p.position as player_position,
+            tp.jersey_number
+          FROM formation_players fp
+          JOIN players p ON fp.player_id = p.id
+          JOIN team_players tp ON p.id = tp.player_id
+          WHERE fp.formation_id = ${formationId}
+          ORDER BY fp.created_at ASC
+        `;
+
+        return res.status(200).json({
+          success: true,
+          formationPlayers: formationPlayersQuery.rows
+        });
+
+      } catch (error) {
+        console.error('Error fetching formation players:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Error al obtener jugadores de formación'
+        });
+      }
+    }
+
     // Route not found
     return res.status(404).json({
       success: false,

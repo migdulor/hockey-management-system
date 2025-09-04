@@ -48,6 +48,14 @@
       "destination": "/frontend/teams.html"
     },
     {
+      "source": "/formations.html",
+      "destination": "/frontend/formations.html"
+    },
+    {
+      "source": "/formations",
+      "destination": "/frontend/formations.html"
+    },
+    {
       "source": "/dashboard.html",
       "destination": "/frontend/dashboard.html"
     },
