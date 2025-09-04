@@ -1383,6 +1383,108 @@
             background: #c82333;
         }
 
+        /* Estilos para avatares de jugadoras */
+        .player-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f0f0;
+        }
+
+        .player-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .player-avatar-small {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f0f0;
+            flex-shrink: 0;
+        }
+
+        .player-avatar-small img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .player-nickname {
+            font-weight: bold;
+            font-size: 12px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+        }
+
+        .player-number {
+            font-size: 10px;
+            color: rgba(255,255,255,0.9);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+        }
+
+        /* Mejorar el contenedor de información en las posiciones */
+        .position-slot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            min-width: 60px;
+            min-height: 60px;
+            position: relative;
+        }
+
+        .position-slot .player-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 1px;
+            margin-top: 2px;
+        }
+
+        .position-slot .remove-player-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #dc3545;
+            color: white;
+            border: none;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .position-slot .remove-player-btn:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
         .player-jersey {
             width: 40px;
             height: 40px;
@@ -2959,11 +3061,13 @@
                     const teamData = await teamResponse.json();
                     if (teamData.success) {
                         window.currentTeamJerseyPhoto = teamData.team?.team_jersey_photo || null;
+                        window.currentTeamLogo = teamData.team?.logo || null;
                     }
                 }
             } catch (error) {
                 console.warn('No se pudo obtener la información del equipo:', error);
                 window.currentTeamJerseyPhoto = null;
+                window.currentTeamLogo = null;
             }
             
             container.innerHTML = '<div class="loading">Cargando jugadores...</div>';
@@ -5394,13 +5498,19 @@
                     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
                 `;
                 
+                const playerImage = getPlayerImage(player);
+                const nickname = player.nickname || player.name.split(' ')[0];
+                const jerseyNumber = player.jersey_number || '?';
+                
                 playerDiv.innerHTML = `
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: ${positionColor}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.8rem; flex-shrink: 0; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
-                        ${player.jersey_number || '?'}
+                    <div class="player-avatar-small" style="border-color: ${positionColor};">
+                        <img src="${playerImage}" alt="${playerName}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNFMEUwRTAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNiIgZmlsbD0iIzk5OTk5OSIvPgo8cGF0aCBkPSJNOCAzMkM4IDI2LjQ3NzIgMTIuNDc3MiAyMiAxOCAyMkMyMy41MjI4IDIyIDI4IDI2LjQ3NzIgMjggMzJIOFoiIGZpbGw9IiM5OTk5OTkiLz4KPC9zdmc+'">
+                    </div>
+                    <div style="width: 28px; height: 28px; border-radius: 50%; background: ${positionColor}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.75rem; flex-shrink: 0; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                        ${jerseyNumber}
                     </div>
                     <div style="flex: 1; min-width: 0;">
-                        <div style="font-weight: 600; font-size: 0.85rem; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #333;">${playerName}</div>
-                        ${player.nickname ? `<div style="font-size: 0.7rem; color: #888; line-height: 1;">"${player.nickname}"</div>` : ''}
+                        <div style="font-weight: 600; font-size: 0.85rem; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #333;">${nickname}</div>
                         <div style="font-size: 0.7rem; color: #666; line-height: 1;">${player.main_position || player.position || 'Sin posición'}</div>
                     </div>
                 `;
@@ -5433,38 +5543,10 @@
                     this.style.opacity = '1';
                 });
 
-                // Evento click mejorado para móviles
+                // Evento click mejorado para móviles - DESHABILITADO para evitar conflictos
                 playerDiv.addEventListener('click', function(e) {
-                    // Limpiar selecciones anteriores
-                    const selected = document.querySelector('.player-item.selected');
-                    if (selected) {
-                        selected.classList.remove('selected');
-                        selected.style.borderColor = 'transparent';
-                        selected.style.transform = 'translateY(0)';
-                        selected.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-                    }
-
-                    // Seleccionar esta jugadora
-                    playerDiv.classList.add('selected');
-                    playerDiv.style.borderColor = positionColor;
-                    playerDiv.style.transform = 'translateY(-2px)';
-                    playerDiv.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
-                    
-                    window.selectedPlayerForPosition = player;
-                    
-                    // Mostrar feedback visual
-                    showToast(`${playerName} seleccionada. Toca una posición en el campo.`, 'success');
-                    
-                    // Auto-limpiar después de 10 segundos si no se usa
-                    setTimeout(() => {
-                        if (window.selectedPlayerForPosition === player) {
-                            window.selectedPlayerForPosition = null;
-                            playerDiv.classList.remove('selected');
-                            playerDiv.style.borderColor = 'transparent';
-                            playerDiv.style.transform = 'translateY(0)';
-                            playerDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-                        }
-                    }, 10000);
+                    // Solo mostrar información, no seleccionar para evitar conflictos con menú móvil
+                    showToast(`${playerName} - ${player.main_position} #${player.jersey_number || '?'}`, 'info');
                 });
 
                 container.appendChild(playerDiv);
@@ -5615,11 +5697,7 @@
             
             const positionColor = getPositionColor(player.main_position || player.position);
             
-            positionSlot.innerHTML = `
-                <div style="width: 40px; height: 40px; border-radius: 50%; background: ${positionColor}; border: 3px solid white; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer;">
-                    ${player.jersey_number || '?'}
-                </div>
-            `;
+            positionSlot.innerHTML = createPlayerHTML(player, true, positionIndex);
 
             // Marcar jugadora como asignada
             player.assigned = true;
@@ -5702,17 +5780,25 @@
                     <button onclick="hideAllMenus()" class="close-btn">×</button>
                 </div>
                 <div class="mobile-menu-content">
-                    ${availablePlayers.map(player => `
-                        <div class="player-option" onclick="selectPlayerForPositionById(${player.id}, ${positionIndex})">
-                            <div class="player-jersey" style="background: ${getPositionColor(player.main_position)};">
-                                ${player.jersey_number || '?'}
+                    ${availablePlayers.map(player => {
+                        const playerImage = getPlayerImage(player);
+                        const nickname = player.nickname || player.name.split(' ')[0];
+                        const jerseyNumber = player.jersey_number || '?';
+                        return `
+                            <div class="player-option" onclick="selectPlayerForPositionById(${player.id}, ${positionIndex})">
+                                <div class="player-avatar-small">
+                                    <img src="${playerImage}" alt="${player.name}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNFMEUwRTAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNiIgZmlsbD0iIzk5OTk5OSIvPgo8cGF0aCBkPSJNOCAzMkM4IDI2LjQ3NzIgMTIuNDc3MiAyMiAxOCAyMkMyMy41MjI4IDIyIDI4IDI2LjQ3NzIgMjggMzJIOFoiIGZpbGw9IiM5OTk5OTkiLz4KPC9zdmc+'">
+                                </div>
+                                <div class="player-jersey" style="background: ${getPositionColor(player.main_position)};">
+                                    ${jerseyNumber}
+                                </div>
+                                <div class="player-info">
+                                    <div class="player-name">${nickname}</div>
+                                    <div class="player-position">${player.main_position}</div>
+                                </div>
                             </div>
-                            <div class="player-info">
-                                <div class="player-name">${player.name}</div>
-                                <div class="player-position">${player.main_position}</div>
-                            </div>
-                        </div>
-                    `).join('')}
+                        `;
+                    }).join('')}
                 </div>
             `;
 
@@ -5811,6 +5897,44 @@
                 e.stopPropagation();
                 showPlayerSelectionMenu(positionIndex, e);
             });
+        }
+
+        // Función para obtener la imagen de la jugadora con fallbacks
+        function getPlayerImage(player) {
+            // 1. Si la jugadora tiene imagen propia
+            if (player.image && player.image.trim() !== '') {
+                return player.image;
+            }
+            
+            // 2. Si no tiene imagen, usar la del equipo (logo o jersey)
+            if (window.currentTeamLogo && window.currentTeamLogo.trim() !== '') {
+                return window.currentTeamLogo;
+            }
+            
+            if (window.currentTeamJerseyPhoto && window.currentTeamJerseyPhoto.trim() !== '') {
+                return window.currentTeamJerseyPhoto;
+            }
+            
+            // 3. Si tampoco hay logo del equipo, usar placeholder genérico
+            return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNFMEUwRTAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNiIgZmlsbD0iIzk5OTk5OSIvPgo8cGF0aCBkPSJNOCAzMkM4IDI2LjQ3NzIgMTIuNDc3MiAyMiAxOCAyMkMyMy41MjI4IDIyIDI4IDI2LjQ3NzIgMjggMzJIOFoiIGZpbGw9IiM5OTk5OTkiLz4KPC9zdmc+';
+        }
+
+        // Función para crear el HTML de la jugadora con imagen y datos
+        function createPlayerHTML(player, showRemoveButton = false, positionIndex = null) {
+            const playerImage = getPlayerImage(player);
+            const nickname = player.nickname || player.name.split(' ')[0];
+            const jerseyNumber = player.jersey_number || '?';
+            
+            return `
+                <div class="player-avatar">
+                    <img src="${playerImage}" alt="${player.name}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNFMEUwRTAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNiIgZmlsbD0iIzk5OTk5OSIvPgo8cGF0aCBkPSJNOCAzMkM4IDI2LjQ3NzIgMTIuNDc3MiAyMiAxOCAyMkMyMy41MjI4IDIyIDI4IDI2LjQ3NzIgMjggMzJIOFoiIGZpbGw9IiM5OTk5OTkiLz4KPC9zdmc+'">
+                </div>
+                <div class="player-info">
+                    <span class="player-nickname">${nickname}</span>
+                    <span class="player-number">#${jerseyNumber}</span>
+                </div>
+                ${showRemoveButton ? `<button class="remove-player-btn" onclick="event.stopPropagation(); removePlayerFromPosition(${positionIndex})">×</button>` : ''}
+            `;
         }
 
         // Mostrar toast messages
