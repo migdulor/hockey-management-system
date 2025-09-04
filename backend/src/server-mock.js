@@ -22,6 +22,29 @@ app.use((req, res, next) => {
 let formations = [];
 let positions = [];
 
+// Mock data de jugadoras
+const mockPlayers = [
+  // División actual (Sub 16 Femenino)
+  { id: 1, first_name: 'Ana', last_name: 'García', position: 'GK', jersey_number: 1, division: 'sub16-femenino', nickname: 'Ana', player_photo: '/images/players/ana-garcia.jpg' },
+  { id: 2, first_name: 'María', last_name: 'López', position: 'DF', jersey_number: 2, division: 'sub16-femenino', nickname: 'Mari', player_photo: null },
+  { id: 3, first_name: 'Carmen', last_name: 'Ruiz', position: 'DF', jersey_number: 3, division: 'sub16-femenino', nickname: 'Carmen', player_photo: '/images/players/carmen-ruiz.jpg' },
+  { id: 4, first_name: 'Laura', last_name: 'Martín', position: 'DF', jersey_number: 4, division: 'sub16-femenino', nickname: 'Lau', player_photo: null },
+  { id: 5, first_name: 'Sara', last_name: 'González', position: 'DF', jersey_number: 5, division: 'sub16-femenino', nickname: 'Sara', player_photo: '/images/players/sara-gonzalez.jpg' },
+  { id: 6, first_name: 'Elena', last_name: 'Rodríguez', position: 'MF', jersey_number: 6, division: 'sub16-femenino', nickname: 'Ele', player_photo: null },
+  { id: 7, first_name: 'Julia', last_name: 'Fernández', position: 'MF', jersey_number: 7, division: 'sub16-femenino', nickname: 'Juli', player_photo: '/images/players/julia-fernandez.jpg' },
+  { id: 8, first_name: 'Patricia', last_name: 'Jiménez', position: 'MF', jersey_number: 8, division: 'sub16-femenino', nickname: 'Patri', player_photo: null },
+  { id: 9, first_name: 'Andrea', last_name: 'Moreno', position: 'MF', jersey_number: 9, division: 'sub16-femenino', nickname: 'Andre', player_photo: '/images/players/andrea-moreno.jpg' },
+  { id: 10, first_name: 'Cristina', last_name: 'Álvarez', position: 'FW', jersey_number: 10, division: 'sub16-femenino', nickname: 'Cris', player_photo: null },
+  { id: 11, first_name: 'Beatriz', last_name: 'Romero', position: 'FW', jersey_number: 11, division: 'sub16-femenino', nickname: 'Bea', player_photo: '/images/players/beatriz-romero.jpg' },
+  { id: 12, first_name: 'Isabel', last_name: 'Torres', position: 'GK', jersey_number: 12, division: 'sub16-femenino', nickname: 'Isa', player_photo: null },
+  
+  // Jugadoras de otras divisiones
+  { id: 16, first_name: 'Lucia', last_name: 'Morales', position: 'GK', jersey_number: 1, division: 'sub14-femenino', nickname: 'Lu', player_photo: '/images/players/lucia-morales.jpg' },
+  { id: 17, first_name: 'Sofia', last_name: 'Ramírez', position: 'DF', jersey_number: 2, division: 'sub14-femenino', nickname: 'Sofi', player_photo: null },
+  { id: 20, first_name: 'Adriana', last_name: 'Pérez', position: 'GK', jersey_number: 1, division: 'sub19-femenino', nickname: 'Adri', player_photo: '/images/players/adriana-perez.jpg' },
+  { id: 21, first_name: 'Carolina', last_name: 'Silva', position: 'DF', jersey_number: 3, division: 'sub19-femenino', nickname: 'Caro', player_photo: null }
+];
+
 // Rutas de formaciones
 app.get('/api/formations', (req, res) => {
   res.json(formations);
@@ -128,6 +151,11 @@ app.delete('/api/formations/:id/positions/:positionId', (req, res) => {
   }
   positions.splice(index, 1);
   res.status(204).send();
+});
+
+// Endpoint para jugadoras
+app.get('/api/players', (req, res) => {
+  res.json(mockPlayers);
 });
 
 // Ruta de salud
