@@ -1902,9 +1902,12 @@
         }
         
         // Load dashboard statistics
+        // ============ VERSIÓN CORREGIDA - FORZAR ACTUALIZACIÓN ============
         async function loadDashboardStats() {
+            alert('🆕 NUEVA VERSIÓN CARGADA - Si ves este alert, la nueva versión funciona!');
             console.log('🚀 loadDashboardStats iniciada - VERSION: 2024-12-07-OPTIMIZED');
             console.log('🔍 Usando player_count de /api/teams en lugar de múltiples llamadas');
+            console.log('💥 ALERTA: Esta es la versión NUEVA - sin llamadas a /api/teams/{id}/players');
             
             // Verificar que los elementos DOM existen
             const totalTeamsElement = document.getElementById('total-teams');
