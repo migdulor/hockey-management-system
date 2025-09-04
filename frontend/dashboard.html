@@ -2001,13 +2001,12 @@
                     loadReports();
                     break;
                 case 'formations':
-                    // TODO: loadFormations();
+                    setTimeout(() => {
+                        initFormationsModule();
+                    }, 100);
                     break;
                 case 'matches':
                     // TODO: loadMatches();
-                    break;
-                case 'reports':
-                    // TODO: loadReports();
                     break;
             }
         }
@@ -5370,18 +5369,6 @@
             } catch (error) {
                 console.error('Error eliminando formación:', error);
                 showMessage('Error de conexión al eliminar formación', 'error');
-            }
-        }
-
-        // Modificar la función showTab para inicializar formaciones cuando sea necesario
-        const originalShowTab = showTab;
-        function showTab(tabName) {
-            originalShowTab(tabName);
-            
-            if (tabName === 'formations') {
-                setTimeout(() => {
-                    initFormationsModule();
-                }, 100);
             }
         }
 
