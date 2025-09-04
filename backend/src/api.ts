@@ -894,50 +894,74 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // GET /api/teams/:id/players - Get players for a specific team
         if (path.match(/^\/teams\/[^\/]+\/players$/) && method === 'GET') {
+          console.log('🔍 DEBUG: teams/{id}/players endpoint hit');
+          console.log('🔍 DEBUG: path:', path);
+          
           const teamId = path.split('/teams/')[1].split('/players')[0];
+          console.log('🔍 DEBUG: extracted teamId:', teamId);
 
           if (!teamId) {
+            console.log('❌ DEBUG: No teamId found');
             return res.status(400).json({
               success: false,
               message: 'ID del equipo es requerido'
             });
           }
 
-          // Verificar que el equipo pertenezca al usuario (excepto admin)
-          if (decoded.role !== 'admin') {
-            const teamOwnership = await sql`
-              SELECT id FROM teams WHERE id = ${teamId} AND user_id = ${decoded.userId} AND is_active = true
-            `;
+          console.log('🔍 DEBUG: decoded user role:', decoded.role);
+          console.log('🔍 DEBUG: decoded userId:', decoded.userId);
 
-            if (teamOwnership.rows.length === 0) {
-              return res.status(404).json({
-                success: false,
-                message: 'Equipo no encontrado o no tienes permisos para acceder a él'
-              });
+          try {
+            // Verificar que el equipo pertenezca al usuario (excepto admin)
+            if (decoded.role !== 'admin') {
+              console.log('🔍 DEBUG: Checking team ownership for non-admin user');
+              const teamOwnership = await sql`
+                SELECT id FROM teams WHERE id = ${teamId} AND user_id = ${decoded.userId} AND is_active = true
+              `;
+              console.log('🔍 DEBUG: team ownership query result:', teamOwnership.rows);
+
+              if (teamOwnership.rows.length === 0) {
+                console.log('❌ DEBUG: Team not found or no permissions');
+                return res.status(404).json({
+                  success: false,
+                  message: 'Equipo no encontrado o no tienes permisos para acceder a él'
+                });
+              }
             }
+
+            console.log('🔍 DEBUG: Fetching players for team');
+            // Obtener jugadores del equipo usando la misma lógica que /api/players?team_id=xxx
+            const playersQuery = await sql`
+              SELECT 
+                p.id, 
+                p.name, 
+                p.nickname, 
+                p.birth_date, 
+                p.position, 
+                p.player_photo, 
+                tp.jersey_number, 
+                tp.is_active as team_active
+              FROM players p
+              INNER JOIN team_players tp ON p.id = tp.player_id
+              WHERE tp.team_id = ${teamId} AND tp.is_active = true AND p.is_active = true
+              ORDER BY p.name ASC
+            `;
+            
+            console.log('🔍 DEBUG: players query result count:', playersQuery.rows.length);
+
+            return res.status(200).json({
+              success: true,
+              players: playersQuery.rows
+            });
+            
+          } catch (playersError) {
+            console.error('❌ DEBUG: Error in players query:', playersError);
+            return res.status(500).json({
+              success: false,
+              message: 'Error al obtener jugadores del equipo',
+              error: playersError.message
+            });
           }
-
-          // Obtener jugadores del equipo usando la misma lógica que /api/players?team_id=xxx
-          const playersQuery = await sql`
-            SELECT 
-              p.id, 
-              p.name, 
-              p.nickname, 
-              p.birth_date, 
-              p.position, 
-              p.player_photo, 
-              tp.jersey_number, 
-              tp.is_active as team_active
-            FROM players p
-            INNER JOIN team_players tp ON p.id = tp.player_id
-            WHERE tp.team_id = ${teamId} AND tp.is_active = true AND p.is_active = true
-            ORDER BY p.name ASC
-          `;
-
-          return res.status(200).json({
-            success: true,
-            players: playersQuery.rows
-          });
         }
 
       } catch (error: any) {
