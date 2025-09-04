@@ -866,8 +866,10 @@
 
     <!-- Script principal -->
     <script>
-        // Configuración de la API
-        const API_BASE_URL = 'http://localhost:3001/api';
+        // Configuración de la API - detecta automáticamente entre desarrollo y producción
+        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:3001/api'  // Desarrollo local
+            : 'https://hockey-management.vercel.app/api';  // Producción Vercel
         
         // Información del equipo (normalmente vendría de la API)
         const teamInfo = {
