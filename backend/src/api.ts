@@ -892,6 +892,54 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           });
         }
 
+        // GET /api/teams/:id/players - Get players for a specific team
+        if (path.match(/^\/teams\/[^\/]+\/players$/) && method === 'GET') {
+          const teamId = path.split('/teams/')[1].split('/players')[0];
+
+          if (!teamId) {
+            return res.status(400).json({
+              success: false,
+              message: 'ID del equipo es requerido'
+            });
+          }
+
+          // Verificar que el equipo pertenezca al usuario (excepto admin)
+          if (decoded.role !== 'admin') {
+            const teamOwnership = await sql`
+              SELECT id FROM teams WHERE id = ${teamId} AND user_id = ${decoded.userId} AND is_active = true
+            `;
+
+            if (teamOwnership.rows.length === 0) {
+              return res.status(404).json({
+                success: false,
+                message: 'Equipo no encontrado o no tienes permisos para acceder a él'
+              });
+            }
+          }
+
+          // Obtener jugadores del equipo usando la misma lógica que /api/players?team_id=xxx
+          const playersQuery = await sql`
+            SELECT 
+              p.id, 
+              p.name, 
+              p.nickname, 
+              p.birth_date, 
+              p.position, 
+              p.player_photo, 
+              tp.jersey_number, 
+              tp.is_active as team_active
+            FROM players p
+            INNER JOIN team_players tp ON p.id = tp.player_id
+            WHERE tp.team_id = ${teamId} AND tp.is_active = true AND p.is_active = true
+            ORDER BY p.name ASC
+          `;
+
+          return res.status(200).json({
+            success: true,
+            players: playersQuery.rows
+          });
+        }
+
       } catch (error: any) {
         console.error('Error in teams endpoint:', error);
         
