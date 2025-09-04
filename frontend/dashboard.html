@@ -5356,7 +5356,15 @@
             const container = document.getElementById('available-players-list');
             container.innerHTML = '';
 
-            const availablePlayers = formationPlayers.filter(player => !player.assigned && !player.isSubstitute);
+            // Filtrar jugadoras: no asignadas, no en suplentes
+            const availablePlayers = formationPlayers.filter(player => {
+                // No debe estar asignada a una posición en el campo
+                const isInField = fieldPositions.some(pos => pos.player && pos.player.id === player.id);
+                // No debe estar en la lista de suplentes
+                const isInSubstitutes = substitutePlayers.some(sub => sub.id === player.id);
+                // No debe tener la marca de asignada
+                return !player.assigned && !isInField && !isInSubstitutes;
+            });
             
             if (availablePlayers.length === 0) {
                 container.innerHTML = '<div style="text-align: center; padding: 15px; color: #666; font-size: 0.85rem;">Todas las jugadoras están asignadas</div>';
@@ -5583,8 +5591,21 @@
 
         // Asignar jugadora a posición
         function assignPlayerToPosition(player, positionIndex) {
-            // Verificar si ya está asignada
+            // Verificar si ya está asignada en el campo
             if (fieldPositions.some(pos => pos.player && pos.player.id === player.id)) {
+                showToast('Esta jugadora ya está asignada a otra posición', 'warning');
+                return;
+            }
+
+            // Verificar si ya está en suplentes
+            if (substitutePlayers.some(sub => sub.id === player.id)) {
+                showToast('Esta jugadora ya está en la lista de suplentes', 'warning');
+                return;
+            }
+
+            // Verificar que la posición está disponible
+            if (fieldPositions[positionIndex].player) {
+                showToast('Esta posición ya está ocupada', 'warning');
                 return;
             }
 
@@ -5592,7 +5613,7 @@
             fieldPositions[positionIndex].player = player;
             const positionSlot = fieldPositions[positionIndex].element;
             
-            const positionColor = getPositionColor(player.main_position);
+            const positionColor = getPositionColor(player.main_position || player.position);
             
             positionSlot.innerHTML = `
                 <div style="width: 40px; height: 40px; border-radius: 50%; background: ${positionColor}; border: 3px solid white; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer;">
@@ -5603,13 +5624,26 @@
             // Marcar jugadora como asignada
             player.assigned = true;
             
+            // Limpiar selección
+            window.selectedPlayerForPosition = null;
+            clearPlayerSelection();
+            
             // Actualizar listas
             renderAvailablePlayers();
             updateFormationStats();
+            
+            // Mostrar confirmación
+            showToast(`${player.name} asignada a la posición`, 'success');
 
-            // Evento para remover jugadora
-            positionSlot.addEventListener('click', function() {
-                removePlayerFromPosition(positionIndex);
+            // Remover event listeners previos y agregar nuevo
+            const newSlot = positionSlot.cloneNode(true);
+            positionSlot.parentNode.replaceChild(newSlot, positionSlot);
+            fieldPositions[positionIndex].element = newSlot;
+            
+            // Agregar event listener para el click en posición ocupada
+            newSlot.addEventListener('click', function(e) {
+                e.stopPropagation();
+                showPositionMenu(positionIndex, e);
             });
         }
 
@@ -5617,15 +5651,31 @@
         function removePlayerFromPosition(positionIndex) {
             const position = fieldPositions[positionIndex];
             if (position.player) {
+                // Marcar jugadora como disponible
                 position.player.assigned = false;
+                const playerName = position.player.name;
                 position.player = null;
                 
                 const positionSlot = position.element;
                 positionSlot.innerHTML = '';
-                positionSlot.style.background = 'rgba(255,255,255,0.1)';
+                
+                // Restaurar estilo de posición vacía
+                positionSlot.style.background = 'rgba(255,255,255,0.2)';
+                positionSlot.style.borderColor = 'rgba(255,255,255,0.8)';
+                positionSlot.style.border = '3px dashed rgba(255,255,255,0.8)';
+                
+                // Remover event listeners y restaurar los originales
+                const newSlot = positionSlot.cloneNode(true);
+                positionSlot.parentNode.replaceChild(newSlot, positionSlot);
+                fieldPositions[positionIndex].element = newSlot;
+                
+                // Restaurar event listeners originales para posición vacía
+                setupPositionEvents(newSlot, positionIndex);
                 
                 renderAvailablePlayers();
                 updateFormationStats();
+                
+                showToast(`${playerName} removida de la posición`, 'info');
             }
         }
 
@@ -5633,7 +5683,12 @@
         function showPlayerSelectionMenu(positionIndex, event) {
             hideAllMenus();
             
-            const availablePlayers = formationPlayers.filter(player => !player.assigned);
+            // Filtrar jugadoras disponibles correctamente
+            const availablePlayers = formationPlayers.filter(player => {
+                const isInField = fieldPositions.some(pos => pos.player && pos.player.id === player.id);
+                const isInSubstitutes = substitutePlayers.some(sub => sub.id === player.id);
+                return !player.assigned && !isInField && !isInSubstitutes;
+            });
             if (availablePlayers.length === 0) {
                 showToast('No hay jugadoras disponibles', 'warning');
                 return;
@@ -5703,10 +5758,32 @@
 
         function selectPlayerForPositionById(playerId, positionIndex) {
             const player = formationPlayers.find(p => p.id === playerId);
-            if (player) {
-                assignPlayerToPosition(player, positionIndex);
-                hideAllMenus();
+            
+            if (!player) {
+                showToast('Error: Jugadora no encontrada', 'error');
+                return;
             }
+            
+            // Verificar que la jugadora esté disponible
+            if (player.assigned) {
+                showToast(`${player.name} ya está asignada`, 'warning');
+                hideAllMenus();
+                return;
+            }
+            
+            // Verificar que no esté en el campo o en suplentes
+            const isInField = fieldPositions.some(pos => pos.player && pos.player.id === player.id);
+            const isInSubstitutes = substitutePlayers.some(sub => sub.id === player.id);
+            
+            if (isInField || isInSubstitutes) {
+                showToast(`${player.name} ya está asignada`, 'warning');
+                hideAllMenus();
+                return;
+            }
+            
+            // Asignar jugadora usando la función mejorada
+            assignPlayerToPosition(player, positionIndex);
+            hideAllMenus();
         }
 
         function clearPlayerSelection() {
@@ -5719,6 +5796,20 @@
             document.querySelectorAll('.mobile-menu').forEach(menu => {
                 menu.classList.remove('show');
                 setTimeout(() => menu.remove(), 300);
+            });
+        }
+
+        function setupPositionEvents(positionSlot, positionIndex) {
+            // Event listeners para posición vacía
+            positionSlot.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showPlayerSelectionMenu(positionIndex, e);
+            });
+            
+            positionSlot.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                showPlayerSelectionMenu(positionIndex, e);
             });
         }
 
