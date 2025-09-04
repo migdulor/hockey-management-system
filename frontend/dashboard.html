@@ -1017,11 +1017,6 @@
             transform: translateX(3px);
         }
 
-        .player-item.selected {
-            background: rgba(42, 82, 152, 0.1);
-            border-color: #2a5298;
-        }
-
         .player-item[draggable="true"] {
             cursor: grab;
         }
@@ -5523,11 +5518,9 @@
                 });
 
                 playerDiv.addEventListener('mouseleave', function() {
-                    if (!this.classList.contains('selected')) {
-                        this.style.transform = 'translateY(0)';
-                        this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-                        this.style.borderColor = 'transparent';
-                    }
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                    this.style.borderColor = 'transparent';
                 });
 
                 // Eventos drag and drop
@@ -5543,10 +5536,10 @@
                     this.style.opacity = '1';
                 });
 
-                // Evento click mejorado para móviles - DESHABILITADO para evitar conflictos
+                // Evento click solo para mostrar información - SIN SELECCIÓN
                 playerDiv.addEventListener('click', function(e) {
-                    // Solo mostrar información, no seleccionar para evitar conflictos con menú móvil
-                    showToast(`${playerName} - ${player.main_position} #${player.jersey_number || '?'}`, 'info');
+                    // Solo mostrar información de la jugadora
+                    showToast(`${nickname} - ${player.main_position} #${jerseyNumber}`, 'info');
                 });
 
                 container.appendChild(playerDiv);
@@ -5643,16 +5636,11 @@
                     this.style.transform = 'translate(-50%, -50%) scale(1)';
                 });
 
-                // Funcionalidad de click mejorada
+                // Funcionalidad de click simplificada - SOLO MENÚ MÓVIL
                 positionSlot.addEventListener('click', function(e) {
                     e.stopPropagation();
                     
-                    // Si hay jugadora seleccionada para asignar
-                    if (window.selectedPlayerForPosition) {
-                        assignPlayerToPosition(window.selectedPlayerForPosition, index);
-                        window.selectedPlayerForPosition = null;
-                        clearPlayerSelection();
-                    } else if (fieldPositions[index].player) {
+                    if (fieldPositions[index].player) {
                         // Si hay jugadora en la posición, mostrar opciones
                         showPositionMenu(index, e);
                     } else {
@@ -5701,10 +5689,6 @@
 
             // Marcar jugadora como asignada
             player.assigned = true;
-            
-            // Limpiar selección
-            window.selectedPlayerForPosition = null;
-            clearPlayerSelection();
             
             // Actualizar listas
             renderAvailablePlayers();
@@ -5870,12 +5854,6 @@
             // Asignar jugadora usando la función mejorada
             assignPlayerToPosition(player, positionIndex);
             hideAllMenus();
-        }
-
-        function clearPlayerSelection() {
-            document.querySelectorAll('.player-item.selected').forEach(item => {
-                item.classList.remove('selected');
-            });
         }
 
         function hideAllMenus() {

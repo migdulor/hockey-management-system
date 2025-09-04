@@ -126,7 +126,7 @@ Según los ejemplos del PDF, la imagen de formación debe incluir:
 ```
 
 #### Representaciones de la Cancha:
-#### Formacion: 1 (Aruqero) - 4 (Defensores) - 3 (Mediocampistas)  - 3 (delanteros)
+#### Formacion: 1 (Arquero) - 4 (Defensores) - 3 (Mediocampistas)  - 3 (delanteros)
 ```
                     ARCO RIVAL
     ┌─────────────────────────────────────────┐
