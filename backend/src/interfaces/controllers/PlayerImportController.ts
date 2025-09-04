@@ -2,23 +2,13 @@ import { Request, Response } from 'express';
 import { PlayerImportService } from '../../application/services/PlayerImportService.js';
 import { FileParserFactory } from '../../application/parsers/FileParser.js';
 
-// Extender Request para incluir multer
-interface MulterRequest extends Request {
-    file?: {
-        originalname: string;
-        buffer: Buffer;
-        mimetype: string;
-        size: number;
-    };
-}
-
 export class PlayerImportController {
     constructor(
         private importService: PlayerImportService,
         private parserFactory: FileParserFactory
     ) {}
 
-    async uploadFile(req: MulterRequest, res: Response): Promise<void> {
+    async uploadFile(req: Request, res: Response): Promise<void> {
         try {
             if (!req.file) {
                 res.status(400).json({
@@ -55,7 +45,8 @@ export class PlayerImportController {
             }
 
             // Importar jugadores
-            const result = await this.importService.importPlayers(playersData);
+            const { teamId } = req.params;
+            const result = await this.importService.importPlayers(playersData, teamId);
 
             console.log(`Resultado de importación: ${result.success} exitosos, ${result.errors.length} errores`);
 

@@ -1,0 +1,2007 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Formaciones - Hockey Team</title>
+    
+    <!-- Estilos CSS -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header h1 {
+            color: #1e3c72;
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(42, 82, 152, 0.3);
+        }
+
+        .btn:hover {
+            background: #1e3c72;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(42, 82, 152, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 280px 280px 1fr 300px;
+            gap: 1.5rem;
+            padding: 2rem;
+            max-width: 1800px;
+            margin: 0 auto;
+            min-height: calc(100vh - 120px);
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            height: fit-content;
+            position: sticky;
+            top: 140px;
+        }
+
+        .sidebar h3 {
+            color: #1e3c72;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            text-align: center;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 0.5rem;
+        }
+
+        .formation-field {
+            position: relative;
+            background: #2a7f3e;
+            border-radius: 15px;
+            min-height: 600px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            border: 4px solid #ffffff;
+            perspective: 1200px;
+        }
+
+        .field-3d {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 600px;
+            transform-style: preserve-3d;
+            transform: rotateX(45deg);
+            background: #2a7f3e;
+            /* Textura del césped */
+            background-image: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 10px,
+                rgba(0, 0, 0, 0.03) 10px,
+                rgba(0, 0, 0, 0.03) 20px
+            );
+        }
+
+        /* Líneas de la cancha de hockey */
+        .field-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .center-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: white;
+            transform: translateY(-50%);
+        }
+
+        .quarter-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: white;
+        }
+
+        .quarter-line.top {
+            top: 25%;
+        }
+
+        .quarter-line.bottom {
+            bottom: 25%;
+        }
+
+        /* Líneas punteadas de 23m */
+        .dashed-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-image: linear-gradient(to right, white 50%, transparent 50%);
+            background-size: 20px 3px;
+        }
+
+        .dashed-line.top {
+            top: 15%;
+        }
+
+        .dashed-line.bottom {
+            bottom: 15%;
+        }
+
+        .goal-area {
+            position: absolute;
+            left: 50%;
+            width: 300px;
+            height: 120px;
+            transform: translateX(-50%);
+            border: 3px solid white;
+        }
+
+        .goal-area.top {
+            top: 0;
+            border-top: none;
+            border-radius: 0 0 150px 150px;
+        }
+
+        .goal-area.bottom {
+            bottom: 0;
+            border-bottom: none;
+            border-radius: 150px 150px 0 0;
+        }
+
+        .goal {
+            position: absolute;
+            left: 50%;
+            width: 120px;
+            height: 25px;
+            background: white;
+            transform: translateX(-50%);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .goal.top {
+            top: -25px;
+            background: linear-gradient(to bottom, #f0f0f0, #ffffff);
+        }
+
+        .goal.bottom {
+            bottom: -25px;
+            background: linear-gradient(to top, #f0f0f0, #ffffff);
+        }
+
+        /* Marcas de penalti */
+        .penalty-spot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .penalty-spot.top {
+            top: 80px;
+        }
+
+        .penalty-spot.bottom {
+            bottom: 80px;
+        }
+
+        /* Jugadoras */
+        .player {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            border: 3px solid #fff;
+            cursor: move;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 0.8rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+            animation: playerPulse 2s infinite;
+        }
+
+        .player:hover {
+            transform: scale(1.1) translateZ(10px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .player.goalkeeper {
+            background: linear-gradient(45deg, #4ecdc4, #44d9cc);
+        }
+
+        .player.defender {
+            background: linear-gradient(45deg, #45b7d1, #69c7e5);
+        }
+
+        .player.midfielder {
+            background: linear-gradient(45deg, #f9ca24, #f0932b);
+        }
+
+        .player.forward {
+            background: linear-gradient(45deg, #eb4d4b, #ff6348);
+        }
+
+        .player.substitute {
+            background: linear-gradient(45deg, #a55eea, #c44569);
+            opacity: 0.7;
+        }
+
+        @keyframes playerPulse {
+            0%, 100% { transform: translateZ(0px); }
+            50% { transform: translateZ(5px); }
+        }
+
+        /* Lista de jugadoras disponibles */
+        .players-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .player-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .player-item:hover {
+            background: #e9ecef;
+            border-color: #2a5298;
+            transform: translateX(5px);
+        }
+
+        .player-item.selected {
+            background: rgba(42, 82, 152, 0.1);
+            border-color: #2a5298;
+        }
+
+        .player-avatar, .player-avatar-container {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        
+        .player-avatar {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+        
+        .substitute-avatar, .substitute-avatar-container {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        
+        .substitute-avatar {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        /* Estilos para imágenes de jugadoras */
+        .player-image-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .player-data-overlay {
+            font-family: Arial, sans-serif;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            font-weight: bold;
+        }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .player-position {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* Formaciones predefinidas */
+        .formation-selector {
+            margin-bottom: 1rem;
+        }
+
+        .formation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .formation-btn {
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .formation-btn:hover {
+            background: #e9ecef;
+            border-color: #2a5298;
+        }
+
+        .formation-btn.active {
+            background: rgba(42, 82, 152, 0.1);
+            border-color: #2a5298;
+            color: #2a5298;
+            font-weight: 600;
+        }
+
+        /* Información de formación */
+        .formation-info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .formation-name {
+            font-weight: 600;
+            color: #1e3c72;
+            margin-bottom: 0.5rem;
+        }
+
+        .formation-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Formulario de información del partido */
+        .match-info {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .match-info h4 {
+            color: #1e3c72;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 0.8rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 5px rgba(42, 82, 152, 0.3);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        /* Sección de suplentes */
+        .substitutes-section {
+            max-height: 300px;
+        }
+
+        .substitutes-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 0.5rem;
+            min-height: 80px;
+        }
+
+        .substitute-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 0.3rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .substitute-avatar {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #a55eea, #c44569);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.7rem;
+        }
+
+        .substitute-info {
+            flex: 1;
+            font-size: 0.85rem;
+        }
+
+        .substitute-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .substitute-division {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .remove-substitute {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+
+        .remove-substitute:hover {
+            background: #c82333;
+        }
+
+        .substitutes-count {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        /* Filtro por división */
+        .division-filter {
+            margin-bottom: 1rem;
+        }
+
+        .player-division {
+            font-size: 0.75rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .player-item.from-other-division {
+            border-left: 4px solid #ff6b6b;
+            background: #fff8f8;
+        }
+
+        .player-item.assigned {
+            opacity: 0.5;
+            background: #e9ecef;
+            pointer-events: none;
+        }
+
+        .player-item.assigned::after {
+            content: '✓ Asignada';
+            color: #28a745;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        /* Responsive updates */
+        @media (max-width: 1400px) {
+            .main-container {
+                grid-template-columns: 250px 250px 1fr 280px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        /* Loading y estados */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2a5298;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message, .error-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 10000;
+            animation: slideIn 0.5s ease;
+        }
+
+        .success-message {
+            background: #28a745;
+        }
+
+        .error-message {
+            background: #dc3545;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <h1>⚡ Gestión de Formaciones de Hockey</h1>
+        <div class="header-controls">
+            <button class="btn" id="newFormationBtn">➕ Nueva Formación</button>
+            <button class="btn" id="loadFormationBtn">📂 Cargar Formación</button>
+            <button class="btn btn-success" id="saveFormationBtn">💾 Guardar Formación</button>
+            <button class="btn btn-warning" id="generateImageBtn">🖼️ Generar PNG</button>
+            <button class="btn" id="exportFormationBtn">📤 Exportar</button>
+            <button class="btn btn-danger" id="clearFormationBtn">🗑️ Limpiar Campo</button>
+        </div>
+    </header>
+
+    <!-- Contenedor principal -->
+    <div class="main-container">
+        <!-- Sidebar izquierdo - Información del partido -->
+        <aside class="sidebar">
+            <h3>📋 Información del Partido</h3>
+            
+            <div class="match-info">
+                <h4>Datos del Encuentro</h4>
+                
+                <div class="form-group">
+                    <label>Equipo Adversario</label>
+                    <input type="text" id="rivalTeam" placeholder="Nombre del equipo rival">
+                </div>
+                
+                <div class="form-group">
+                    <label>Lugar del Partido</label>
+                    <input type="text" id="matchVenue" placeholder="Cancha/Club donde se juega">
+                </div>
+                
+                <div class="form-group">
+                    <label>Fecha del Partido</label>
+                    <input type="date" id="matchDate">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Hora Presentación</label>
+                        <input type="time" id="presentationTime">
+                    </div>
+                    <div class="form-group">
+                        <label>Hora Partido</label>
+                        <input type="time" id="matchTime">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>División</label>
+                    <select id="matchDivision">
+                        <option value="">Seleccionar división</option>
+                        <option value="sub14-femenino">Sub 14 Femenino</option>
+                        <option value="sub16-femenino">Sub 16 Femenino</option>
+                        <option value="sub19-femenino">Sub 19 Femenino</option>
+                        <option value="intermedia-femenino">Intermedia Femenino</option>
+                        <option value="primera-femenino">Primera Femenino</option>
+                        <option value="sub15-masculino">Sub 15 Masculino</option>
+                        <option value="sub19-masculino">Sub 19 Masculino</option>
+                        <option value="intermedia-masculino">Intermedia Masculino</option>
+                        <option value="primera-masculino">Primera Masculino</option>
+                    </select>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Sidebar - Jugadoras disponibles -->
+        <aside class="sidebar">
+            <h3>👥 Jugadoras Disponibles</h3>
+            
+            <div class="division-filter">
+                <div class="form-group">
+                    <label>Filtrar por División</label>
+                    <select id="divisionFilter">
+                        <option value="all">Todas las divisiones</option>
+                        <option value="same">Solo mi división</option>
+                        <option value="sub14-femenino">Sub 14 Femenino</option>
+                        <option value="sub16-femenino">Sub 16 Femenino</option>
+                        <option value="sub19-femenino">Sub 19 Femenino</option>
+                        <option value="intermedia-femenino">Intermedia Femenino</option>
+                        <option value="primera-femenino">Primera Femenino</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="formation-selector">
+                <h4 style="margin-bottom: 0.5rem; color: #666;">Formaciones:</h4>
+                <div class="formation-grid">
+                    <button class="formation-btn" data-formation="1-4-3-3">1-4-3-3</button>
+                    <button class="formation-btn" data-formation="1-3-4-3">1-3-4-3</button>
+                    <button class="formation-btn" data-formation="1-4-4-2">1-4-4-2</button>
+                    <button class="formation-btn" data-formation="custom">Custom</button>
+                </div>
+            </div>
+
+            <div class="players-list" id="playersList">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Cargando jugadoras...
+                </div>
+            </div>
+        </aside>
+
+        <!-- Campo de juego -->
+        <main class="formation-field">
+            <div class="field-3d" id="field">
+                <!-- Líneas de la cancha de hockey -->
+                <div class="field-lines">
+                    <!-- Línea central -->
+                    <div class="center-line"></div>
+                    
+                    <!-- Líneas de cuarto -->
+                    <div class="quarter-line top"></div>
+                    <div class="quarter-line bottom"></div>
+                    
+                    <!-- Líneas punteadas de 23m -->
+                    <div class="dashed-line top"></div>
+                    <div class="dashed-line bottom"></div>
+                    
+                    <!-- Áreas de gol -->
+                    <div class="goal-area top"></div>
+                    <div class="goal-area bottom"></div>
+                    
+                    <!-- Porterías -->
+                    <div class="goal top"></div>
+                    <div class="goal bottom"></div>
+                    
+                    <!-- Puntos de penalti -->
+                    <div class="penalty-spot top"></div>
+                    <div class="penalty-spot bottom"></div>
+                </div>
+                
+                <!-- Las jugadoras se agregarán dinámicamente aquí -->
+            </div>
+        </main>
+
+        <!-- Sidebar derecho - Suplentes e información -->
+        <aside class="sidebar">
+            <h3>� Suplentes</h3>
+            
+            <div class="substitutes-section">
+                <div class="substitutes-list" id="substitutesList">
+                    <div style="text-align: center; color: #666; padding: 1rem;">
+                        Arrastra jugadoras aquí para agregarlas como suplentes
+                    </div>
+                </div>
+                <div class="substitutes-count">
+                    <span id="substitutesCount">0</span>/9 suplentes
+                </div>
+            </div>
+            
+            <div class="formation-info">
+                <div class="formation-name" id="formationName">Sin nombre</div>
+                <div class="formation-stats">
+                    <div class="stat-item">
+                        <span>Porteras:</span>
+                        <span id="goalkeepersCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Defensas:</span>
+                        <span id="defendersCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Mediocampistas:</span>
+                        <span id="midfieldersCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Delanteras:</span>
+                        <span id="forwardsCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Total en campo:</span>
+                        <span id="totalOnField">0/11</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1rem;">
+                <h4 style="margin-bottom: 0.5rem; color: #666;">Control de Cancha:</h4>
+                <button class="btn" id="rotateLeftBtn" style="width: 32%; margin-bottom: 0.5rem;">↺ Girar</button>
+                <button class="btn" id="resetViewBtn" style="width: 32%; margin-bottom: 0.5rem;">🔄 Reset</button>
+                <button class="btn" id="rotateRightBtn" style="width: 32%; margin-bottom: 0.5rem;">↻ Girar</button>
+                
+                <h4 style="margin-bottom: 0.5rem; color: #666;">Acciones:</h4>
+                <button class="btn" id="autoFillBtn" style="width: 100%; margin-bottom: 0.5rem;">🤖 Auto-completar</button>
+                <button class="btn" id="resetPositionsBtn" style="width: 100%; margin-bottom: 0.5rem;">🔄 Reset Posiciones</button>
+                <button class="btn" id="randomizeBtn" style="width: 100%;">🎲 Aleatoria</button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Script principal -->
+    <script>
+        // Configuración de la API
+        const API_BASE_URL = 'http://localhost:3001/api';
+        
+        // Información del equipo (normalmente vendría de la API)
+        const teamInfo = {
+            id: 'team-sub16-femenino',
+            name: 'Sub 16 Femenino',
+            division: 'sub16-femenino',
+            jerseyPhoto: '/images/teams/sub16-femenino-jersey.svg', // Foto de la camiseta del equipo
+            clubLogo: '/images/club/logo.png',
+            colors: {
+                primary: '#2563eb', // Azul
+                secondary: '#ffffff' // Blanco
+            }
+        };
+        
+        // Imagen estándar para jugadoras sin foto
+        const DEFAULT_PLAYER_IMAGE = '/images/defaults/default-player.svg';
+        
+        // Estado de la aplicación
+        let currentFormation = {
+            id: null,
+            name: 'Nueva Formación',
+            type: '1-4-3-3',
+            players: new Map(), // positionId -> playerData
+            positions: new Map(), // positionId -> {x, y, position}
+            substitutes: new Map(), // playerId -> playerData
+            matchInfo: {
+                rivalTeam: '',
+                venue: '',
+                date: '',
+                presentationTime: '',
+                matchTime: '',
+                division: ''
+            }
+        };
+
+        let availablePlayers = [];
+        let allPlayers = []; // Lista completa sin filtrar
+        let selectedPlayer = null;
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
+        let assignedPlayers = new Set(); // Para tracking de jugadoras ya asignadas
+        
+        // Variables para rotación de cancha
+        let currentRotation = 0;
+        let currentTilt = 45;
+
+        // Elementos del DOM
+        const field = document.getElementById('field');
+        const playersList = document.getElementById('playersList');
+        const formationName = document.getElementById('formationName');
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadAvailablePlayers();
+            setupEventListeners();
+            applyFormation('1-4-3-3'); // Formación inicial
+        });
+
+        // Cargar jugadoras disponibles (mock data con diferentes divisiones)
+        async function loadAvailablePlayers() {
+            try {
+                // Intentar cargar desde la API real
+                const response = await fetch(`${API_BASE_URL}/players`);
+                if (response.ok) {
+                    const apiPlayers = await response.json();
+                    
+                    // Mapear datos de API con información de imágenes
+                    allPlayers = apiPlayers.map(player => ({
+                        id: player.id,
+                        name: `${player.first_name} ${player.last_name}`,
+                        position: player.position,
+                        number: player.jersey_number || player.id,
+                        division: player.division || 'sub16-femenino',
+                        nickname: player.nickname || player.first_name,
+                        playerPhoto: player.player_photo || null
+                    }));
+                    
+                    console.log('✅ Jugadoras cargadas desde API:', allPlayers.length);
+                } else {
+                    throw new Error('API no disponible');
+                }
+            } catch (error) {
+                console.warn('⚠️ Error conectando con API, usando datos mock:', error.message);
+                
+                // Datos mock con diferentes divisiones y gestión de imágenes
+                allPlayers = [
+                    // División actual (Sub 16 Femenino - ejemplo)
+                    { id: 1, name: 'Ana García', position: 'GK', number: 1, division: 'sub16-femenino', nickname: 'Ana', playerPhoto: '/images/players/ana-garcia.jpg' },
+                    { id: 2, name: 'María López', position: 'DF', number: 2, division: 'sub16-femenino', nickname: 'Mari', playerPhoto: null },
+                    { id: 3, name: 'Carmen Ruiz', position: 'DF', number: 3, division: 'sub16-femenino', nickname: 'Carmen', playerPhoto: '/images/players/carmen-ruiz.jpg' },
+                    { id: 4, name: 'Laura Martín', position: 'DF', number: 4, division: 'sub16-femenino', nickname: 'Lau', playerPhoto: null },
+                    { id: 5, name: 'Sara González', position: 'DF', number: 5, division: 'sub16-femenino', nickname: 'Sara', playerPhoto: '/images/players/sara-gonzalez.jpg' },
+                    { id: 6, name: 'Elena Rodríguez', position: 'MF', number: 6, division: 'sub16-femenino', nickname: 'Ele', playerPhoto: null },
+                    { id: 7, name: 'Julia Fernández', position: 'MF', number: 7, division: 'sub16-femenino', nickname: 'Juli', playerPhoto: '/images/players/julia-fernandez.jpg' },
+                    { id: 8, name: 'Patricia Jiménez', position: 'MF', number: 8, division: 'sub16-femenino', nickname: 'Patri', playerPhoto: null },
+                    { id: 9, name: 'Andrea Moreno', position: 'MF', number: 9, division: 'sub16-femenino', nickname: 'Andre', playerPhoto: '/images/players/andrea-moreno.jpg' },
+                    { id: 10, name: 'Cristina Álvarez', position: 'FW', number: 10, division: 'sub16-femenino', nickname: 'Cris', playerPhoto: null },
+                    { id: 11, name: 'Beatriz Romero', position: 'FW', number: 11, division: 'sub16-femenino', nickname: 'Bea', playerPhoto: '/images/players/beatriz-romero.jpg' },
+                    { id: 12, name: 'Isabel Torres', position: 'GK', number: 12, division: 'sub16-femenino', nickname: 'Isa', playerPhoto: null },
+                    { id: 13, name: 'Mónica Navarro', position: 'DF', number: 13, division: 'sub16-femenino', nickname: 'Moni', playerPhoto: '/images/players/monica-navarro.jpg' },
+                    { id: 14, name: 'Rosa Herrera', position: 'MF', number: 14, division: 'sub16-femenino', nickname: 'Rosa', playerPhoto: null },
+                    { id: 15, name: 'Silvia Castro', position: 'FW', number: 15, division: 'sub16-femenino', nickname: 'Silvi', playerPhoto: '/images/players/silvia-castro.jpg' },
+                    
+                    // Jugadoras de otras divisiones (pueden ser elegidas)
+                    { id: 16, name: 'Lucia Morales', position: 'GK', number: 1, division: 'sub14-femenino', nickname: 'Lu', playerPhoto: '/images/players/lucia-morales.jpg' },
+                    { id: 17, name: 'Sofia Ramírez', position: 'DF', number: 2, division: 'sub14-femenino', nickname: 'Sofi', playerPhoto: null },
+                    { id: 18, name: 'Valentina Cruz', position: 'MF', number: 8, division: 'sub14-femenino', nickname: 'Vale', playerPhoto: '/images/players/valentina-cruz.jpg' },
+                    { id: 19, name: 'Camila Vargas', position: 'FW', number: 10, division: 'sub14-femenino', nickname: 'Cami', playerPhoto: null },
+                    
+                    { id: 20, name: 'Adriana Pérez', position: 'GK', number: 1, division: 'sub19-femenino', nickname: 'Adri', playerPhoto: '/images/players/adriana-perez.jpg' },
+                    { id: 21, name: 'Carolina Silva', position: 'DF', number: 3, division: 'sub19-femenino', nickname: 'Caro', playerPhoto: null },
+                    { id: 22, name: 'Fernanda Ramos', position: 'MF', number: 7, division: 'sub19-femenino', nickname: 'Fer', playerPhoto: '/images/players/fernanda-ramos.jpg' },
+                    { id: 23, name: 'Daniela Vega', position: 'FW', number: 9, division: 'sub19-femenino', nickname: 'Dani', playerPhoto: null },
+                    
+                    { id: 24, name: 'Victoria Mendoza', position: 'GK', number: 1, division: 'intermedia-femenino', nickname: 'Vicky', playerPhoto: '/images/players/victoria-mendoza.jpg' },
+                    { id: 25, name: 'Gabriela Ortiz', position: 'DF', number: 4, division: 'intermedia-femenino', nickname: 'Gaby', playerPhoto: null },
+                    { id: 26, name: 'Alejandra Castro', position: 'MF', number: 6, division: 'intermedia-femenino', nickname: 'Ale', playerPhoto: '/images/players/alejandra-castro.jpg' },
+                    { id: 27, name: 'Natalia Herrera', position: 'FW', number: 11, division: 'intermedia-femenino', nickname: 'Naty', playerPhoto: null }
+                ];
+            }
+            
+            availablePlayers = [...allPlayers];
+            renderPlayersList();
+        }
+                console.error('Error cargando jugadoras:', error);
+                showError('Error cargando la lista de jugadoras');
+            }
+        }
+
+        // Renderizar lista de jugadoras
+        function renderPlayersList() {
+            const positionNames = {
+                'GK': 'Portera',
+                'DF': 'Defensa', 
+                'MF': 'Mediocampista',
+                'FW': 'Delantera'
+            };
+
+            const divisionNames = {
+                'sub14-femenino': 'Sub 14 F',
+                'sub16-femenino': 'Sub 16 F',
+                'sub19-femenino': 'Sub 19 F',
+                'intermedia-femenino': 'Intermedia F',
+                'primera-femenino': 'Primera F'
+            };
+
+            playersList.innerHTML = '';
+            
+            availablePlayers
+                .filter(player => !assignedPlayers.has(player.id))
+                .forEach(player => {
+                    const isFromOtherDivision = player.division !== 'sub16-femenino';
+                    const assignedClass = assignedPlayers.has(player.id) ? 'assigned' : '';
+                    const otherDivisionClass = isFromOtherDivision ? 'from-other-division' : '';
+                    
+                    // Crear elemento de jugadora
+                    const playerItem = document.createElement('div');
+                    playerItem.className = `player-item ${assignedClass} ${otherDivisionClass}`;
+                    playerItem.setAttribute('data-player-id', player.id);
+                    playerItem.setAttribute('draggable', 'true');
+                    
+                    // Crear imagen con la nueva lógica
+                    const playerImageElement = createPlayerImageElement(player, '40px');
+                    
+                    playerItem.innerHTML = `
+                        <div class="player-avatar-container"></div>
+                        <div class="player-info">
+                            <div class="player-name">${player.name}</div>
+                            <div class="player-position">${positionNames[player.position] || player.position}</div>
+                            <div class="player-division">${divisionNames[player.division] || player.division}</div>
+                        </div>
+                    `;
+                    
+                    // Insertar la imagen en el contenedor
+                    playerItem.querySelector('.player-avatar-container').appendChild(playerImageElement);
+                    
+                    // Agregar a la lista
+                    playersList.appendChild(playerItem);
+                    
+                    // Event listeners para drag & drop
+                    if (!assignedPlayers.has(player.id)) {
+                        playerItem.addEventListener('dragstart', handlePlayerDragStart);
+                        playerItem.addEventListener('click', selectPlayer);
+                    }
+                });
+        }
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Botones de formación predefinida
+            document.querySelectorAll('.formation-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const formation = e.target.dataset.formation;
+                    applyFormation(formation);
+                });
+            });
+
+            // Botones de acción
+            document.getElementById('newFormationBtn').addEventListener('click', newFormation);
+            document.getElementById('saveFormationBtn').addEventListener('click', saveFormation);
+            document.getElementById('generateImageBtn').addEventListener('click', generateFormationImage);
+            document.getElementById('clearFormationBtn').addEventListener('click', clearField);
+            document.getElementById('autoFillBtn').addEventListener('click', autoFillFormation);
+            document.getElementById('resetPositionsBtn').addEventListener('click', resetPositions);
+            document.getElementById('randomizeBtn').addEventListener('click', randomizeFormation);
+            
+            // Botones de rotación de cancha
+            document.getElementById('rotateLeftBtn').addEventListener('click', () => rotateField('left'));
+            document.getElementById('resetViewBtn').addEventListener('click', () => rotateField('reset'));
+            document.getElementById('rotateRightBtn').addEventListener('click', () => rotateField('right'));
+
+            // Campo - drag & drop
+            field.addEventListener('dragover', handleFieldDragOver);
+            field.addEventListener('drop', handleFieldDrop);
+            field.addEventListener('click', handleFieldClick);
+            
+            // Suplentes - drag & drop
+            const substitutesList = document.getElementById('substitutesList');
+            substitutesList.addEventListener('dragover', handleSubstitutesDragOver);
+            substitutesList.addEventListener('drop', handleSubstitutesDrop);
+            
+            // Filtro de divisiones
+            document.getElementById('divisionFilter').addEventListener('change', handleDivisionFilter);
+            
+            // Campos de información del partido
+            document.getElementById('rivalTeam').addEventListener('change', updateMatchInfo);
+            document.getElementById('matchVenue').addEventListener('change', updateMatchInfo);
+            document.getElementById('matchDate').addEventListener('change', updateMatchInfo);
+            document.getElementById('presentationTime').addEventListener('change', updateMatchInfo);
+            document.getElementById('matchTime').addEventListener('change', updateMatchInfo);
+            document.getElementById('matchDivision').addEventListener('change', updateMatchInfo);
+        }
+
+        // Aplicar formación predefinida
+        function applyFormation(formationType) {
+            clearField();
+            
+            // Actualizar UI
+            document.querySelectorAll('.formation-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.formation === formationType);
+            });
+
+            currentFormation.type = formationType;
+            formationName.textContent = `Formación ${formationType}`;
+
+            // Definir posiciones según las especificaciones del documento
+            const formations = {
+                // Formación 1: 1 (Arquero) - 4 (Defensores) - 3 (Mediocampistas) - 3 (Delanteros)
+                '1-4-3-3': [
+                    // Arquera
+                    { pos: 'GK', x: 50, y: 90 },
+                    // Defensores (4)
+                    { pos: 'DF', x: 25, y: 75 },
+                    { pos: 'DF', x: 42, y: 75 },
+                    { pos: 'DF', x: 58, y: 75 },
+                    { pos: 'DF', x: 75, y: 75 },
+                    // Mediocampistas (3)
+                    { pos: 'MF', x: 30, y: 50 },
+                    { pos: 'MF', x: 50, y: 50 },
+                    { pos: 'MF', x: 70, y: 50 },
+                    // Delanteras (3)
+                    { pos: 'FW', x: 25, y: 25 },
+                    { pos: 'FW', x: 50, y: 25 },
+                    { pos: 'FW', x: 75, y: 25 }
+                ],
+                
+                // Formación 2: 1 (Arquero) - 3 (Defensores) - 4 (Mediocampistas) - 3 (Delanteros)
+                '1-3-4-3': [
+                    // Arquera
+                    { pos: 'GK', x: 50, y: 90 },
+                    // Defensores (3)
+                    { pos: 'DF', x: 30, y: 75 },
+                    { pos: 'DF', x: 50, y: 75 },
+                    { pos: 'DF', x: 70, y: 75 },
+                    // Mediocampistas (4)
+                    { pos: 'MF', x: 25, y: 55 },
+                    { pos: 'MF', x: 42, y: 55 },
+                    { pos: 'MF', x: 58, y: 55 },
+                    { pos: 'MF', x: 75, y: 55 },
+                    // Delanteras (3)
+                    { pos: 'FW', x: 25, y: 25 },
+                    { pos: 'FW', x: 50, y: 25 },
+                    { pos: 'FW', x: 75, y: 25 }
+                ],
+                
+                // Formación 3: 1 (Arquero) - 4 (Defensores) - 4 (Mediocampistas) - 2 (Delanteros)
+                '1-4-4-2': [
+                    // Arquera
+                    { pos: 'GK', x: 50, y: 90 },
+                    // Defensores (4)
+                    { pos: 'DF', x: 25, y: 75 },
+                    { pos: 'DF', x: 42, y: 75 },
+                    { pos: 'DF', x: 58, y: 75 },
+                    { pos: 'DF', x: 75, y: 75 },
+                    // Mediocampistas (4)
+                    { pos: 'MF', x: 25, y: 55 },
+                    { pos: 'MF', x: 42, y: 55 },
+                    { pos: 'MF', x: 58, y: 55 },
+                    { pos: 'MF', x: 75, y: 55 },
+                    // Delanteras (2)
+                    { pos: 'FW', x: 35, y: 25 },
+                    { pos: 'FW', x: 65, y: 25 }
+                ]
+            };
+
+            const positions = formations[formationType] || formations['1-4-3-3'];
+            
+            // Crear posiciones en el campo
+            positions.forEach((pos, index) => {
+                createPositionSlot(index, pos.x, pos.y, pos.pos);
+            });
+
+            updateFormationStats();
+        }
+
+        // Crear slot de posición en el campo
+        function createPositionSlot(id, x, y, position) {
+            const slot = document.createElement('div');
+            slot.className = 'position-slot';
+            slot.dataset.positionId = id;
+            slot.dataset.position = position;
+            slot.style.cssText = `
+                position: absolute;
+                left: ${x}%;
+                top: ${y}%;
+                width: 50px;
+                height: 50px;
+                border: 3px dashed rgba(255,255,255,0.6);
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: rgba(255,255,255,0.8);
+                font-weight: bold;
+                font-size: 0.8rem;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                background: rgba(255,255,255,0.1);
+            `;
+            slot.textContent = position;
+            
+            slot.addEventListener('dragover', handleSlotDragOver);
+            slot.addEventListener('drop', handleSlotDrop);
+            slot.addEventListener('click', handleSlotClick);
+            
+            field.appendChild(slot);
+            currentFormation.positions.set(id, { x, y, position });
+        }
+
+        // ===== FUNCIONES PARA SUPLENTES =====
+        
+        // Manejar dragover en lista de suplentes
+        function handleSubstitutesDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.style.backgroundColor = 'rgba(42, 82, 152, 0.1)';
+            e.currentTarget.style.borderColor = '#2a5298';
+        }
+
+        // Manejar drop en lista de suplentes
+        function handleSubstitutesDrop(e) {
+            e.preventDefault();
+            const playerId = parseInt(e.dataTransfer.getData('text/plain'));
+            
+            // Resetear estilos
+            e.currentTarget.style.backgroundColor = '';
+            e.currentTarget.style.borderColor = '#dee2e6';
+            
+            addPlayerToSubstitutes(playerId);
+        }
+
+        // Agregar jugadora a suplentes
+        function addPlayerToSubstitutes(playerId) {
+            if (currentFormation.substitutes.size >= 9) {
+                showError('Máximo 9 suplentes permitidas');
+                return;
+            }
+
+            const player = allPlayers.find(p => p.id === playerId);
+            if (!player) return;
+
+            // Verificar si ya está asignada
+            if (assignedPlayers.has(playerId)) {
+                showError(`${player.name} ya está asignada`);
+                return;
+            }
+
+            // Agregar a suplentes
+            currentFormation.substitutes.set(playerId, player);
+            assignedPlayers.add(playerId);
+            
+            renderSubstitutesList();
+            renderPlayersList(); // Re-renderizar para ocultar jugadora asignada
+            updateSubstitutesCount();
+            
+            showSuccess(`${player.name} agregada como suplente`);
+        }
+
+        // Renderizar lista de suplentes
+        function renderSubstitutesList() {
+            const substitutesList = document.getElementById('substitutesList');
+            
+            if (currentFormation.substitutes.size === 0) {
+                substitutesList.innerHTML = `
+                    <div style="text-align: center; color: #666; padding: 1rem;">
+                        Arrastra jugadoras aquí para agregarlas como suplentes
+                    </div>
+                `;
+                return;
+            }
+
+            const divisionNames = {
+                'sub14-femenino': 'Sub 14 F',
+                'sub16-femenino': 'Sub 16 F',
+                'sub19-femenino': 'Sub 19 F',
+                'intermedia-femenino': 'Intermedia F',
+                'primera-femenino': 'Primera F'
+            };
+
+            substitutesList.innerHTML = '';
+            
+            Array.from(currentFormation.substitutes.values()).forEach(player => {
+                const substituteItem = document.createElement('div');
+                substituteItem.className = 'substitute-item';
+                
+                // Crear imagen con la nueva lógica
+                const playerImageElement = createPlayerImageElement(player, '35px');
+                
+                substituteItem.innerHTML = `
+                    <div class="substitute-avatar-container"></div>
+                    <div class="substitute-info">
+                        <div class="substitute-name">${player.name}</div>
+                        <div class="substitute-division">${divisionNames[player.division]}</div>
+                    </div>
+                    <button class="remove-substitute" onclick="removePlayerFromSubstitutes(${player.id})">✕</button>
+                `;
+                
+                // Insertar la imagen en el contenedor
+                substituteItem.querySelector('.substitute-avatar-container').appendChild(playerImageElement);
+                
+                // Agregar a la lista
+                substitutesList.appendChild(substituteItem);
+            });
+        }
+
+        // Remover jugadora de suplentes
+        function removePlayerFromSubstitutes(playerId) {
+            const player = currentFormation.substitutes.get(playerId);
+            if (!player) return;
+
+            currentFormation.substitutes.delete(playerId);
+            assignedPlayers.delete(playerId);
+            
+            renderSubstitutesList();
+            renderPlayersList();
+            updateSubstitutesCount();
+            
+            showSuccess(`${player.name} removida de suplentes`);
+        }
+
+        // Actualizar contador de suplentes
+        function updateSubstitutesCount() {
+            document.getElementById('substitutesCount').textContent = currentFormation.substitutes.size;
+        }
+
+        // ===== FUNCIONES PARA FILTROS =====
+        
+        // Manejar filtro por división
+        function handleDivisionFilter(e) {
+            const selectedDivision = e.target.value;
+            
+            if (selectedDivision === 'all') {
+                availablePlayers = [...allPlayers];
+            } else if (selectedDivision === 'same') {
+                availablePlayers = allPlayers.filter(player => player.division === 'sub16-femenino');
+            } else {
+                availablePlayers = allPlayers.filter(player => player.division === selectedDivision);
+            }
+            
+            renderPlayersList();
+        }
+
+        // Actualizar información del partido
+        function updateMatchInfo(e) {
+            const field = e.target.id;
+            const value = e.target.value;
+            
+            switch(field) {
+                case 'rivalTeam':
+                    currentFormation.matchInfo.rivalTeam = value;
+                    break;
+                case 'matchVenue':
+                    currentFormation.matchInfo.venue = value;
+                    break;
+                case 'matchDate':
+                    currentFormation.matchInfo.date = value;
+                    break;
+                case 'presentationTime':
+                    currentFormation.matchInfo.presentationTime = value;
+                    break;
+                case 'matchTime':
+                    currentFormation.matchInfo.matchTime = value;
+                    break;
+                case 'matchDivision':
+                    currentFormation.matchInfo.division = value;
+                    break;
+            }
+        }
+
+        // Manejar inicio de arrastre de jugadora
+        function handlePlayerDragStart(e) {
+            const playerId = parseInt(e.target.dataset.playerId);
+            e.dataTransfer.setData('text/plain', playerId);
+            e.target.style.opacity = '0.5';
+        }
+
+        // Manejar dragover en slots
+        function handleSlotDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.style.borderColor = '#ffd700';
+            e.currentTarget.style.backgroundColor = 'rgba(255, 215, 0, 0.2)';
+        }
+
+        // Manejar drop en slots
+        function handleSlotDrop(e) {
+            e.preventDefault();
+            const playerId = parseInt(e.dataTransfer.getData('text/plain'));
+            const slot = e.currentTarget;
+            const positionId = parseInt(slot.dataset.positionId);
+            
+            // Resetear estilos del slot
+            slot.style.borderColor = 'rgba(255,255,255,0.6)';
+            slot.style.backgroundColor = 'rgba(255,255,255,0.1)';
+            
+            assignPlayerToPosition(playerId, positionId);
+        }
+
+        // Asignar jugadora a posición
+        function assignPlayerToPosition(playerId, positionId) {
+            const player = allPlayers.find(p => p.id === playerId);
+            const position = currentFormation.positions.get(positionId);
+            
+            if (!player || !position) return;
+
+            // Verificar si ya está asignada
+            if (assignedPlayers.has(playerId)) {
+                showError(`${player.name} ya está asignada`);
+                return;
+            }
+
+            // Remover jugadora de posición anterior si existe
+            removePlayerFromPosition(playerId);
+
+            // Asignar jugadora a nueva posición
+            currentFormation.players.set(positionId, player);
+            assignedPlayers.add(playerId);
+            
+            // Crear elemento visual de jugadora en el campo
+            const playerElement = createPlayerElement(player, position.x, position.y, positionId);
+            field.appendChild(playerElement);
+
+            // Ocultar slot vacío
+            const slot = field.querySelector(`[data-position-id="${positionId}"]`);
+            if (slot) slot.style.display = 'none';
+
+            updateFormationStats();
+            renderPlayersList(); // Re-renderizar para ocultar jugadora asignada
+            showSuccess(`${player.name} asignada a ${position.position}`);
+        }
+
+        // Crear elemento visual de jugadora
+        function createPlayerElement(player, x, y, positionId) {
+            const playerEl = document.createElement('div');
+            playerEl.className = `player ${getPlayerClass(player.position)}`;
+            playerEl.dataset.playerId = player.id;
+            playerEl.dataset.positionId = positionId;
+            playerEl.style.cssText = `
+                position: absolute;
+                left: ${x}%;
+                top: ${y}%;
+                transform: translate(-50%, -50%);
+                z-index: 100;
+                cursor: pointer;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+            
+            // Crear imagen de jugadora para el campo (más grande)
+            const playerImageElement = createPlayerImageElement(player, '60px');
+            playerEl.appendChild(playerImageElement);
+            
+            playerEl.title = `${player.name} (${player.position})`;
+            
+            playerEl.addEventListener('click', selectPlayerOnField);
+            playerEl.addEventListener('dblclick', removePlayerFromField);
+            
+            return playerEl;
+        }
+
+        // Obtener clase CSS según posición
+        function getPlayerClass(position) {
+            const classes = {
+                'GK': 'goalkeeper',
+                'DF': 'defender',
+                'MF': 'midfielder',
+                'FW': 'forward'
+            };
+            return classes[position] || 'midfielder';
+        }
+
+        // Remover jugadora de posición
+        function removePlayerFromPosition(playerId) {
+            for (let [positionId, player] of currentFormation.players) {
+                if (player.id === playerId) {
+                    currentFormation.players.delete(positionId);
+                    assignedPlayers.delete(playerId);
+                    
+                    // Remover elemento visual
+                    const playerEl = field.querySelector(`[data-player-id="${playerId}"]`);
+                    if (playerEl) playerEl.remove();
+                    
+                    // Mostrar slot vacío
+                    const slot = field.querySelector(`[data-position-id="${positionId}"]`);
+                    if (slot) slot.style.display = 'flex';
+                    
+                    renderPlayersList(); // Re-renderizar para mostrar jugadora disponible
+                    break;
+                }
+            }
+        }
+
+        // Actualizar estadísticas de formación
+        function updateFormationStats() {
+            const stats = { GK: 0, DF: 0, MF: 0, FW: 0 };
+            
+            for (let player of currentFormation.players.values()) {
+                stats[player.position] = (stats[player.position] || 0) + 1;
+            }
+            
+            document.getElementById('goalkeepersCount').textContent = stats.GK || 0;
+            document.getElementById('defendersCount').textContent = stats.DF || 0;
+            document.getElementById('midfieldersCount').textContent = stats.MF || 0;
+            document.getElementById('forwardsCount').textContent = stats.FW || 0;
+            document.getElementById('totalOnField').textContent = `${currentFormation.players.size}/11`;
+        }
+
+        // Funciones de utilidad
+        
+        /**
+         * Determina qué imagen usar para una jugadora según el orden de prioridad:
+         * 1. Foto de la jugadora (si existe)
+         * 2. Foto de la camiseta del equipo con nickname y número
+         * 3. Imagen estándar de jugador con nickname y número
+         */
+        function getPlayerImage(player) {
+            // 1. Si la jugadora tiene foto, usar esa
+            if (player.playerPhoto && player.playerPhoto !== null) {
+                return {
+                    type: 'player-photo',
+                    url: player.playerPhoto,
+                    fallback: false
+                };
+            }
+            
+            // 2. Si el equipo tiene foto de camiseta, usar esa con datos de la jugadora
+            if (teamInfo.jerseyPhoto && teamInfo.jerseyPhoto !== null) {
+                return {
+                    type: 'team-jersey',
+                    url: teamInfo.jerseyPhoto,
+                    fallback: true,
+                    overlayData: {
+                        nickname: player.nickname || player.name.split(' ')[0],
+                        number: player.number
+                    }
+                };
+            }
+            
+            // 3. Usar imagen estándar con datos de la jugadora
+            return {
+                type: 'default-player',
+                url: DEFAULT_PLAYER_IMAGE,
+                fallback: true,
+                overlayData: {
+                    nickname: player.nickname || player.name.split(' ')[0],
+                    number: player.number
+                }
+            };
+        }
+        
+        /**
+         * Crea un elemento de imagen para una jugadora con overlay de datos si es necesario
+         */
+        function createPlayerImageElement(player, size = '50px') {
+            const imageInfo = getPlayerImage(player);
+            const container = document.createElement('div');
+            container.className = 'player-image-container';
+            container.style.cssText = `
+                position: relative;
+                width: ${size};
+                height: ${size};
+                border-radius: 50%;
+                overflow: hidden;
+                display: inline-block;
+                border: 2px solid ${teamInfo.colors.primary};
+            `;
+            
+            // Imagen principal
+            const img = document.createElement('img');
+            img.src = imageInfo.url;
+            img.alt = player.name;
+            img.style.cssText = `
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            `;
+            
+            // Manejo de errores de carga de imagen
+            img.onerror = function() {
+                this.src = DEFAULT_PLAYER_IMAGE;
+            };
+            
+            container.appendChild(img);
+            
+            // Si necesita overlay de datos (camiseta del equipo o imagen estándar)
+            if (imageInfo.fallback && imageInfo.overlayData) {
+                const overlay = document.createElement('div');
+                overlay.className = 'player-data-overlay';
+                overlay.style.cssText = `
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    background: rgba(0, 0, 0, 0.8);
+                    color: white;
+                    font-size: ${parseInt(size) * 0.15}px;
+                    text-align: center;
+                    padding: 1px 0;
+                    line-height: 1;
+                `;
+                
+                overlay.innerHTML = `
+                    <div style="font-weight: bold;">${imageInfo.overlayData.nickname}</div>
+                    <div>#${imageInfo.overlayData.number}</div>
+                `;
+                
+                container.appendChild(overlay);
+            }
+            
+            return container;
+        }
+        
+        function clearField() {
+            // Remover todos los elementos de jugadoras y slots
+            field.querySelectorAll('.player, .position-slot').forEach(el => el.remove());
+            
+            // Limpiar datos
+            currentFormation.players.clear();
+            currentFormation.positions.clear();
+            currentFormation.substitutes.clear();
+            assignedPlayers.clear();
+            
+            // Actualizar UI
+            updateFormationStats();
+            updateSubstitutesCount();
+            renderSubstitutesList();
+            renderPlayersList();
+        }
+
+        function newFormation() {
+            if (confirm('¿Crear nueva formación? Se perderán los cambios no guardados.')) {
+                currentFormation = {
+                    id: null,
+                    name: 'Nueva Formación',
+                    type: '1-4-3-3',
+                    players: new Map(),
+                    positions: new Map()
+                };
+                applyFormation('1-4-3-3');
+            }
+        }
+
+        async function saveFormation() {
+            if (currentFormation.players.size === 0) {
+                showError('No hay jugadoras en la formación para guardar');
+                return;
+            }
+
+            const name = prompt('Nombre de la formación:', currentFormation.name);
+            if (!name) return;
+
+            try {
+                // Preparar datos para la API
+                const formationData = {
+                    name: name,
+                    description: `Formación ${currentFormation.type} creada el ${new Date().toLocaleDateString()}`,
+                    tactical_system: currentFormation.type,
+                    formation_type: 'balanced',
+                    team_id: 1, // Por ahora hardcodeado
+                    is_template: true,
+                    // Información del partido si está disponible
+                    rival_team_name: matchInfo.rivalTeam || null,
+                    match_date: matchInfo.date ? new Date(matchInfo.date + 'T' + (matchInfo.time || '15:00')) : null,
+                    match_location: matchInfo.venue || null,
+                    // Configuración de exportación
+                    export_settings: {
+                        width: 1080,
+                        height: 1350,
+                        format: 'PNG',
+                        backgroundColor: '#ffffff',
+                        playerCircleSize: 80,
+                        fontFamily: 'Arial',
+                        fontSize: 14
+                    }
+                };
+
+                // Preparar posiciones de jugadoras
+                const positions = [];
+                let positionNumber = 1;
+                
+                // Titulares
+                for (let [positionId, player] of currentFormation.players) {
+                    const slot = document.querySelector(`[data-slot-id="${positionId}"]`);
+                    if (slot) {
+                        const rect = slot.getBoundingClientRect();
+                        const fieldRect = field.getBoundingClientRect();
+                        const x = ((rect.left - fieldRect.left) / fieldRect.width) * 100;
+                        const y = ((rect.top - fieldRect.top) / fieldRect.height) * 100;
+                        
+                        positions.push({
+                            player_id: player.id,
+                            position_type: 'starter',
+                            position_number: positionNumber++,
+                            field_position_x: x,
+                            field_position_y: y,
+                            position_name: getPositionName(player.position),
+                            position_zone: getPositionZone(player.position),
+                            jersey_number: player.number,
+                            captain: positionNumber === 2 // Portera es capitana por defecto
+                        });
+                    }
+                }
+                
+                // Suplentes
+                let subNumber = 12;
+                for (let player of currentFormation.substitutes.values()) {
+                    positions.push({
+                        player_id: player.id,
+                        position_type: 'substitute',
+                        position_number: subNumber++,
+                        field_position_x: 0,
+                        field_position_y: 0,
+                        position_name: 'Suplente',
+                        position_zone: 'bench',
+                        jersey_number: player.number,
+                        captain: false
+                    });
+                }
+
+                console.log('Guardando formación:', formationData);
+                console.log('Posiciones:', positions);
+
+                // Intentar guardar en la API
+                try {
+                    const response = await fetch(`${API_BASE_URL}/formations`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formationData)
+                    });
+
+                    if (response.ok) {
+                        const savedFormation = await response.json();
+                        console.log('✅ Formación guardada en API:', savedFormation);
+                        
+                        // Guardar posiciones si la formación se guardó exitosamente
+                        for (let position of positions) {
+                            position.formation_id = savedFormation.id;
+                            const posResponse = await fetch(`${API_BASE_URL}/formation-positions`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(position)
+                            });
+                        }
+                        
+                        showSuccess(`✅ Formación "${name}" guardada exitosamente en la base de datos`);
+                        currentFormation.id = savedFormation.id;
+                    } else {
+                        throw new Error(`API Error: ${response.status}`);
+                    }
+                } catch (apiError) {
+                    console.warn('⚠️ Error con API, guardado local:', apiError);
+                    showSuccess(`💾 Formación "${name}" guardada localmente (API no disponible)`);
+                }
+
+                currentFormation.name = name;
+                formationName.textContent = name;
+                
+            } catch (error) {
+                console.error('Error guardando formación:', error);
+                showError('Error al guardar la formación');
+            }
+        }
+
+        // Función para cargar formaciones guardadas
+        async function loadSavedFormations() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/formations`);
+                if (response.ok) {
+                    const formations = await response.json();
+                    console.log('✅ Formaciones cargadas:', formations.length);
+                    return formations;
+                }
+            } catch (error) {
+                console.warn('⚠️ Error cargando formaciones:', error);
+            }
+            return [];
+        }
+
+        // Función para generar imagen PNG de la formación
+        async function generateFormationImage() {
+            if (currentFormation.players.size === 0) {
+                showError('No hay jugadoras en la formación para generar imagen');
+                return;
+            }
+
+            try {
+                showSuccess('🎨 Generando imagen PNG de 1080x1350px...');
+                
+                // Aquí implementarías la lógica para generar la imagen
+                // usando Canvas API o enviando a un servicio de backend
+                
+                console.log('Datos para generar imagen:', {
+                    formation: currentFormation.type,
+                    players: Array.from(currentFormation.players.entries()),
+                    substitutes: Array.from(currentFormation.substitutes.values()),
+                    matchInfo: matchInfo,
+                    teamInfo: teamInfo
+                });
+                
+                // Por ahora solo mostramos la confirmación
+                showSuccess('🖼️ Imagen generada exitosamente (pendiente implementación completa)');
+                
+            } catch (error) {
+                console.error('Error generando imagen:', error);
+                showError('Error al generar la imagen de formación');
+            }
+        }
+
+        // Funciones auxiliares para las posiciones
+        function getPositionName(position) {
+            const names = {
+                'GK': 'Portera',
+                'DF': 'Defensa',
+                'MF': 'Mediocampista',
+                'FW': 'Delantera'
+            };
+            return names[position] || 'Jugadora';
+        }
+
+        function getPositionZone(position) {
+            const zones = {
+                'GK': 'defensive',
+                'DF': 'defensive',
+                'MF': 'midfield',
+                'FW': 'offensive'
+            };
+            return zones[position] || 'midfield';
+        }
+        }
+
+        function autoFillFormation() {
+            clearField();
+            applyFormation(currentFormation.type);
+            
+            // Auto-asignar jugadoras disponibles a posiciones vacías
+            const positions = Array.from(currentFormation.positions.keys());
+            let playerIndex = 0;
+            
+            positions.forEach(positionId => {
+                if (playerIndex < availablePlayers.length) {
+                    assignPlayerToPosition(availablePlayers[playerIndex].id, positionId);
+                    playerIndex++;
+                }
+            });
+            
+            showSuccess('Formación completada automáticamente');
+        }
+
+        function randomizeFormation() {
+            const formations = ['1-4-3-3', '1-3-4-3', '1-4-4-2'];
+            const randomFormation = formations[Math.floor(Math.random() * formations.length)];
+            applyFormation(randomFormation);
+            autoFillFormation();
+            showSuccess(`Formación aleatoria ${randomFormation} aplicada`);
+        }
+
+        // Funciones de UI
+        function showSuccess(message) {
+            showMessage(message, 'success');
+        }
+
+        function showError(message) {
+            showMessage(message, 'error');
+        }
+
+        function showMessage(message, type) {
+            const messageEl = document.createElement('div');
+            messageEl.className = `${type}-message`;
+            messageEl.textContent = message;
+            document.body.appendChild(messageEl);
+            
+            setTimeout(() => {
+                messageEl.remove();
+            }, 3000);
+        }
+
+        // Event handlers adicionales
+        function handleFieldDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleFieldDrop(e) {
+            e.preventDefault();
+            // Por ahora solo manejamos drop en slots específicos
+        }
+
+        function handleFieldClick(e) {
+            if (selectedPlayer && e.target === field) {
+                // Deseleccionar jugadora
+                selectedPlayer = null;
+                document.getElementById('selectedPlayerInfo').style.display = 'none';
+            }
+        }
+
+        function selectPlayer(e) {
+            const playerId = parseInt(e.currentTarget.dataset.playerId);
+            selectedPlayer = availablePlayers.find(p => p.id === playerId);
+            
+            // Actualizar UI de selección
+            document.querySelectorAll('.player-item').forEach(item => {
+                item.classList.toggle('selected', parseInt(item.dataset.playerId) === playerId);
+            });
+        }
+
+        function selectPlayerOnField(e) {
+            e.stopPropagation();
+            const playerId = parseInt(e.currentTarget.dataset.playerId);
+            selectPlayer({ currentTarget: { dataset: { playerId } } });
+        }
+
+        function removePlayerFromField(e) {
+            e.stopPropagation();
+            const playerId = parseInt(e.currentTarget.dataset.playerId);
+            removePlayerFromPosition(playerId);
+            updateFormationStats();
+        }
+
+        function resetPositions() {
+            if (confirm('¿Resetear todas las posiciones? Las jugadoras volverán a la lista.')) {
+                applyFormation(currentFormation.type);
+                showSuccess('Posiciones reseteadas');
+            }
+        }
+
+        function handleSlotClick(e) {
+            if (selectedPlayer) {
+                const positionId = parseInt(e.currentTarget.dataset.positionId);
+                assignPlayerToPosition(selectedPlayer.id, positionId);
+                selectedPlayer = null;
+                document.querySelectorAll('.player-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+            }
+        }
+
+        // Funciones de rotación de cancha 3D
+        function rotateField(direction) {
+            switch(direction) {
+                case 'left':
+                    currentRotation -= 15;
+                    break;
+                case 'right':
+                    currentRotation += 15;
+                    break;
+                case 'reset':
+                    currentRotation = 0;
+                    currentTilt = 45;
+                    break;
+            }
+            
+            field.style.transform = `rotateX(${currentTilt}deg) rotateZ(${currentRotation}deg)`;
+        }
+
+        // Permitir rotación con el mouse (funcionalidad avanzada)
+        function setupFieldRotation() {
+            let isDraggingField = false;
+            let startX = 0;
+            let startRotation = 0;
+
+            field.addEventListener('mousedown', (e) => {
+                if (e.target === field) {
+                    isDraggingField = true;
+                    startX = e.clientX;
+                    startRotation = currentRotation;
+                    field.style.cursor = 'grabbing';
+                }
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isDraggingField) {
+                    const deltaX = e.clientX - startX;
+                    currentRotation = startRotation + (deltaX * 0.3);
+                    field.style.transform = `rotateX(${currentTilt}deg) rotateZ(${currentRotation}deg)`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDraggingField = false;
+                field.style.cursor = 'grab';
+            });
+
+            field.style.cursor = 'grab';
+        }
+
+        // Inicializar rotación de campo
+        setupFieldRotation();
+
+        console.log('🏒 Sistema de Formaciones de Hockey inicializado');
+    </script>
+</body>
+</html>

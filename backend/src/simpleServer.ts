@@ -1,7 +1,7 @@
 import express from 'express';
-import { PlayerService } from '../core/services/PlayerService.js';
-import { PlayerRepositoryPostgres } from '../core/repositories/PlayerRepositoryPostgres.js';
-import { PlayerController } from '../interfaces/http/controllers/PlayerController.js';
+import { PlayerService } from './core/services/PlayerService.js';
+import { PlayerRepositoryPostgres } from './core/repositories/PlayerRepositoryPostgres.js';
+import { PlayerController } from './interfaces/http/controllers/PlayerController.js';
 
 const app = express();
 app.use(express.json());

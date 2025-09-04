@@ -19,7 +19,7 @@ async function checkTables() {
     });
     
     // Ver estructura de cada tabla mencionada
-    const tablesToCheck = ['teams', 'players', 'training_sessions', 'training_attendances', 'users'];
+    const tablesToCheck = ['formations', 'formation_players', 'teams', 'players', 'users'];
     
     for (const tableName of tablesToCheck) {
       try {

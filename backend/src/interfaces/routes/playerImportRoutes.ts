@@ -3,8 +3,7 @@ import multer from 'multer';
 import { PlayerImportController } from '../controllers/PlayerImportController.js';
 import { PlayerImportService } from '../../application/services/PlayerImportService.js';
 import { FileParserFactory } from '../../application/parsers/FileParser.js';
-// Importar desde el archivo compilado
-const { PlayerRepositoryPostgres } = await import('../../infrastructure/repositories/PlayerRepositoryPostgres.js');
+import { PlayerRepositoryPostgres } from '../../core/repositories/PlayerRepositoryPostgres.js';
 
 // Configuración de multer para manejo de archivos en memoria
 const storage = multer.memoryStorage();
@@ -46,8 +45,8 @@ export function createPlayerImportRoutes(): Router {
         importController.downloadTemplate(req, res);
     });
 
-    // POST /api/players/import - Subir archivo para importar
-    router.post('/', upload.single('file'), (req, res) => {
+    // POST /api/players/import/:teamId - Subir archivo para importar a un equipo específico
+    router.post('/:teamId', upload.single('file'), (req, res) => {
         importController.uploadFile(req, res);
     });
 

@@ -1,0 +1,21 @@
+{
+  "name": "Formación Test 1-4-3-3",
+  "description": "Formación de prueba para verificar API",
+  "tactical_system": "1-4-3-3",
+  "formation_type": "offensive",
+  "team_id": "550e8400-e29b-41d4-a716-446655440000",
+  "is_template": true,
+  "rival_team_name": "Club Deportivo Rival",
+  "match_date": "2025-09-10",
+  "match_time": "15:00",
+  "match_location": "Estadio Municipal",
+  "export_settings": {
+    "width": 1080,
+    "height": 1350,
+    "format": "PNG",
+    "backgroundColor": "#ffffff",
+    "playerCircleSize": 80,
+    "fontFamily": "Arial",
+    "fontSize": 14
+  }
+}

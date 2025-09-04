@@ -2365,18 +2365,47 @@
             
             // Handle birth date - ensure proper format for HTML input
             let formattedBirthDate = '';
-            if (birthDate && birthDate !== 'null' && birthDate !== null && birthDate !== undefined && birthDate.trim() !== '') {
-                console.log('Raw birthDate received:', birthDate, typeof birthDate);
-                // If date is in format YYYY-MM-DD (from database), keep it as is for input[type="date"]
-                // If it's in another format, try to parse it
-                if (birthDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                    formattedBirthDate = birthDate;
+            // if (birthDate && birthDate !== 'null' && birthDate !== null && birthDate !== undefined && birthDate.trim() !== '') {
+            //     console.log('Raw birthDate received:', birthDate, typeof birthDate);
+            //     // If date is in format YYYY-MM-DD (from database), keep it as is for input[type="date"]
+            //     // If it's in another format, try to parse it
+            //     if (birthDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            //         formattedBirthDate = birthDate;
+            //     } else {
+            //         console.warn('Unexpected birthDate format:', birthDate);
+            //         formattedBirthDate = birthDate;
+            //     }
+            // }
+            //CODIGO CAMBIADO PARA VER SI MUESTRA LA FECHA DE NACIMIENTO
+            //--------------------------------------------------------------
+            if (birthDate && String(birthDate).trim() !== '') {
+                const rawDate = String(birthDate).trim();
+                console.log('Fecha de nacimiento recibida:', rawDate);
+                
+                // Intenta crear un objeto de fecha a partir de la cadena.
+                const dateObj = new Date(rawDate);
+
+                // Verifica si el objeto de fecha es válido.
+                if (!isNaN(dateObj.getTime())) {
+                    // Obtenemos los componentes de la fecha usando los métodos UTC para evitar el desfase de la zona horaria.
+                    const year = dateObj.getUTCFullYear();
+                    // Usamos `getUTCMonth()` y le sumamos 1.
+                    const month = (dateObj.getUTCMonth() + 1).toString().padStart(2, '0');
+                    // Usamos `getUTCDate()`.
+                    const day = dateObj.getUTCDate().toString().padStart(2, '0');
+                    
+                    // Formateamos al formato YYYY-MM-DD para el campo input.
+                    formattedBirthDate = `${year}-${month}-${day}`;
+                    console.log('Fecha de nacimiento formateada:', formattedBirthDate);
                 } else {
-                    console.warn('Unexpected birthDate format:', birthDate);
-                    formattedBirthDate = birthDate;
+                    // Si la fecha no es válida, no se asigna nada.
+                    console.warn('Formato de fecha de nacimiento inválido o no reconocido:', rawDate);
+                    formattedBirthDate = '';
                 }
+            } else {
+                formattedBirthDate = '';
             }
-            
+        //----------------------------------------------------------------------------
             document.getElementById('player-birth-date').value = formattedBirthDate;
             document.getElementById('player-jersey').value = (jerseyNumber === 'null' || jerseyNumber === '' || jerseyNumber === null || jerseyNumber === undefined) ? '' : jerseyNumber;
             

@@ -10,22 +10,33 @@
 ## 🗺️ DEFINICIÓN EXACTA DE ZONAS DE CANCHA
 
 ### Cancha de Hockey - División por Zonas
-Según el PDF, la cancha se divide en **4 zonas principales** para el registro de acciones:
+Según el PDF, la cancha se divide en **8 zonas principales** para el registro de acciones:
 
 ```
                     ARCO RIVAL
     ┌─────────────────────────────────────────┐
-    │                                         │
-    │  ZONA 3              ZONA 4             │
-    │  (Ofensivo          (Ofensivo           │ 
-    │   Izquierdo)         Derecho)           │
-    │                                         │
-    ├─────────────────────────────────────────┤
-    │                                         │
-    │  ZONA 1              ZONA 2             │
-    │  (Defensivo         (Defensivo          │
-    │   Izquierdo)         Derecho)           │
-    │                                         │
+    │                   |                     │
+    │   ZONA 7          |     ZONA 8          │
+    │  (Ofensivo        |  (Ofensivo          │ 
+    │   Izquierdo)      |   Derecho)          │
+    │                   |                     │
+    ├───────────────────|─────────────────────┤
+    │                   |                     │
+    │  ZONA 5           |   ZONA 6            │
+    │  (Medio Ofensivo  |(Medio Ofensivo      │
+    │   Izquierdo)      |   Derecho)          │
+    │                   |                     │  
+    |------------------ |---------------------|
+    |   ZONA 3          |    ZONA 4           │
+    │  (Medio Defensivo |(Medio Defensivo     │ 
+    │   Izquierdo)      |   Derecho)          │
+    │                   |                     │
+    ├───────────────────|─────────────────────┤
+    │                   |                     │
+    │  ZONA 1           |   ZONA 2            │
+    │  (Defensivo       |  (Defensivo         │
+    │   Izquierdo)      |   Derecho)          │
+    │                   |                     │
     └─────────────────────────────────────────┘
                    ARCO PROPIO
 ```
@@ -47,8 +58,12 @@ El área rival (donde se pueden anotar goles) se divide en **3 sectores**:
 export enum CanchZone {
   ZONA_1 = 'zona_1',  // Defensivo Izquierdo
   ZONA_2 = 'zona_2',  // Defensivo Derecho  
-  ZONA_3 = 'zona_3',  // Ofensivo Izquierdo
-  ZONA_4 = 'zona_4',  // Ofensivo Derecho
+  ZONA_3 = 'zona_3',  // Medio Defensivo Izquierdo
+  ZONA_4 = 'zona_4',  // Medio Defensivo Derecho
+  ZONA_5 = 'zona_5',  // Medio Ofensivo Izquierdo
+  ZONA_6 = 'zona_6',  // Medio Ofensivo Derecho  
+  ZONA_7 = 'zona_7',  // Ofensivo Izquierdo
+  ZONA_8 = 'zona_8',  // Ofensivo Derecho
 }
 
 export enum AreaRivalSector {
@@ -110,14 +125,19 @@ Según los ejemplos del PDF, la imagen de formación debe incluir:
 └─────────────────────────────────────────────┘
 ```
 
-#### Representación de la Cancha:
+#### Representaciones de la Cancha:
+#### Formacion: 1 (Aruqero) - 4 (Defensores) - 3 (Mediocampistas)  - 3 (delanteros)
 ```
                     ARCO RIVAL
     ┌─────────────────────────────────────────┐
-    │        [FOTO] Delantera 1               │
+    │   [FOTO]                      [FOTO]    │
+    │  Delantera 1                Delantera 3 | 
+    |                                         |
+    |                  [FOTO]                 |
+    |                Delantera 2              |
     │                                         │
-    │  [FOTO]              [FOTO]             │
-    │  Volante 1           Volante 2          │
+    │    [FOTO]       [FOTO]       [FOTO]│    |
+    │  Volante 1     Volante 2   Volante 3    │
     │                                         │
     │  [FOTO]    [FOTO]    [FOTO]    [FOTO]   │
     │  Def 1     Def 2     Def 3     Def 4    │
@@ -127,7 +147,53 @@ Según los ejemplos del PDF, la imagen de formación debe incluir:
     └─────────────────────────────────────────┘
                    ARCO PROPIO
 ```
-
+#### Formacion 2 : 1 (Arquero)- 3(Defensores) - 4 (Mediocampistas) - 3 (Delanteros)
+```
+                    ARCO RIVAL
+    ┌─────────────────────────────────────────┐
+    │   [FOTO]                      [FOTO]    │
+    │  Delantera 1                Delantera 3 | 
+    |                                         |
+    |                  [FOTO]                 |
+    |                Delantera 2              |
+    │                                         │
+    │    [FOTO]   [FOTO]           [FOTO]│    |
+    │  Volante 1  Volante 2       Volante 4   │
+    │                                         |
+    |                    [FOTO]               | 
+    |                    Volante 3            | 
+    |                                         │
+    │      [FOTO]    [FOTO]    [FOTO]         │
+    │      Def 1     Def 2     Def 3          │
+    │                                         │
+    │              [FOTO]                     │
+    │              Arquera                    │
+    └─────────────────────────────────────────┘
+                   ARCO PROPIO
+```                   
+#### Formacion 3 : 1 (Arquero)- 4(Defensores) - 4 (Mediocampistas) - 2 (Delanteros)
+```
+                    ARCO RIVAL
+    ┌─────────────────────────────────────────┐
+    │   [FOTO]                      [FOTO]    │
+    │  Delantera 1                Delantera 2 | 
+    |                                         |
+    |                                         |
+    │                                         │
+    │    [FOTO]   [FOTO]           [FOTO]│    |
+    │  Volante 1  Volante 2       Volante 4   │
+    │                                         |
+    |                    [FOTO]               | 
+    |                    Volante 3            | 
+    |                                         │
+    │  [FOTO]    [FOTO]    [FOTO]    [FOTO]   │
+    │  Def 1     Def 2     Def 3     Def 4    │
+    │                                         │
+    │              [FOTO]                     │
+    │              Arquera                    │
+    └─────────────────────────────────────────┘
+                   ARCO PROPIO
+```
 #### Suplentes:
 ```
 SUPLENTES:
@@ -180,36 +246,48 @@ Partido completo: 60 minutos
 - Sub 14: Nacidas en 2011 y posteriores
 - Sub 16: Nacidas en 2009-2010
 - Sub 19: Nacidas en 2006-2008  
-- Intermedia: Nacidas en 2000-2005
-- Primera: Todas las edades (sin límite superior)
+- Intermedia: Nacidas 2009 para abajo
+- Primera: Nacidas 2009 para abajo
 ```
 
 ### Reglas de Participación:
-- **Máximo 2 divisiones** del mismo club por jugadora
-- **Solo divisiones inferiores o igual:** Una jugadora Sub-19 puede jugar en Sub-19 e Intermedia, pero no en Primera
+- **Puedo agregar s ls formsción del equipo para un partido jugadoras de otras divisiones** 
 - **20 jugadoras máximo** por equipo (11 titulares + 9 suplentes)
 
 ---
 
 ## 🥅 SHOOTOUTS POR DIVISIÓN
+## SON PENALES QUE SE EJECUTAN 5 LA TANDA Y SI QUEDAN EMPATADOS EMPIEZAN A TIRAR DE 1 HASTA DESEMPATAR
 
 ### Divisiones QUE SÍ usan shootouts:
-- **Sub 16**
-- **Sub 19** 
-- **Intermedia**
-- **Primera**
+- **Primera Mujeres** - En Empate en tiempo reglamnetario puede haber shootout
 
 ### Divisiones QUE NO usan shootouts:
-- **Sub 14:** Solo empate, no hay desempate por penales
+- **Sub 14:** 
+- **Sub 16:** 
+- **Sub 19:** 
+- **Intermedia Femenino:** 
+- **Sub 15 masculino:** 
+- **Sub 16 masculino:** 
+- **Inter masculino:** 
+- **Primero masculino:** 
+
+
+
+
 
 ### Implementación Técnica:
 ```typescript
 export const DIVISION_CONFIG = {
-  'Sub14': { hasShootouts: false },
-  'Sub16': { hasShootouts: true },
-  'Sub19': { hasShootouts: true },
-  'Inter': { hasShootouts: true },
-  'Primera': { hasShootouts: true }
+  'Sub14 femenino': { hasShootouts: false },
+  'Sub16 femenino': { hasShootouts: false },
+  'Sub19 femenino': { hasShootouts: false },
+  'Intermedia femenino': { hasShootouts: false },
+  'Primera femenino': { hasShootouts: true },
+  'Sub15 masculino': { hasShootouts: false },
+  'Sub19 masculino': { hasShootouts: false },
+  'Intermedia masculino': { hasShootouts: false },
+  'Primera masculino': { hasShootouts: false }
 }
 ```
 
@@ -220,19 +298,19 @@ export const DIVISION_CONFIG = {
 ### Tipos de Mapas Confirmados:
 
 #### 1. **Mapa de Recuperación de Bochas**
-- Zonas 1-4 con intensidad de color
+- Zonas 1-8 con intensidad de color
 - Verde: Muchas recuperaciones
 - Amarillo: Pocas recuperaciones  
 - Rojo: Sin recuperaciones
 
 #### 2. **Mapa de Pérdida de Bochas**
-- Zonas 1-4 con intensidad de color
+- Zonas 1-8 con intensidad de color
 - Rojo: Muchas pérdidas (problemático)
 - Amarillo: Pocas pérdidas
 - Verde: Sin pérdidas (ideal)
 
 #### 3. **Mapa de Infracciones**
-- Zonas 1-4 con cantidad de infracciones
+- Zonas 1-8 con cantidad de infracciones
 - Análisis de disciplina por zona
 
 #### 4. **Mapa de Ingresos al Área**

@@ -1,6 +1,5 @@
-// Importar desde los archivos compilados
-const { Player } = await import('../../core/entities/Player.js');
-const { PlayerRepository } = await import('../../core/repositories/PlayerRepository.js');
+import { Player } from '../../core/entities/models.js';
+import { PlayerRepository } from '../../core/repositories/PlayerRepository.js';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface ImportResult {
@@ -32,7 +31,7 @@ export interface PlayerImportData {
 export class PlayerImportService {
     constructor(private playerRepository: PlayerRepository) {}
 
-    async importPlayers(playersData: PlayerImportData[]): Promise<ImportResult> {
+    async importPlayers(playersData: PlayerImportData[], teamId: string): Promise<ImportResult> {
         const result: ImportResult = {
             success: 0,
             errors: [],
@@ -49,6 +48,7 @@ export class PlayerImportService {
                 }
 
                 const player = this.createPlayerFromData(playerData);
+                player.teamId = teamId; // Asignar el teamId
                 await this.playerRepository.create(player);
                 result.success++;
             } catch (error) {
@@ -116,21 +116,18 @@ export class PlayerImportService {
     }
 
     private createPlayerFromData(data: PlayerImportData): Player {
-        return new Player(
-            uuidv4(),
-            data.name,
-            data.name.split(' ')[0], // firstName
-            data.name.split(' ').slice(1).join(' '), // lastName
-            data.nickname || data.name.split(' ')[0], // nickname por defecto
-            data.email || undefined,
-            data.phone || undefined,
-            data.birthDate ? new Date(data.birthDate) : undefined,
-            data.position || undefined,
-            data.teamId || undefined,
-            data.emergencyContact || undefined,
-            data.medicalInfo || undefined,
-            data.active !== undefined ? data.active : true
-        );
+        const [firstName, ...lastNameParts] = data.name.split(' ');
+        const lastName = lastNameParts.join(' ');
+
+        return {
+            id: uuidv4(),
+            firstName: firstName,
+            lastName: lastName,
+            nickname: data.nickname || firstName,
+            birthDate: data.birthDate ? new Date(data.birthDate) : new Date(),
+            position: data.position || 'Unknown',
+            teamId: data.teamId || '', // Será asignado después
+        };
     }
 
     private isValidEmail(email: string): boolean {

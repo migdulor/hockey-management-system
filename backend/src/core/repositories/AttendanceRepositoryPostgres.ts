@@ -5,15 +5,17 @@ import pool from '../db/postgres.js';
 export class AttendanceRepositoryPostgres implements AttendanceRepository {
   async create(attendance: Attendance): Promise<Attendance> {
     const query = `
-      INSERT INTO attendances (id, player_id, match_id, status)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO attendances (id, player_id, session_id, session_type, status, notes)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
     `;
     const values = [
       attendance.id,
       attendance.playerId,
-      attendance.matchId,
-      attendance.status
+      attendance.sessionId,
+      attendance.sessionType,
+      attendance.status,
+      attendance.notes
     ];
     
     const result = await pool.query(query, values);
@@ -68,9 +70,13 @@ export class AttendanceRepositoryPostgres implements AttendanceRepository {
       fields.push(`player_id = $${paramCount++}`);
       values.push(attendance.playerId);
     }
-    if (attendance.matchId) {
-      fields.push(`match_id = $${paramCount++}`);
-      values.push(attendance.matchId);
+    if (attendance.sessionId) {
+      fields.push(`session_id = $${paramCount++}`);
+      values.push(attendance.sessionId);
+    }
+    if (attendance.sessionType) {
+      fields.push(`session_type = $${paramCount++}`);
+      values.push(attendance.sessionType);
     }
     if (attendance.status) {
       fields.push(`status = $${paramCount++}`);
@@ -98,8 +104,12 @@ export class AttendanceRepositoryPostgres implements AttendanceRepository {
     return {
       id: row.id,
       playerId: row.player_id,
-      matchId: row.match_id,
-      status: row.status
+      sessionId: row.session_id,
+      sessionType: row.session_type,
+      status: row.status,
+      notes: row.notes,
+      createdAt: new Date(row.created_at),
+      updatedAt: new Date(row.updated_at)
     };
   }
 }

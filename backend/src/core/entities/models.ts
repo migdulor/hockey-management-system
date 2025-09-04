@@ -94,6 +94,18 @@ export interface TrainingAttendance {
   updatedAt: Date;
 }
 
+// Attendance entity
+export interface Attendance {
+  id: string;
+  playerId: string;
+  sessionId: string; // Can be matchId or trainingSessionId
+  sessionType: 'match' | 'training';
+  status: 'present' | 'absent' | 'late' | 'excused';
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // Formation entity (US006, US007, US008 - Refactored)
 /*
   Formaciones visuales con drag & drop support
