@@ -1212,6 +1212,16 @@
                     capacidades offline durante los juegos.
                 </p>
 
+                <!-- Botón temporal de debug -->
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <button onclick="loadDashboardStats()" style="background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
+                        🔧 Debug: Recargar Stats
+                    </button>
+                    <small style="display: block; margin-top: 5px; color: #666;">
+                        Si ves 0 jugadores, haz clic aquí y revisa la consola (F12)
+                    </small>
+                </div>
+
                 <div class="feature-grid">
                     <div class="feature-card">
                         <h3>📋 Registro de Asistencias</h3>
@@ -1893,6 +1903,21 @@
         
         // Load dashboard statistics
         async function loadDashboardStats() {
+            console.log('🚀 loadDashboardStats iniciada');
+            
+            // Verificar que los elementos DOM existen
+            const totalTeamsElement = document.getElementById('total-teams');
+            const totalPlayersElement = document.getElementById('total-players');
+            
+            if (!totalTeamsElement || !totalPlayersElement) {
+                console.error('❌ Elementos DOM no encontrados:', {
+                    totalTeams: !!totalTeamsElement,
+                    totalPlayers: !!totalPlayersElement
+                });
+                setTimeout(() => loadDashboardStats(), 1000); // Reintentar en 1 segundo
+                return;
+            }
+            
             try {
                 // Run database migration for image fields (one-time)
                 if (!sessionStorage.getItem('migration_images_done')) {
@@ -1930,14 +1955,20 @@
                 
                 if (userData.success) {
                     const maxTeams = userData.data.maxTeams !== undefined ? userData.data.maxTeams : 0;
-                    document.getElementById('max-teams-display').textContent = maxTeams;
+                    const maxTeamsDisplay = document.getElementById('max-teams-display');
+                    if (maxTeamsDisplay) {
+                        maxTeamsDisplay.textContent = maxTeams;
+                    }
                     console.log('Setting max teams display to:', maxTeams);
                 }
 
                 // Cargar equipos del entrenador
+                console.log('🔍 Cargando equipos del entrenador...');
                 const teamsResponse = await fetch('/api/teams', {
                     headers: getAuthHeaders()
                 });
+                
+                console.log('📊 Teams response status:', teamsResponse.status);
                 
                 // Handle 401 for teams request too
                 if (teamsResponse.status === 401) {
@@ -1950,12 +1981,21 @@
                 
                 const teamsData = await teamsResponse.json();
                 
-                console.log('Teams data:', teamsData);
+                console.log('=== TEAMS DATA DEBUG ===');
+                console.log('Teams response:', teamsData);
+                console.log('Teams array:', teamsData.teams);
+                console.log('Teams count:', teamsData.teams ? teamsData.teams.length : 'No teams array');
                 
-                if (teamsData.success) {
+                if (teamsData.success && teamsData.teams) {
                     const currentTeams = teamsData.teams.length;
-                    document.getElementById('total-teams').textContent = currentTeams;
-                    console.log('Current teams count:', currentTeams);
+                    totalTeamsElement.textContent = currentTeams;
+                    console.log('✅ Current teams count set to:', currentTeams);
+                    
+                    if (currentTeams === 0) {
+                        console.log('⚠️ No hay equipos, total de jugadores será 0');
+                        totalPlayersElement.textContent = '0';
+                        return;
+                    }
                     
                     // Calcular total de jugadoras de todos los equipos
                     console.log('🔍 Iniciando conteo de jugadores para', currentTeams, 'equipos');
@@ -1968,9 +2008,20 @@
                             const playersResponse = await fetch(`/api/teams/${team.id}/players`, {
                                 headers: getAuthHeaders()
                             });
+                            
+                            console.log(`📊 Players response status for team ${team.id}:`, playersResponse.status);
+                            
+                            if (!playersResponse.ok) {
+                                console.error(`❌ Error en respuesta para equipo ${team.id}:`, playersResponse.status);
+                                return 0;
+                            }
+                            
                             const playersData = await playersResponse.json();
-                            console.log(`📊 Equipo ${team.name}: ${playersData.success ? playersData.players.length : 0} jugadores`);
-                            return playersData.success ? playersData.players.length : 0;
+                            console.log(`📊 Players data for team ${team.name}:`, playersData);
+                            
+                            const playerCount = playersData.success && playersData.players ? playersData.players.length : 0;
+                            console.log(`📊 Equipo ${team.name}: ${playerCount} jugadores`);
+                            return playerCount;
                         } catch (error) {
                             console.error(`❌ Error loading players for team ${team.id}:`, error);
                             return 0;
@@ -1980,26 +2031,34 @@
                     const playerCounts = await Promise.all(playerCountPromises);
                     totalPlayers = playerCounts.reduce((sum, count) => sum + count, 0);
                     
-                    document.getElementById('total-players').textContent = totalPlayers;
-                    console.log('✅ Total players count:', totalPlayers);
+                    totalPlayersElement.textContent = totalPlayers;
+                    console.log('✅ Total players count final:', totalPlayers);
+                    console.log('✅ Player counts por equipo:', playerCounts);
                     
                     // También actualizar el KPI de total players si existe
                     const kpiTotalPlayers = document.getElementById('kpi-total-players');
                     if (kpiTotalPlayers) {
                         kpiTotalPlayers.textContent = totalPlayers;
+                        console.log('✅ KPI total players updated:', totalPlayers);
                     }
+                } else {
+                    console.error('❌ No se pudieron cargar los equipos:', teamsData);
+                    totalTeamsElement.textContent = '0';
+                    totalPlayersElement.textContent = '0';
                 }
                 
             } catch (error) {
-                console.error('Error loading dashboard stats:', error);
+                console.error('❌ Error loading dashboard stats:', error);
                 // Valores por defecto en caso de error
                 document.getElementById('total-teams').textContent = '0';
                 document.getElementById('total-players').textContent = '0';
             }
             
             // Por ahora, valores mock para las otras estadísticas
-            document.getElementById('upcoming-matches').textContent = '0';
-            document.getElementById('formations-created').textContent = '0';
+            const upcomingMatches = document.getElementById('upcoming-matches');
+            const formationsCreated = document.getElementById('formations-created');
+            if (upcomingMatches) upcomingMatches.textContent = '0';
+            if (formationsCreated) formationsCreated.textContent = '0';
         }
         
         // Tab switching functionality
