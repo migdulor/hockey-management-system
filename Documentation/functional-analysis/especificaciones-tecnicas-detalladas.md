@@ -14,27 +14,27 @@ Según el PDF actualizado, la cancha se divide en **12 zonas principales** para 
 
 ```
                     ARCO RIVAL
-    ┌─────────────────────────────────────────┐
-    │        |         |         |           │
-    │ Zona 10│ Zona 11 │ Zona 12 │           │
-    │        |         |         |           │
-    │        |         |         |           │
-    ├────────|─────────|─────────|───────────┤
-    │        |         |         |           │
-    │ Zona 7 │ Zona 8  │ Zona 9  │           │
-    │        |         |         |           │
-    │        |         |         |           │
-    ├────────|─────────|─────────|───────────┤
-    │        |         |         |           │
-    │ Zona 4 │ Zona 5  │ Zona 6  │           │
-    │        |         |         |           │
-    │        |         |         |           │
-    ├────────|─────────|─────────|───────────┤
-    │        |         |         |           │
-    │ Zona 1 │ Zona 2  │ Zona 3  │           │
-    │        |         |         |           │
-    │        |         |         |           │
-    └─────────────────────────────────────────┘
+    ┌────────────────────────────┐
+    │        |         |         |
+    │ Zona 10│ Zona 11 │ Zona 12 │
+    │        |         |         |
+    │        |         |         |
+    ├────────|─────────|─────────|
+    │        |         |         |
+    │ Zona 7 │ Zona 8  │ Zona 9  │
+    │        |         |         |
+    │        |         |         |
+    ├────────|─────────|─────────|
+    │        |         |         |
+    │ Zona 4 │ Zona 5  │ Zona 6  │
+    │        |         |         |
+    │        |         |         |
+    ├────────|─────────|─────────|
+    │        |         |         |
+    │ Zona 1 │ Zona 2  │ Zona 3  │
+    │        |         |         |
+    │        |         |         |
+    └────────────────────────────┘
                    ARCO PROPIO
 ```
 
@@ -45,7 +45,7 @@ El área rival (donde se pueden anotar goles) se divide en **3 sectores**:
               ARCO RIVAL
     ┌───────────────────────────┐
     │ IZQUIERDA│CENTRAL│DERECHA │
-    │    (L)   │  (C)  │   (R)  │
+    │    (1)   │  (2)  │   (3)  │
     └───────────────────────────┘
 ```
 
@@ -78,36 +78,55 @@ export enum AreaRivalSector {
 
 ## 🎯 TIPOS DE ACCIONES DE PARTIDO
 
-### Acciones Principales Confirmadas:
+### Parametrización de Acciones (SECUENCIA):
+## Las acciones deben registra:
+## 1°. Zona que ocurrio la accion (salvo el caso que sea un cambio de jugadora que no requiere zona), si es una acción "Ingreso al Area" la zona son los sectores del área rival al definidas en los esquemas sino se las zonas estipuladas de la cancha.
+## 2°. Acción: ID de la accion que ya se encuentra previamente cargada.
+## 3°. Jugadora que realizo la accion: Debe poder elegirse rapidamente.
+## 4°- Tiempo: Minutos transcurrido del partido.
+
+#### Por ejemplo:
+
+### ACCIONES QUE SE EJECUTAN EN LA ZONA DE AREA
 
 #### 1. **Goles**
-- **Parámetros:** Jugadora que anota, sector del área rival, tiempo exacto
-- **Zona requerida:** Solo sectores del área rival (L/C/R)
+- **Parámetros:** Zona del area, Jugadora que anota, tiempo exacto
+- **Zona requerida:** Solo sectores del área rival (1/2/3)
 - **Registro:** Automático suma al marcador
 
-#### 2. **Cambios de Jugadoras**
-- **Parámetros:** Jugadora que sale, jugadora que entra, zona donde ocurre
-- **Control tiempo:** Automático cálculo tiempo jugado
-- **Validación:** Jugadora fuera no puede realizar acciones
+#### 2. **Corners **
+- **Parámetros:** Zona del area, Jugadora que lo consiguió, tiempo de la acción
+- **Registro:** Para análisis táctico
 
-#### 3. **Infracciones/Tarjetas**
+#### 3. Ingreso al área  
+- **Parámetros:** Zona del area, Jugador que ingresa, tiempo de la acción
+
+## En esta 3 acciones tengo que poder identificar si toco zonas del area rival son acciones ofensivas, si toco el area nuestra son accones defensivas, quiere decir que el gol es del equipo contrario, que el corner es en defensa, y el ingreso son los que nos hizo el otro equipo, aqui como no tengo jugaora rival en el campo jugador se registra el nombre del otro equipo automaticamente ya que tengo con anterioridad contra quien jugamos el partido.
+
+### ACCIONES QUE SE EJECUTAN EN LA ZONA DE CANCHA
+#### 1. **Cambios de Jugadoras**
+- **Parámetros:** Jugadora que sale, jugadora que entra
+- **Control tiempo:** Automático cálculo tiempo que va jugando cada jugadora
+- **Validación:** Jugadora fuera no puede realizar acciones por lo que no puede aparecer.
+
+#### 2. **Tarjetas**
 - **Tipos:** Tarjeta Verde (2 min), Tarjeta Amarilla (5 min), Tarjeta Roja (partido completo)
-- **Parámetros:** Jugadora sancionada, tipo de sanción, tiempo de sanción
+- **Parámetros:** Jugadora sancionada, tiempo de sanción
 - **Control:** Automático manejo de entrada/salida por sanción
 
+#### 3. **Infracciones**
+- **Parámetros:** Zona de la cancha que se comete, jugadora que comete la infracción, 
+- **Control:** 
+
 #### 4. **Recuperación de Bochas**
-- **Parámetros:** Jugadora que recupera, zona donde recupera
+- **Parámetros:** Zona dela cancha que recupera, Jugadora que recupera
 - **Estadística:** Cuenta para mapas de calor defensivos
 
 #### 5. **Pérdida de Bochas**
-- **Parámetros:** Jugadora que pierde, zona donde pierde
+- **Parámetros:** Zona de la cancha que se pierde la bocha, Jugadora que pierde las bochas 
 - **Estadística:** Análisis de puntos débiles
 
-#### 6. **Corners**
-- **Parámetros:** Equipo que lo ejecuta, zona de origen
-- **Registro:** Para análisis táctico
-
----
+## El sistema debe permitri al administrador cargar acciones todas con la misma estructura salvo diferenciadno si la zona que se utilizaran para realizar la acción, si zona de cancha (12 cuadrantes) o la Zona de area (3 zonas)
 
 ## 🖼️ FORMATO DE IMAGEN DE FORMACIÓN
 
@@ -299,19 +318,19 @@ export const DIVISION_CONFIG = {
 ### Tipos de Mapas Confirmados:
 
 #### 1. **Mapa de Recuperación de Bochas**
-- Zonas 1-8 con intensidad de color
+- Zonas 1-12 con intensidad de color
 - Verde: Muchas recuperaciones
 - Amarillo: Pocas recuperaciones  
 - Rojo: Sin recuperaciones
 
 #### 2. **Mapa de Pérdida de Bochas**
-- Zonas 1-8 con intensidad de color
+- Zonas 1-12 con intensidad de color
 - Rojo: Muchas pérdidas (problemático)
 - Amarillo: Pocas pérdidas
 - Verde: Sin pérdidas (ideal)
 
 #### 3. **Mapa de Infracciones**
-- Zonas 1-8 con cantidad de infracciones
+- Zonas 1-12 con cantidad de infracciones
 - Análisis de disciplina por zona
 
 #### 4. **Mapa de Ingresos al Área**

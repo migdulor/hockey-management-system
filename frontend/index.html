@@ -57,34 +57,33 @@
         opacity: 0.8;
       }
     </style>
-  <script type="module" crossorigin src="/assets/index-CHTu2vUa.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-CngnIcXv.css">
 </head>
 <body>
     <!-- Loading Screen -->
     <div id="loading">
       <div class="spinner"></div>
       <div class="loading-text">Hockey Management System</div>
-      <div class="loading-subtext">Cargando aplicación...</div>
+      <div class="loading-subtext">Redirigiendo al login...</div>
     </div>
 
-    <!-- React Root -->
-    <div id="root"></div>
-
-    
     <script>
-      // Hide loading screen when React app is ready
+      // Check if user is already authenticated
+      function checkAuth() {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+          // User is authenticated, go to dashboard
+          window.location.href = 'dashboard.html';
+        } else {
+          // User not authenticated, go to login
+          window.location.href = 'login.html';
+        }
+      }
+
+      // Redirect after loading animation
       window.addEventListener('load', () => {
         setTimeout(() => {
-          const loading = document.getElementById('loading');
-          if (loading) {
-            loading.style.opacity = '0';
-            loading.style.transition = 'opacity 0.5s ease-out';
-            setTimeout(() => {
-              loading.remove();
-            }, 500);
-          }
-        }, 1000);
+          checkAuth();
+        }, 1500);
       });
     </script>
 </body>

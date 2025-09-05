@@ -2235,6 +2235,135 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    // === HEATMAP ENDPOINTS === //
+
+    // GET /api/heatmap/zones - Obtener datos de zonas para mapas de calor
+    if (path === '/api/heatmap/zones' && method === 'GET') {
+      try {
+        const matchId = urlObj.searchParams.get('match_id');
+        const teamId = urlObj.searchParams.get('team_id');
+        const actionType = urlObj.searchParams.get('action_type');
+
+        if (!matchId || !teamId) {
+          return res.status(400).json({
+            success: false,
+            message: 'match_id y team_id son requeridos'
+          });
+        }
+
+        let query = `
+          SELECT 
+            tz.zone_number,
+            tz.zone_name,
+            at.action_name,
+            COUNT(ma.id) as action_count,
+            COALESCE(AVG(ma.quarter), 0) as avg_quarter
+          FROM tactical_zones tz
+          LEFT JOIN match_actions ma ON tz.zone_number = ma.zone AND ma.match_id = $1 AND ma.team_id = $2
+          LEFT JOIN action_types at ON ma.action_type_id = at.id
+        `;
+        
+        const params = [matchId, teamId];
+        
+        if (actionType) {
+          query += ` AND at.action_name = $3`;
+          params.push(actionType);
+        }
+        
+        query += `
+          GROUP BY tz.zone_number, tz.zone_name, at.action_name
+          ORDER BY tz.zone_number ASC
+        `;
+
+        const result = await sql.query(query, params);
+
+        return res.status(200).json({
+          success: true,
+          heatmapData: result.rows
+        });
+
+      } catch (error) {
+        console.error('Error fetching heatmap data:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Error al obtener datos de mapa de calor'
+        });
+      }
+    }
+
+    // GET /api/heatmap/actions - Obtener tipos de acciones disponibles para mapas de calor
+    if (path === '/api/heatmap/actions' && method === 'GET') {
+      try {
+        const result = await sql`
+          SELECT 
+            action_name,
+            requires_zone,
+            color,
+            icon
+          FROM action_types 
+          WHERE requires_zone = true
+          ORDER BY action_name ASC
+        `;
+
+        return res.status(200).json({
+          success: true,
+          actionTypes: result.rows
+        });
+
+      } catch (error) {
+        console.error('Error fetching action types:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Error al obtener tipos de acciones'
+        });
+      }
+    }
+
+    // GET /api/heatmap/summary - Resumen estadístico por jugadora y zona
+    if (path === '/api/heatmap/summary' && method === 'GET') {
+      try {
+        const matchId = urlObj.searchParams.get('match_id');
+        const teamId = urlObj.searchParams.get('team_id');
+
+        if (!matchId || !teamId) {
+          return res.status(400).json({
+            success: false,
+            message: 'match_id y team_id son requeridos'
+          });
+        }
+
+        const result = await sql`
+          SELECT 
+            p.name as player_name,
+            p.nickname,
+            tz.zone_number,
+            tz.zone_name,
+            at.action_name,
+            COUNT(ma.id) as action_count
+          FROM match_actions ma
+          JOIN players p ON ma.player_id = p.id
+          JOIN tactical_zones tz ON ma.zone = tz.zone_number
+          JOIN action_types at ON ma.action_type_id = at.id
+          WHERE ma.match_id = ${matchId} AND ma.team_id = ${teamId}
+            AND ma.zone IS NOT NULL
+          GROUP BY p.id, p.name, p.nickname, tz.zone_number, tz.zone_name, at.action_name
+          ORDER BY p.name ASC, tz.zone_number ASC
+        `;
+
+        return res.status(200).json({
+          success: true,
+          playerStats: result.rows
+        });
+
+      } catch (error) {
+        console.error('Error fetching player stats:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Error al obtener estadísticas de jugadoras'
+        });
+      }
+    }
+
     // Route not found
     return res.status(404).json({
       success: false,

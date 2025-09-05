@@ -1,6 +1,8 @@
 -- Migración 008: Zonas Tácticas para Mapas de Calor
 -- Fecha: 2025-08-26  
--- Descripción: 8 zonas de cancha + 3 sectores de área rival para análisis táctico
+-- NOTA: DEPRECADO - Este archivo fue reemplazado por 010_update_zones_to_12.sql
+-- Descripción original: 8 zonas de cancha + 3 sectores de área rival para análisis táctico
+-- Actualización: Se cambió a 12 zonas para mejor análisis táctico (Sept 2025)
 
 -- Tabla de zonas de cancha (las 8 zonas específicas del hockey)
 CREATE TABLE tactical_zones (
