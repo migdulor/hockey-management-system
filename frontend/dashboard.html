@@ -5780,29 +5780,6 @@
             showToast('Primero selecciona una jugadora de la lista', 'warning');
         }
         */
-                        const nickname = player.nickname || player.name.split(' ')[0];
-                        const jerseyNumber = player.jersey_number || '?';
-                        return `
-                            <div class="player-option" onclick="selectPlayerForPositionById(${player.id}, ${positionIndex})">
-                                <div class="player-avatar-small">
-                                    <img src="${playerImage}" alt="${player.name}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNFMEUwRTAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNiIgZmlsbD0iIzk5OTk5OSIvPgo8cGF0aCBkPSJNOCAzMkM4IDI2LjQ3NzIgMTIuNDc3MiAyMiAxOCAyMkMyMy41MjI4IDIyIDI4IDI2LjQ3NzIgMjggMzJIOFoiIGZpbGw9IiM5OTk5OTkiLz4KPC9zdmc+'">
-                                </div>
-                                <div class="player-jersey" style="background: ${getPositionColor(player.main_position)};">
-                                    ${jerseyNumber}
-                                </div>
-                                <div class="player-info">
-                                    <div class="player-name">${nickname}</div>
-                                    <div class="player-position">${player.main_position}</div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            `;
-
-            document.body.appendChild(menu);
-            setTimeout(() => menu.classList.add('show'), 10);
-        }
 
         // FUNCIÓN COMENTADA - Reemplazada por sistema click-click
         /*
