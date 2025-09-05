@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏑 Mapas de Calor Hockey - 12 Zonas</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1e3c72;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            background: #2a7f3e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover:not(:disabled) {
+            background: #1e5a2b;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .heatmap-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .heatmap-title {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .canvas-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .hockey-canvas {
+            border: 4px solid #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            background: #2a7f3e;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: space-around;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .status.loading { background: #cce5ff; color: #004085; }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        
+        .stats-panel {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e9ecef;
+            border-radius: 12px;
+        }
+        
+        .zone-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .zone-stat {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 13px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .zone-stat:hover {
+            border-color: #2a7f3e;
+            transform: scale(1.05);
+        }
+        
+        .zone-number {
+            font-weight: bold;
+            color: #2a7f3e;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏑 Sistema de Mapas de Calor</h1>
+            <h2>Análisis Táctico - 12 Zonas</h2>
+            <p>Visualización de patrones de juego en cancha de hockey</p>
+        </div>
+        
+        <div class="controls">
+            <button onclick="generateHeatmaps()">🔥 Generar Mapas de Calor</button>
+            <button onclick="exportAllMaps()" id="exportBtn" disabled>💾 Exportar PNG</button>
+            <button onclick="clearAllMaps()">🧹 Limpiar Mapas</button>
+            <button onclick="toggleZoneNumbers()">🔢 Números de Zona</button>
+        </div>
+        
+        <div id="statusDiv"></div>
+        
+        <div class="heatmap-grid">
+            <!-- Recuperación de Bochas -->
+            <div class="heatmap-card">
+                <div class="heatmap-title">🟢 Recuperación de Bochas</div>
+                <div class="canvas-wrapper">
+                    <canvas id="recoveryCanvas" class="hockey-canvas" width="350" height="250"></canvas>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(0,200,100,0.4);"></div>
+                        <span>Pocas</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(0,200,100,0.6);"></div>
+                        <span>Moderadas</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(0,200,100,0.8);"></div>
+                        <span>Muchas</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pérdida de Bochas -->
+            <div class="heatmap-card">
+                <div class="heatmap-title">🔴 Pérdida de Bochas</div>
+                <div class="canvas-wrapper">
+                    <canvas id="lossCanvas" class="hockey-canvas" width="350" height="250"></canvas>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(255,50,50,0.4);"></div>
+                        <span>Pocas</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(255,50,50,0.6);"></div>
+                        <span>Moderadas</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(255,50,50,0.8);"></div>
+                        <span>Muchas</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Actividad General -->
+            <div class="heatmap-card">
+                <div class="heatmap-title">🔵 Actividad General</div>
+                <div class="canvas-wrapper">
+                    <canvas id="generalCanvas" class="hockey-canvas" width="350" height="250"></canvas>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(50,150,255,0.4);"></div>
+                        <span>Baja</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(50,150,255,0.6);"></div>
+                        <span>Media</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(50,150,255,0.8);"></div>
+                        <span>Alta</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-panel">
+            <h3>📊 Estadísticas por Zona</h3>
+            <div class="zone-grid" id="zoneStatsGrid">
+                <!-- Se genera dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { HeatmapGenerator } from './js/heatmap-generator.js';
+        import { sampleHeatmapData } from './js/heatmap-sample-data.js';
+        
+        let heatmaps = {};
+        let showNumbers = false;
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Inicializando sistema de mapas de calor...');
+            
+            try {
+                // Crear generadores
+                heatmaps.recovery = new HeatmapGenerator('recoveryCanvas');
+                heatmaps.loss = new HeatmapGenerator('lossCanvas');
+                heatmaps.general = new HeatmapGenerator('generalCanvas');
+                
+                // Configurar opciones
+                Object.values(heatmaps).forEach(hm => {
+                    hm.options.showGrid = true;
+                    hm.options.showLabels = false;
+                });
+                
+                console.log('✅ Generadores creados:', heatmaps);
+                
+                // Dibujar campos iniciales
+                drawAllFields();
+                initializeZoneStats();
+                
+                showStatus('Sistema listo para generar mapas de calor', 'success');
+                
+            } catch (error) {
+                console.error('❌ Error al inicializar:', error);
+                showStatus('Error: ' + error.message, 'error');
+            }
+        });
+        
+        function drawAllFields() {
+            Object.values(heatmaps).forEach(hm => {
+                hm.drawField();
+            });
+        }
+        
+        function initializeZoneStats() {
+            const grid = document.getElementById('zoneStatsGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 1; i <= 12; i++) {
+                const div = document.createElement('div');
+                div.className = 'zone-stat';
+                div.innerHTML = `
+                    <div class="zone-number">Zona ${i}</div>
+                    <div id="zone-${i}-count">0 acciones</div>
+                `;
+                grid.appendChild(div);
+            }
+        }
+        
+        function updateZoneStats(data) {
+            for (let i = 1; i <= 12; i++) {
+                const element = document.getElementById(`zone-${i}-count`);
+                if (element) {
+                    const zoneData = data.find(item => item.zone_number == i);
+                    const count = zoneData ? zoneData.action_count : 0;
+                    element.textContent = `${count} acciones`;
+                }
+            }
+        }
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusDiv');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusDiv.textContent = '';
+                    statusDiv.className = '';
+                }, 3000);
+            }
+        }
+        
+        // Funciones globales
+        window.generateHeatmaps = async function() {
+            console.log('🔥 Generando mapas de calor...');
+            showStatus('Generando mapas de calor...', 'loading');
+            
+            try {
+                await new Promise(resolve => setTimeout(resolve, 800));
+                
+                console.log('📊 Datos de ejemplo:', sampleHeatmapData);
+                
+                // Generar cada mapa
+                heatmaps.recovery.generateHeatmap(sampleHeatmapData.recoveryData, 'Recuperación Bocha');
+                heatmaps.loss.generateHeatmap(sampleHeatmapData.lossData, 'Pérdida Bocha');
+                heatmaps.general.generateHeatmap(sampleHeatmapData.generalData, 'general');
+                
+                // Actualizar estadísticas
+                updateZoneStats(sampleHeatmapData.generalData);
+                
+                document.getElementById('exportBtn').disabled = false;
+                showStatus('✅ Mapas de calor generados correctamente', 'success');
+                
+            } catch (error) {
+                console.error('❌ Error generando mapas:', error);
+                showStatus('Error al generar mapas de calor: ' + error.message, 'error');
+            }
+        };
+        
+        window.exportAllMaps = function() {
+            try {
+                heatmaps.recovery.exportAsPNG('recuperacion_bochas.png');
+                heatmaps.loss.exportAsPNG('perdida_bochas.png');
+                heatmaps.general.exportAsPNG('actividad_general.png');
+                showStatus('✅ Mapas exportados como PNG', 'success');
+            } catch (error) {
+                console.error('❌ Error exportando:', error);
+                showStatus('Error al exportar mapas', 'error');
+            }
+        };
+        
+        window.clearAllMaps = function() {
+            drawAllFields();
+            initializeZoneStats();
+            document.getElementById('exportBtn').disabled = true;
+            showStatus('🧹 Mapas limpiados', 'success');
+        };
+        
+        window.toggleZoneNumbers = function() {
+            showNumbers = !showNumbers;
+            Object.values(heatmaps).forEach(hm => {
+                hm.options.showLabels = showNumbers;
+                hm.drawField();
+            });
+            showStatus(showNumbers ? '🔢 Números mostrados' : '🔢 Números ocultados', 'success');
+        };
+    </script>
+</body>
+</html>
