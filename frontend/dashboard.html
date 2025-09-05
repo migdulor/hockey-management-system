@@ -1025,6 +1025,14 @@
             cursor: grabbing;
         }
 
+        /* Estilo para jugadora seleccionada en sistema click-click */
+        .player-item.selected {
+            border: 2px solid #28a745 !important;
+            background-color: #f8f9fa !important;
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(40, 167, 69, 0.3) !important;
+        }
+
         .player-on-field {
             position: absolute;
             width: 35px;
@@ -5275,6 +5283,9 @@
             }
         };
 
+        // Variable global para el sistema click-click de formación
+        let selectedPlayerForFormation = null;
+
         // Inicializar módulo de formaciones cuando se carga la pestaña
         function initFormationsModule() {
             console.log('Inicializando módulo de formaciones...');
@@ -5536,10 +5547,29 @@
                     this.style.opacity = '1';
                 });
 
-                // Evento click solo para mostrar información - SIN SELECCIÓN
+                // NUEVO: Sistema click-click para seleccionar jugadora
                 playerDiv.addEventListener('click', function(e) {
-                    // Solo mostrar información de la jugadora
-                    showToast(`${nickname} - ${player.main_position} #${jerseyNumber}`, 'info');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Limpiar selección anterior
+                    const previousSelected = document.querySelector('.player-item.selected');
+                    if (previousSelected) {
+                        previousSelected.classList.remove('selected');
+                        previousSelected.style.borderColor = 'transparent';
+                        previousSelected.style.backgroundColor = 'white';
+                    }
+                    
+                    // Seleccionar esta jugadora
+                    selectedPlayerForFormation = player;
+                    this.classList.add('selected');
+                    this.style.borderColor = positionColor;
+                    this.style.backgroundColor = '#f8f9fa';
+                    
+                    // Mostrar mensaje informativo
+                    showToast(`${nickname} seleccionada. Ahora haz clic en una posición del campo para asignarla.`, 'info');
+                    
+                    console.log('Jugadora seleccionada:', player.name);
                 });
 
                 container.appendChild(playerDiv);
@@ -5636,16 +5666,27 @@
                     this.style.transform = 'translate(-50%, -50%) scale(1)';
                 });
 
-                // Funcionalidad de click simplificada - SOLO MENÚ MÓVIL
+                // NUEVO: Sistema click-click para asignar posiciones
                 positionSlot.addEventListener('click', function(e) {
                     e.stopPropagation();
                     
                     if (fieldPositions[index].player) {
-                        // Si hay jugadora en la posición, mostrar opciones
-                        showPositionMenu(index, e);
+                        // Si hay jugadora en la posición, removerla
+                        removePlayerFromPosition(index);
+                    } else if (selectedPlayerForFormation) {
+                        // Si hay una jugadora seleccionada, asignarla a esta posición
+                        assignPlayerToPosition(selectedPlayerForFormation, index);
+                        // Limpiar selección
+                        selectedPlayerForFormation = null;
+                        const selectedElement = document.querySelector('.player-item.selected');
+                        if (selectedElement) {
+                            selectedElement.classList.remove('selected');
+                            selectedElement.style.borderColor = 'transparent';
+                            selectedElement.style.backgroundColor = 'white';
+                        }
                     } else {
-                        // Mostrar lista de jugadoras disponibles
-                        showPlayerSelectionMenu(index, e);
+                        // No hay jugadora seleccionada
+                        showToast('Primero selecciona una jugadora de la lista de disponibles', 'warning');
                     }
                 });
 
@@ -5697,15 +5738,15 @@
             // Mostrar confirmación
             showToast(`${player.name} asignada a la posición`, 'success');
 
-            // Remover event listeners previos y agregar nuevo
+            // Remover event listeners previos y agregar nuevo con sistema click-click
             const newSlot = positionSlot.cloneNode(true);
             positionSlot.parentNode.replaceChild(newSlot, positionSlot);
             fieldPositions[positionIndex].element = newSlot;
             
-            // Agregar event listener para el click en posición ocupada
+            // Agregar event listener para el click en posición ocupada (remover jugadora)
             newSlot.addEventListener('click', function(e) {
                 e.stopPropagation();
-                showPositionMenu(positionIndex, e);
+                removePlayerFromPosition(positionIndex);
             });
         }
 
@@ -5864,16 +5905,44 @@
         }
 
         function setupPositionEvents(positionSlot, positionIndex) {
-            // Event listeners para posición vacía
+            // NUEVO: Event listeners para sistema click-click en posición vacía
             positionSlot.addEventListener('click', (e) => {
                 e.stopPropagation();
-                showPlayerSelectionMenu(positionIndex, e);
+                
+                if (selectedPlayerForFormation) {
+                    // Si hay una jugadora seleccionada, asignarla a esta posición
+                    assignPlayerToPosition(selectedPlayerForFormation, positionIndex);
+                    // Limpiar selección
+                    selectedPlayerForFormation = null;
+                    const selectedElement = document.querySelector('.player-item.selected');
+                    if (selectedElement) {
+                        selectedElement.classList.remove('selected');
+                        selectedElement.style.borderColor = 'transparent';
+                        selectedElement.style.backgroundColor = 'white';
+                    }
+                } else {
+                    // No hay jugadora seleccionada
+                    showToast('Primero selecciona una jugadora de la lista de disponibles', 'warning');
+                }
             });
             
+            // Mantener eventos touch para dispositivos móviles
             positionSlot.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                showPlayerSelectionMenu(positionIndex, e);
+                
+                if (selectedPlayerForFormation) {
+                    assignPlayerToPosition(selectedPlayerForFormation, positionIndex);
+                    selectedPlayerForFormation = null;
+                    const selectedElement = document.querySelector('.player-item.selected');
+                    if (selectedElement) {
+                        selectedElement.classList.remove('selected');
+                        selectedElement.style.borderColor = 'transparent';
+                        selectedElement.style.backgroundColor = 'white';
+                    }
+                } else {
+                    showToast('Primero selecciona una jugadora de la lista de disponibles', 'warning');
+                }
             });
         }
 
