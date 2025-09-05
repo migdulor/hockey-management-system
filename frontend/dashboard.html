@@ -1399,8 +1399,8 @@
 
         /* Estilos para avatares de jugadoras */
         .player-avatar {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             overflow: hidden;
             border: 3px solid white;
@@ -1408,13 +1408,42 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #f0f0f0;
+            background: transparent;
+            transition: all 0.3s ease;
         }
 
         .player-avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            border-radius: 50%;
+        }
+
+        /* Cuando la jugadora está en la cancha, hacer el avatar más visible */
+        .field-position .player-avatar {
+            width: 70px;
+            height: 70px;
+            border: 4px solid #FFD700;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        /* Estilos para suplentes */
+        .substitute-item {
+            transition: all 0.3s ease;
+        }
+
+        .substitute-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        #substitutes-section {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .player-avatar-small {
@@ -1438,24 +1467,26 @@
 
         .player-nickname {
             font-weight: bold;
-            font-size: 14px;
+            font-size: 16px;
             color: white;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
-            background: rgba(0,0,0,0.6);
-            padding: 2px 6px;
-            border-radius: 8px;
-            margin-top: 2px;
+            background: rgba(0,0,0,0.8);
+            padding: 4px 8px;
+            border-radius: 10px;
+            margin-top: 3px;
+            border: 1px solid rgba(255,255,255,0.3);
         }
 
         .player-number {
-            font-size: 12px;
+            font-size: 16px;
             color: #FFD700;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
             font-weight: bold;
-            background: rgba(0,0,0,0.6);
-            padding: 1px 4px;
-            border-radius: 6px;
-            margin-top: 1px;
+            background: rgba(0,0,0,0.8);
+            padding: 3px 6px;
+            border-radius: 8px;
+            margin-top: 2px;
+            border: 1px solid rgba(255,215,0,0.5);
         }
 
         /* Mejorar el contenedor de información en las posiciones */
@@ -1569,20 +1600,27 @@
         }
 
         /* CSS responsivo para el layout de formación */
-        @media (max-width: 1200px) {
+        @media (max-width: 1400px) {
             #formations-layout {
                 flex-direction: column !important;
-                gap: 15px !important;
+                gap: 20px !important;
             }
             
             .formation-sidebar {
                 width: 100% !important;
                 max-width: 800px !important;
                 margin: 0 auto !important;
+                order: 2 !important;
             }
             
             .container {
                 max-width: 100% !important;
+                order: 1 !important;
+            }
+            
+            /* En móvil, ocultar temporalmente los suplentes para dar más espacio */
+            #substitutes-section {
+                display: block;
             }
         }
 
@@ -1592,7 +1630,15 @@
             }
             
             #available-players-list {
-                max-height: 300px !important;
+                max-height: 200px !important;
+            }
+            
+            #substitutes-list {
+                max-height: 150px !important;
+            }
+            
+            #formations-layout {
+                gap: 15px !important;
             }
         }
     </style>
@@ -2075,9 +2121,19 @@
                             <!-- Panel lateral: Lista de jugadoras disponibles -->
                             <div class="formation-sidebar" style="background: #f8f9fa; border-radius: 10px; padding: 15px; width: 300px; height: fit-content; flex-shrink: 0;">
                                 <h4 style="margin-bottom: 15px; text-align: center; font-size: 1rem; color: #1e3c72;">🏃‍♀️ Jugadoras Disponibles</h4>
-                                <div id="available-players-list" style="max-height: 400px; overflow-y: auto; margin-bottom: 20px;">
+                                <div id="available-players-list" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;">
                                     <div style="text-align: center; color: #666; padding: 20px; font-size: 0.9rem;">
                                         Selecciona un equipo para ver las jugadoras
+                                    </div>
+                                </div>
+                                
+                                <!-- Nueva sección: Suplentes -->
+                                <div id="substitutes-section" style="margin-top: 20px; border-top: 2px solid #dee2e6; padding-top: 15px;">
+                                    <h4 style="margin-bottom: 15px; text-align: center; font-size: 1rem; color: #dc3545;">🔄 Suplentes</h4>
+                                    <div id="substitutes-list" style="max-height: 250px; overflow-y: auto;">
+                                        <div style="text-align: center; color: #666; padding: 15px; font-size: 0.9rem;">
+                                            Las jugadoras no seleccionadas para la formación aparecerán aquí
+                                        </div>
                                     </div>
                                 </div>
                                 
@@ -3106,9 +3162,11 @@
                 
                 if (teamResponse.ok) {
                     const teamData = await teamResponse.json();
+                    console.log('🏆 Team data loaded:', teamData);
                     if (teamData.success) {
                         window.currentTeamJerseyPhoto = teamData.team?.team_jersey_photo || null;
                         window.currentTeamLogo = teamData.team?.logo || null;
+                        console.log('🏆 Team jersey photo set:', window.currentTeamJerseyPhoto ? window.currentTeamJerseyPhoto.substring(0, 50) + '...' : 'null');
                     }
                 }
             } catch (error) {
@@ -5454,6 +5512,7 @@
 
             // Actualizar visualización
             renderAvailablePlayers();
+            renderSubstitutes();
             updateSubstitutesDisplay();
         }
 
@@ -5497,6 +5556,7 @@
                     }));
                     console.log('✅ Jugadoras cargadas:', formationPlayers.length);
                     renderAvailablePlayers();
+                    renderSubstitutes();
                     createFieldPositions();
                 } else {
                     container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666; font-size: 0.9rem;">No hay jugadoras en este equipo</div>';
@@ -5624,6 +5684,107 @@
 
                 container.appendChild(playerDiv);
             });
+        }
+
+        // Nueva función: Renderizar suplentes
+        function renderSubstitutes() {
+            const container = document.getElementById('substitutes-list');
+            container.innerHTML = '';
+
+            // Obtener jugadoras que están asignadas al campo (titulares)
+            const starterIds = fieldPositions
+                .filter(pos => pos.player)
+                .map(pos => pos.player.id);
+
+            // Filtrar suplentes: jugadoras disponibles que no están en el campo
+            const substitutes = formationPlayers.filter(player => {
+                return !starterIds.includes(player.id);
+            });
+
+            if (substitutes.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 15px; color: #666; font-size: 0.85rem;">Todas las jugadoras están en la formación</div>';
+                return;
+            }
+
+            substitutes.forEach(player => {
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'substitute-item';
+                playerDiv.style.cssText = `
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 8px;
+                    margin-bottom: 8px;
+                    background: white;
+                    border: 1px solid #dee2e6;
+                    border-radius: 8px;
+                    transition: all 0.3s ease;
+                    cursor: pointer;
+                `;
+
+                const playerImage = getPlayerImage(player);
+                const nickname = player.nickname || player.name.split(' ')[0];
+                const positionColor = getPositionColor(player.main_position || player.position);
+
+                playerDiv.innerHTML = `
+                    <div class="player-avatar-small" style="border-color: ${positionColor};">
+                        <img src="${playerImage}" alt="${player.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 600; font-size: 0.9rem; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${nickname}</div>
+                        <div style="font-size: 0.75rem; color: #666; line-height: 1;">#${player.jersey_number || '?'} • ${player.main_position || player.position || 'Sin posición'}</div>
+                    </div>
+                    <button onclick="addSubstituteToFormation(${player.id})" style="background: #28a745; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer;" title="Agregar a formación">+</button>
+                `;
+
+                // Hover effect
+                playerDiv.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#f8f9fa';
+                    this.style.borderColor = positionColor;
+                });
+
+                playerDiv.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = 'white';
+                    this.style.borderColor = '#dee2e6';
+                });
+
+                container.appendChild(playerDiv);
+            });
+        }
+
+        // Función para agregar suplente a la formación
+        function addSubstituteToFormation(playerId) {
+            const player = formationPlayers.find(p => p.id === playerId);
+            if (player) {
+                // Buscar una posición vacía en el campo
+                const emptyPosition = fieldPositions.find(pos => !pos.player);
+                if (emptyPosition) {
+                    emptyPosition.player = player;
+                    updateFieldDisplay();
+                    renderSubstitutes(); // Actualizar lista de suplentes
+                    showToast(`${player.nickname || player.name} agregada a la formación`, 'success');
+                } else {
+                    showToast('No hay posiciones disponibles en el campo', 'warning');
+                }
+            }
+        }
+
+        // Función centralizada para actualizar todas las visualizaciones
+        function updateFieldDisplay() {
+            // Actualizar las posiciones del campo
+            fieldPositions.forEach((pos, index) => {
+                if (pos.player && pos.element) {
+                    pos.element.innerHTML = createPlayerHTML(pos.player, true, index);
+                    pos.element.style.background = 'transparent';
+                } else if (pos.element) {
+                    pos.element.innerHTML = '';
+                    pos.element.style.background = 'rgba(255,255,255,0.1)';
+                }
+            });
+            
+            // Actualizar listas
+            renderAvailablePlayers();
+            renderSubstitutes();
         }
 
         // Obtener color según posición
@@ -5783,6 +5944,7 @@
             
             // Actualizar listas
             renderAvailablePlayers();
+            renderSubstitutes();
             updateFormationStats();
             
             // Mostrar confirmación
@@ -5826,6 +5988,7 @@
                 setupPositionEvents(newSlot, positionIndex);
                 
                 renderAvailablePlayers();
+                renderSubstitutes();
                 updateFormationStats();
                 
                 showToast(`${playerName} removida de la posición`, 'info');
@@ -6037,6 +6200,14 @@
                 return window.currentTeamJerseyPhoto;
             }
             
+            // Debugging adicional para entender por qué no se usa la camiseta del equipo
+            console.log('❌ No team jersey available. Debug info:', {
+                windowCurrentTeamJerseyPhoto: window.currentTeamJerseyPhoto,
+                type: typeof window.currentTeamJerseyPhoto,
+                length: window.currentTeamJerseyPhoto ? window.currentTeamJerseyPhoto.length : 'N/A',
+                startsWithDataImage: window.currentTeamJerseyPhoto ? window.currentTeamJerseyPhoto.startsWith('data:image') : false
+            });
+            
             // 4. ÚLTIMO RECURSO: placeholder genérico mejorado
             console.log('⚠️ Using generic placeholder for player:', player.name);
             return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM0ZWNkYzQiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTggMzJDOCAyNi40NzcyIDEyLjQ3NzIgMjIgMTggMjJDMjMuNTIyOCAyMiAyOCAyNi40NzcyIDI4IDMySEhaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=';
@@ -6148,6 +6319,7 @@
             substitutePlayers = [];
             
             renderAvailablePlayers();
+            renderSubstitutes();
             updateFormationStats();
             updateSubstitutesDisplay();
         }
@@ -6232,6 +6404,7 @@
                 substitutePlayers[playerIndex].isSubstitute = false;
                 substitutePlayers.splice(playerIndex, 1);
                 renderAvailablePlayers();
+                renderSubstitutes();
                 updateSubstitutesDisplay();
             }
         }
