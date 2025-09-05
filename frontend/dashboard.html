@@ -1267,6 +1267,17 @@
             #substitutes-area:empty::after {
                 font-size: 0.7rem;
             }
+            
+            /* Layout responsivo para móviles - cancha y jugadoras en columnas */
+            .formation-field-grid {
+                grid-template-columns: 1fr !important;
+                gap: 15px !important;
+            }
+            
+            .formation-sidebar {
+                position: static !important;
+                margin-top: 20px;
+            }
         }
 
         /* Menús móviles */
@@ -2025,45 +2036,95 @@
                             </div>
                             </div>
 
-                            <!-- Panel de control móvil -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                                <!-- Lista de jugadoras disponibles -->
-                                <div style="background: #f8f9fa; border-radius: 10px; padding: 15px; min-height: 300px;">
-                                    <h4 style="margin-bottom: 10px; text-align: center; font-size: 1rem;">🏃‍♀️ Jugadoras Disponibles</h4>
-                                    <div id="available-players-list" style="max-height: 250px; overflow-y: auto;">
-                                        <div style="text-align: center; color: #666; padding: 20px; font-size: 0.9rem;">
-                                            Selecciona un equipo para ver las jugadoras
+                        <!-- NUEVO LAYOUT: Cancha y jugadoras disponibles lado a lado -->
+                        <div class="formation-field-grid" style="display: grid; grid-template-columns: 1fr 300px; gap: 20px; align-items: start;">
+                            <!-- Cancha de hockey -->
+                            <div>
+                            <div style="background: linear-gradient(145deg, #2a7f3e, #1e5f2e); border-radius: 15px; padding: 20px; color: white; box-shadow: 0 8px 25px rgba(0,0,0,0.2); position: relative;">
+                                <div style="text-align: center; margin-bottom: 15px;">
+                                    <h3 style="color: white; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">🏑 Campo de Hockey</h3>
+                                    <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 0.9rem;">Haz clic en las jugadoras y luego en las posiciones</p>
+                                </div>
+                                
+                                <div style="position: relative; background: linear-gradient(45deg, #2a7f3e 0%, #357a47 50%, #2a7f3e 100%); border: 4px solid white; border-radius: 12px; overflow: hidden; box-shadow: inset 0 4px 15px rgba(0,0,0,0.3);">
+                                    <!-- Campo de hockey con perspectiva 3D -->
+                                    <div id="field-container" style="width: 100%; height: 400px; position: relative; perspective: 1000px; overflow: hidden;">
+                                        <div id="hockey-field" style="width: 100%; height: 100%; position: relative; background: linear-gradient(to bottom, #2a7f3e 0%, #357a47 30%, #2a7f3e 50%, #357a47 70%, #2a7f3e 100%); transform-style: preserve-3d; transition: transform 0.3s ease;">
+                                            
+                                            <!-- Líneas del campo -->
+                                            <div class="center-line" style="position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: white; transform: translateY(-50%);"></div>
+                                            <div class="center-circle" style="position: absolute; top: 50%; left: 50%; width: 80px; height: 80px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%);"></div>
+                                            
+                                            <!-- Áreas -->
+                                            <div class="area top" style="position: absolute; top: 0; left: 50%; width: 180px; height: 60px; border: 2px solid white; border-top: none; transform: translateX(-50%);"></div>
+                                            <div class="area bottom" style="position: absolute; bottom: 0; left: 50%; width: 180px; height: 60px; border: 2px solid white; border-bottom: none; transform: translateX(-50%);"></div>
+                                            
+                                            <!-- Arcos -->
+                                            <div class="goal top" style="position: absolute; top: -25px; left: 50%; width: 120px; height: 25px; background: linear-gradient(to bottom, #f0f0f0, #ffffff); transform: translateX(-50%); box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);"></div>
+                                            <div class="goal bottom" style="position: absolute; bottom: -25px; left: 50%; width: 120px; height: 25px; background: linear-gradient(to top, #f0f0f0, #ffffff); transform: translateX(-50%); box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);"></div>
+                                            
+                                            <!-- Puntos de penalti -->
+                                            <div class="penalty-spot top" style="position: absolute; top: 80px; width: 8px; height: 8px; background: white; border-radius: 50%; left: 50%; transform: translateX(-50%);"></div>
+                                            <div class="penalty-spot bottom" style="position: absolute; bottom: 80px; width: 8px; height: 8px; background: white; border-radius: 50%; left: 50%; transform: translateX(-50%);"></div>
                                         </div>
+                                        
+                                        <!-- Posiciones de jugadoras -->
+                                        <div id="field-positions" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                                            <!-- Las posiciones se generan dinámicamente -->
+                                        </div>
+                                        
+                                        <!-- Sombras laterales para profundidad -->
+                                        <div style="content: ''; position: absolute; top: 0; width: 100%; height: 20px; background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), transparent);"></div>
+                                        <div style="content: ''; position: absolute; bottom: 0; width: 100%; height: 20px; background: linear-gradient(to top, rgba(0, 0, 0, 0.2), transparent);"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Controles del campo 3D -->
+                                <div class="controls" style="margin-top: 20px; text-align: center;">
+                                    <button onclick="rotateField('left')" style="background: #2a7f3e; color: white; border: none; padding: 8px 15px; margin: 0 3px; border-radius: 5px; cursor: pointer; font-size: 14px;">⬅ Rotar Izq</button>
+                                    <button onclick="rotateField('reset')" style="background: #2a7f3e; color: white; border: none; padding: 8px 15px; margin: 0 3px; border-radius: 5px; cursor: pointer; font-size: 14px;">🔄 Reset</button>
+                                    <button onclick="rotateField('right')" style="background: #2a7f3e; color: white; border: none; padding: 8px 15px; margin: 0 3px; border-radius: 5px; cursor: pointer; font-size: 14px;">Rotar Der ➡</button>
+                                </div>
+                            </div>
+                            </div>
+
+                            <!-- Panel lateral: Lista de jugadoras disponibles -->
+                            <div class="formation-sidebar" style="background: #f8f9fa; border-radius: 10px; padding: 15px; height: fit-content; position: sticky; top: 20px;">
+                                <h4 style="margin-bottom: 15px; text-align: center; font-size: 1rem; color: #1e3c72;">🏃‍♀️ Jugadoras Disponibles</h4>
+                                <div id="available-players-list" style="max-height: 400px; overflow-y: auto; margin-bottom: 20px;">
+                                    <div style="text-align: center; color: #666; padding: 20px; font-size: 0.9rem;">
+                                        Selecciona un equipo para ver las jugadoras
+                                    </div>
+                                </div>
+                                
+                                <!-- Panel de suplentes integrado -->
+                                <div style="margin-top: 20px;">
+                                    <h5 style="margin-bottom: 10px; text-align: center; font-size: 0.9rem; color: #1e3c72;">👥 Suplentes</h5>
+                                    <div id="substitutes-area" style="border: 2px dashed #dee2e6; border-radius: 8px; padding: 10px; min-height: 100px; background: white; margin-bottom: 10px; position: relative;">
+                                        <div style="text-align: center; color: #666; padding: 10px; font-size: 0.8rem; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;">
+                                            Click en suplentes para volver a disponibles
+                                        </div>
+                                    </div>
+                                    <div style="text-align: center; margin-bottom: 15px; color: #666; font-size: 0.8rem;">
+                                        <span id="substitutes-count">0</span>/9 suplentes
                                     </div>
                                 </div>
 
-                                <!-- Panel de suplentes e información -->
-                                <div style="background: #f8f9fa; border-radius: 10px; padding: 15px;">
-                                    <h4 style="margin-bottom: 10px; text-align: center; font-size: 1rem;">👥 Suplentes</h4>
-                                    <div id="substitutes-area" style="border: 2px dashed #dee2e6; border-radius: 8px; padding: 10px; min-height: 120px; background: white; margin-bottom: 10px; position: relative;">
-                                        <div style="text-align: center; color: #666; padding: 10px; font-size: 0.8rem; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;">
-                                            Arrastra aquí para suplentes
-                                        </div>
-                                    </div>
-                                    <div style="text-align: center; margin-bottom: 10px; color: #666; font-size: 0.9rem;">
-                                        <span id="substitutes-count">0</span>/9 suplentes
-                                    </div>
-
-                                    <!-- Estadísticas de formación -->
-                                    <div style="background: white; border-radius: 8px; padding: 10px;">
-                                        <h5 style="margin-bottom: 8px; color: #1e3c72; font-size: 0.9rem;">📊 Estadísticas</h5>
-                                        <div style="display: grid; grid-template-columns: 1fr; gap: 3px; font-size: 0.8rem;">
-                                            <div>Arqueras: <span id="goalkeepers-count">0</span></div>
-                                            <div>Defensoras: <span id="defenders-count">0</span></div>
-                                            <div>Mediocampistas: <span id="midfielders-count">0</span></div>
-                                            <div>Delanteras: <span id="forwards-count">0</span></div>
-                                            <div style="border-top: 1px solid #eee; padding-top: 5px; margin-top: 5px; font-weight: bold;">
-                                                Total en campo: <span id="total-on-field">0</span>/11
-                                            </div>
+                                <!-- Estadísticas de formación -->
+                                <div style="background: white; border-radius: 8px; padding: 12px;">
+                                    <h5 style="margin-bottom: 8px; color: #1e3c72; font-size: 0.9rem;">📊 Estadísticas</h5>
+                                    <div style="display: grid; grid-template-columns: 1fr; gap: 3px; font-size: 0.8rem;">
+                                        <div>Arqueras: <span id="goalkeepers-count">0</span></div>
+                                        <div>Defensoras: <span id="defenders-count">0</span></div>
+                                        <div>Mediocampistas: <span id="midfielders-count">0</span></div>
+                                        <div>Delanteras: <span id="forwards-count">0</span></div>
+                                        <div style="border-top: 1px solid #eee; padding-top: 5px; margin-top: 5px; font-weight: bold;">
+                                            Total en campo: <span id="total-on-field">0</span>/11
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
                         </div>
                         
                         <div style="margin-top: 15px; text-align: center;">
@@ -5493,15 +5554,16 @@
                 playerDiv.style.cssText = `
                     display: flex;
                     align-items: center;
-                    gap: 10px;
-                    padding: 8px 12px;
-                    margin-bottom: 6px;
+                    gap: 12px;
+                    padding: 12px 15px;
+                    margin-bottom: 8px;
                     background: white;
-                    border-radius: 8px;
+                    border-radius: 10px;
                     cursor: grab;
                     transition: all 0.2s ease;
                     border: 2px solid transparent;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                    box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+                    min-height: 65px;
                 `;
                 
                 const playerImage = getPlayerImage(player);
@@ -5509,15 +5571,17 @@
                 const jerseyNumber = player.jersey_number || '?';
                 
                 playerDiv.innerHTML = `
-                    <div class="player-avatar-small" style="border-color: ${positionColor};">
-                        <img src="${playerImage}" alt="${playerName}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNFMEUwRTAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNiIgZmlsbD0iIzk5OTk5OSIvPgo8cGF0aCBkPSJNOCAzMkM4IDI2LjQ3NzIgMTIuNDc3MiAyMiAxOCAyMkMyMy41MjI4IDIyIDI4IDI2LjQ3NzIgMjggMzJIOFoiIGZpbGw9IiM5OTk5OTkiLz4KPC9zdmc+'">
-                    </div>
-                    <div style="width: 28px; height: 28px; border-radius: 50%; background: ${positionColor}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.75rem; flex-shrink: 0; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
-                        ${jerseyNumber}
+                    <div style="position: relative; flex-shrink: 0;">
+                        <img src="${playerImage}" alt="${playerName}" 
+                             style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 3px solid ${positionColor}; box-shadow: 0 3px 10px rgba(0,0,0,0.2);"
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM0ZWNkYzQiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTggMzJDOCAyNi40NzcyIDEyLjQ3NzIgMjIgMTggMjJDMjMuNTIyOCAyMiAyOCAyNi40NzcyIDI4IDMySChaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4='">
+                        <div style="position: absolute; bottom: -3px; right: -3px; width: 24px; height: 24px; border-radius: 50%; background: ${positionColor}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.75rem; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+                            ${jerseyNumber}
+                        </div>
                     </div>
                     <div style="flex: 1; min-width: 0;">
-                        <div style="font-weight: 600; font-size: 0.85rem; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #333;">${nickname}</div>
-                        <div style="font-size: 0.7rem; color: #666; line-height: 1;">${player.main_position || player.position || 'Sin posición'}</div>
+                        <div style="font-weight: 700; font-size: 1rem; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #333; margin-bottom: 2px;">${nickname}</div>
+                        <div style="font-size: 0.8rem; color: #666; line-height: 1; font-weight: 500;">${player.main_position || player.position || 'Sin posición'}</div>
                     </div>
                 `;
 
@@ -5946,24 +6010,29 @@
             });
         }
 
-        // Función para obtener la imagen de la jugadora con fallbacks
+        // Función para obtener la imagen de la jugadora con fallbacks MEJORADA
         function getPlayerImage(player) {
-            // 1. Si la jugadora tiene imagen propia
-            if (player.image && player.image.trim() !== '') {
+            // 1. PRIORIDAD: Si la jugadora tiene imagen propia
+            if (player.image && player.image.trim() !== '' && player.image !== 'null' && player.image !== 'undefined') {
+                console.log('Using player image:', player.image);
                 return player.image;
             }
             
-            // 2. Si no tiene imagen, usar la del equipo (logo o jersey)
-            if (window.currentTeamLogo && window.currentTeamLogo.trim() !== '') {
-                return window.currentTeamLogo;
-            }
-            
-            if (window.currentTeamJerseyPhoto && window.currentTeamJerseyPhoto.trim() !== '') {
+            // 2. Si no tiene imagen personal, usar la camiseta del equipo
+            if (window.currentTeamJerseyPhoto && window.currentTeamJerseyPhoto.trim() !== '' && window.currentTeamJerseyPhoto !== 'null') {
+                console.log('Using team jersey photo:', window.currentTeamJerseyPhoto);
                 return window.currentTeamJerseyPhoto;
             }
             
-            // 3. Si tampoco hay logo del equipo, usar placeholder genérico
-            return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNFMEUwRTAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNiIgZmlsbD0iIzk5OTk5OSIvPgo8cGF0aCBkPSJNOCAzMkM4IDI2LjQ3NzIgMTIuNDc3MiAyMiAxOCAyMkMyMy41MjI4IDIyIDI4IDI2LjQ3NzIgMjggMzJIOFoiIGZpbGw9IiM5OTk5OTkiLz4KPC9zdmc+';
+            // 3. Si no tiene camiseta, usar el logo del equipo
+            if (window.currentTeamLogo && window.currentTeamLogo.trim() !== '' && window.currentTeamLogo !== 'null') {
+                console.log('Using team logo:', window.currentTeamLogo);
+                return window.currentTeamLogo;
+            }
+            
+            // 4. ÚLTIMO RECURSO: placeholder genérico mejorado
+            console.log('Using generic placeholder for player:', player.name);
+            return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM0ZWNkYzQiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTggMzJDOCAyNi40NzcyIDEyLjQ3NzIgMjIgMTggMjJDMjMuNTIyOCAyMiAyOCAyNi40NzcyIDI4IDMySChaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=';
         }
 
         // Función para crear el HTML de la jugadora con imagen y datos
@@ -6044,7 +6113,15 @@
                 positionSlot.style.top = pos.y + '%';
                 fieldPositions[index].role = pos.role;
                 positionSlot.dataset.role = pos.role;
+                
+                // CORREGIDO: Restaurar event listeners para el sistema click-click
+                const newSlot = positionSlot.cloneNode(true);
+                positionSlot.parentNode.replaceChild(newSlot, positionSlot);
+                fieldPositions[index].element = newSlot;
+                setupPositionEvents(newSlot, index);
             });
+            
+            showToast(`Formación ${presetKey} aplicada`, 'success');
         }
 
         // Limpiar formación
@@ -6074,22 +6151,66 @@
             const countElement = document.getElementById('substitutes-count');
             
             if (substitutePlayers.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">Arrastra jugadoras aquí para suplentes</div>';
+                container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px; font-size: 0.8rem;">Click en suplentes para volver a disponibles</div>';
             } else {
                 container.innerHTML = '';
                 substitutePlayers.forEach(player => {
                     const subDiv = document.createElement('div');
                     subDiv.className = 'substitute-item';
-                    subDiv.innerHTML = `
-                        <div style="width: 25px; height: 25px; border-radius: 50%; background: #a55eea; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px;">
-                            ${player.jersey_number || '?'}
-                        </div>
-                        <div style="flex: 1; font-size: 14px;">
-                            <div style="font-weight: 600;">${player.first_name} ${player.last_name}</div>
-                            <div style="font-size: 12px; color: #666;">${player.main_position || 'Sin posición'}</div>
-                        </div>
-                        <button onclick="removeFromSubstitutes(${player.id})" style="background: #dc3545; color: white; border: none; padding: 2px 6px; border-radius: 3px; cursor: pointer; font-size: 12px;">✕</button>
+                    subDiv.style.cssText = `
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        padding: 8px;
+                        margin: 4px 0;
+                        background: white;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        border: 1px solid #dee2e6;
                     `;
+                    
+                    const positionColor = getPositionColor(player.main_position || player.position);
+                    const playerImage = getPlayerImage(player);
+                    const nickname = player.nickname || player.name.split(' ')[0];
+                    const jerseyNumber = player.jersey_number || '?';
+                    
+                    subDiv.innerHTML = `
+                        <div class="player-avatar-small" style="border-color: ${positionColor};">
+                            <img src="${playerImage}" alt="${player.name}" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNFMEUwRTAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNiIgZmlsbD0iIzk5OTk5OSIvPgo8cGF0aCBkPSJNOCAzMkM4IDI2LjQ3NzIgMTIuNDc3MiAyMiAxOCAyMkMyMy41MjI4IDIyIDI4IDI2LjQ3NzIgMjggMzJIOFoiIGZpbGw9IiM5OTk5OTkiLz4KPC9zdmc+'">
+                        </div>
+                        <div style="width: 22px; height: 22px; border-radius: 50%; background: ${positionColor}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.7rem; flex-shrink: 0; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                            ${jerseyNumber}
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-weight: 600; font-size: 0.8rem; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #333;">${nickname}</div>
+                            <div style="font-size: 0.65rem; color: #666; line-height: 1;">${player.main_position || player.position || 'Sin posición'}</div>
+                        </div>
+                    `;
+                    
+                    // NUEVO: Click en toda la suplente para regresar a disponibles
+                    subDiv.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeFromSubstitutes(player.id);
+                        showToast(`${nickname} regresa a jugadoras disponibles`, 'info');
+                    });
+                    
+                    // Hover effects
+                    subDiv.addEventListener('mouseenter', function() {
+                        this.style.backgroundColor = '#f8f9fa';
+                        this.style.borderColor = positionColor;
+                        this.style.transform = 'translateY(-1px)';
+                        this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                    });
+                    
+                    subDiv.addEventListener('mouseleave', function() {
+                        this.style.backgroundColor = 'white';
+                        this.style.borderColor = '#dee2e6';
+                        this.style.transform = 'translateY(0)';
+                        this.style.boxShadow = 'none';
+                    });
+                    
                     container.appendChild(subDiv);
                 });
             }
