@@ -10,33 +10,30 @@
 ## 🗺️ DEFINICIÓN EXACTA DE ZONAS DE CANCHA
 
 ### Cancha de Hockey - División por Zonas
-Según el PDF, la cancha se divide en **8 zonas principales** para el registro de acciones:
+Según el PDF actualizado, la cancha se divide en **12 zonas principales** para el registro de acciones:
 
 ```
                     ARCO RIVAL
     ┌─────────────────────────────────────────┐
-    │                   |                     │
-    │   ZONA 7          |     ZONA 8          │
-    │  (Ofensivo        |  (Ofensivo          │ 
-    │   Izquierdo)      |   Derecho)          │
-    │                   |                     │
-    ├───────────────────|─────────────────────┤
-    │                   |                     │
-    │  ZONA 5           |   ZONA 6            │
-    │  (Medio Ofensivo  |(Medio Ofensivo      │
-    │   Izquierdo)      |   Derecho)          │
-    │                   |                     │  
-    |------------------ |---------------------|
-    |   ZONA 3          |    ZONA 4           │
-    │  (Medio Defensivo |(Medio Defensivo     │ 
-    │   Izquierdo)      |   Derecho)          │
-    │                   |                     │
-    ├───────────────────|─────────────────────┤
-    │                   |                     │
-    │  ZONA 1           |   ZONA 2            │
-    │  (Defensivo       |  (Defensivo         │
-    │   Izquierdo)      |   Derecho)          │
-    │                   |                     │
+    │        |         |         |           │
+    │ Zona 10│ Zona 11 │ Zona 12 │           │
+    │        |         |         |           │
+    │        |         |         |           │
+    ├────────|─────────|─────────|───────────┤
+    │        |         |         |           │
+    │ Zona 7 │ Zona 8  │ Zona 9  │           │
+    │        |         |         |           │
+    │        |         |         |           │
+    ├────────|─────────|─────────|───────────┤
+    │        |         |         |           │
+    │ Zona 4 │ Zona 5  │ Zona 6  │           │
+    │        |         |         |           │
+    │        |         |         |           │
+    ├────────|─────────|─────────|───────────┤
+    │        |         |         |           │
+    │ Zona 1 │ Zona 2  │ Zona 3  │           │
+    │        |         |         |           │
+    │        |         |         |           │
     └─────────────────────────────────────────┘
                    ARCO PROPIO
 ```
@@ -54,16 +51,20 @@ El área rival (donde se pueden anotar goles) se divide en **3 sectores**:
 
 ### Coordenadas Técnicas para Desarrollo:
 ```typescript
-// Definición de zonas para base de datos
+// Definición de zonas para base de datos - 12 zonas actualizadas
 export enum CanchZone {
-  ZONA_1 = 'zona_1',  // Defensivo Izquierdo
-  ZONA_2 = 'zona_2',  // Defensivo Derecho  
-  ZONA_3 = 'zona_3',  // Medio Defensivo Izquierdo
-  ZONA_4 = 'zona_4',  // Medio Defensivo Derecho
-  ZONA_5 = 'zona_5',  // Medio Ofensivo Izquierdo
-  ZONA_6 = 'zona_6',  // Medio Ofensivo Derecho  
-  ZONA_7 = 'zona_7',  // Ofensivo Izquierdo
-  ZONA_8 = 'zona_8',  // Ofensivo Derecho
+  ZONA_1 = 'zona_1',   // Defensivo Izquierdo
+  ZONA_2 = 'zona_2',   // Defensivo Centro
+  ZONA_3 = 'zona_3',   // Defensivo Derecho
+  ZONA_4 = 'zona_4',   // Medio Defensivo Izquierdo
+  ZONA_5 = 'zona_5',   // Medio Defensivo Centro
+  ZONA_6 = 'zona_6',   // Medio Defensivo Derecho
+  ZONA_7 = 'zona_7',   // Medio Ofensivo Izquierdo
+  ZONA_8 = 'zona_8',   // Medio Ofensivo Centro
+  ZONA_9 = 'zona_9',   // Medio Ofensivo Derecho
+  ZONA_10 = 'zona_10', // Ofensivo Izquierdo
+  ZONA_11 = 'zona_11', // Ofensivo Centro
+  ZONA_12 = 'zona_12', // Ofensivo Derecho
 }
 
 export enum AreaRivalSector {
@@ -270,7 +271,7 @@ Partido completo: 60 minutos
 - **Sub 15 masculino:** 
 - **Sub 16 masculino:** 
 - **Inter masculino:** 
-- **Primero masculino:** 
+- **Primera masculino:** 
 
 
 

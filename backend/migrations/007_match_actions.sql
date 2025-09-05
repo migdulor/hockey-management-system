@@ -10,7 +10,7 @@ CREATE TABLE match_actions (
   quarter INTEGER NOT NULL CHECK (quarter BETWEEN 1 AND 4),
   minute_in_quarter INTEGER NOT NULL CHECK (minute_in_quarter BETWEEN 0 AND 15),
   second_in_quarter INTEGER DEFAULT 0 CHECK (second_in_quarter BETWEEN 0 AND 59),
-  zone INTEGER CHECK (zone BETWEEN 1 AND 4), -- 4 zonas confirmadas del PDF
+  zone INTEGER CHECK (zone BETWEEN 1 AND 12), -- 12 zonas actualizadas para análisis detallado
   rival_area_sector VARCHAR(1) CHECK (rival_area_sector IN ('L', 'C', 'R')), -- 3 sectores área rival
   substitute_player_out_id UUID REFERENCES players(id), -- Para cambios: jugadora que sale
   substitute_player_in_id UUID REFERENCES players(id),  -- Para cambios: jugadora que entra
@@ -249,7 +249,7 @@ ORDER BY ma.match_id, ma.rival_area_sector, action_count DESC;
 
 -- Comentarios para documentación
 COMMENT ON TABLE match_actions IS 'Registro de acciones durante partidos con validaciones automáticas';
-COMMENT ON COLUMN match_actions.zone IS '1-4: Zona de cancha donde ocurrió la acción';
+COMMENT ON COLUMN match_actions.zone IS '1-12: Zona de cancha donde ocurrió la acción';
 COMMENT ON COLUMN match_actions.rival_area_sector IS 'L/C/R: Sector área rival para goles y penales';
 COMMENT ON COLUMN match_actions.substitute_player_out_id IS 'Para cambios: jugadora que sale de cancha';
 COMMENT ON COLUMN match_actions.substitute_player_in_id IS 'Para cambios: jugadora que entra a cancha';

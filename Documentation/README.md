@@ -1,5 +1,5 @@
 # 📚 DOCUMENTACIÓN COMPLETA
-## Sistema de Gestión de Jugadores de Hockey
+## Sistema de Gestión - 🗺️ **Zonas exactas de cancha** (12 zonas + 3 sectores área rival)e Jugadores de Hockey
 
 **Proyecto:** Hockey Management System  
 **Fecha:** 22 de agosto de 2025  

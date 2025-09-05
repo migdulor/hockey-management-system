@@ -9,12 +9,20 @@
 
 ## 🔍 LO QUE HEMOS CONFIRMADO DEL PDF
 
-### 🗺️ **1. Zonas de Cancha - DEFINIDAS**
-✅ **4 zonas principales:**
+### 🗺️ **1. Zonas de Cancha - ACTUALIZADAS**
+✅ **12 zonas principales:**
 - Zona 1: Defensivo Izquierdo  
-- Zona 2: Defensivo Derecho
-- Zona 3: Ofensivo Izquierdo  
-- Zona 4: Ofensivo Derecho
+- Zona 2: Defensivo Centro
+- Zona 3: Defensivo Derecho
+- Zona 4: Medio Defensivo Izquierdo
+- Zona 5: Medio Defensivo Centro
+- Zona 6: Medio Defensivo Derecho
+- Zona 7: Medio Ofensivo Izquierdo
+- Zona 8: Medio Ofensivo Centro
+- Zona 9: Medio Ofensivo Derecho
+- Zona 10: Ofensivo Izquierdo
+- Zona 11: Ofensivo Centro
+- Zona 12: Ofensivo Derecho
 
 ✅ **3 sectores área rival:**
 - Izquierda (L)
@@ -84,7 +92,7 @@
 - ~~Gestión shootouts~~ → **Confirmado por división**
 - ~~Criterios división~~ → **Años exactos definidos**  
 - ~~Integración WhatsApp~~ → **ACTUALIZADO: Solo descarga manual**
-- ~~Zonas cancha~~ → **4 zonas + 3 sectores definidos**
+- ~~Zonas cancha~~ → **12 zonas + 3 sectores definidos**
 
 ### 🗄️ **Base de Datos ACTUALIZADA:**
 - **8 nuevas migraciones** creadas
