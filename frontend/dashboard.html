@@ -5536,10 +5536,28 @@
                     this.style.opacity = '1';
                 });
 
-                // Evento click solo para mostrar información - SIN SELECCIÓN
+                // Evento click para seleccionar jugadora (sistema click-click)
                 playerDiv.addEventListener('click', function(e) {
-                    // Solo mostrar información de la jugadora
-                    showToast(`${nickname} - ${player.main_position} #${jerseyNumber}`, 'info');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Limpiar selección anterior
+                    document.querySelectorAll('.player-item.selected').forEach(item => {
+                        item.classList.remove('selected');
+                        item.style.borderColor = 'transparent';
+                        item.style.background = 'white';
+                    });
+                    
+                    // Seleccionar esta jugadora
+                    this.classList.add('selected');
+                    this.style.borderColor = positionColor;
+                    this.style.background = 'rgba(42, 127, 62, 0.1)';
+                    
+                    // Guardar jugadora seleccionada globalmente
+                    window.selectedPlayerForFormation = player;
+                    
+                    // Mostrar mensaje de confirmación
+                    showToast(`${nickname} seleccionada. Ahora haz clic en una posición en la cancha.`, 'success');
                 });
 
                 container.appendChild(playerDiv);
@@ -5636,16 +5654,30 @@
                     this.style.transform = 'translate(-50%, -50%) scale(1)';
                 });
 
-                // Funcionalidad de click simplificada - SOLO MENÚ MÓVIL
+                // Funcionalidad de click mejorada - Sistema click-click
                 positionSlot.addEventListener('click', function(e) {
                     e.stopPropagation();
                     
                     if (fieldPositions[index].player) {
-                        // Si hay jugadora en la posición, mostrar opciones
-                        showPositionMenu(index, e);
+                        // Si hay jugadora en la posición, permitir removerla
+                        const player = fieldPositions[index].player;
+                        if (confirm(`¿Quitar a ${player.name} de esta posición?`)) {
+                            removePlayerFromPosition(index);
+                        }
                     } else {
-                        // Mostrar lista de jugadoras disponibles
-                        showPlayerSelectionMenu(index, e);
+                        // Posición vacía - verificar si hay jugadora seleccionada
+                        if (window.selectedPlayerForFormation) {
+                            assignPlayerToPosition(window.selectedPlayerForFormation, index);
+                            // Limpiar selección
+                            window.selectedPlayerForFormation = null;
+                            document.querySelectorAll('.player-item.selected').forEach(item => {
+                                item.classList.remove('selected');
+                                item.style.borderColor = 'transparent';
+                                item.style.background = 'white';
+                            });
+                        } else {
+                            showToast('Primero selecciona una jugadora de la lista', 'warning');
+                        }
                     }
                 });
 
@@ -5741,31 +5773,13 @@
             }
         }
 
-        // Funciones para dispositivos móviles
+        // FUNCIÓN COMENTADA - Causa problema de menú móvil duplicado
+        /*
         function showPlayerSelectionMenu(positionIndex, event) {
-            hideAllMenus();
-            
-            // Filtrar jugadoras disponibles correctamente
-            const availablePlayers = formationPlayers.filter(player => {
-                const isInField = fieldPositions.some(pos => pos.player && pos.player.id === player.id);
-                const isInSubstitutes = substitutePlayers.some(sub => sub.id === player.id);
-                return !player.assigned && !isInField && !isInSubstitutes;
-            });
-            if (availablePlayers.length === 0) {
-                showToast('No hay jugadoras disponibles', 'warning');
-                return;
-            }
-
-            const menu = document.createElement('div');
-            menu.className = 'mobile-menu';
-            menu.innerHTML = `
-                <div class="mobile-menu-header">
-                    <h4>Seleccionar Jugadora</h4>
-                    <button onclick="hideAllMenus()" class="close-btn">×</button>
-                </div>
-                <div class="mobile-menu-content">
-                    ${availablePlayers.map(player => {
-                        const playerImage = getPlayerImage(player);
+            // Esta función ha sido desactivada para usar el sistema click-click
+            showToast('Primero selecciona una jugadora de la lista', 'warning');
+        }
+        */
                         const nickname = player.nickname || player.name.split(' ')[0];
                         const jerseyNumber = player.jersey_number || '?';
                         return `
@@ -5790,36 +5804,12 @@
             setTimeout(() => menu.classList.add('show'), 10);
         }
 
+        // FUNCIÓN COMENTADA - Reemplazada por sistema click-click
+        /*
         function showPositionMenu(positionIndex, event) {
-            hideAllMenus();
-            
-            const player = fieldPositions[positionIndex].player;
-            const menu = document.createElement('div');
-            menu.className = 'mobile-menu';
-            menu.innerHTML = `
-                <div class="mobile-menu-header">
-                    <h4>${player.name}</h4>
-                    <button onclick="hideAllMenus()" class="close-btn">×</button>
-                </div>
-                <div class="mobile-menu-content">
-                    <div class="player-details">
-                        <div class="player-jersey" style="background: ${getPositionColor(player.main_position)};">
-                            ${player.jersey_number || '?'}
-                        </div>
-                        <div class="player-info">
-                            <div class="player-name">${player.name}</div>
-                            <div class="player-position">${player.main_position}</div>
-                        </div>
-                    </div>
-                    <button class="action-btn remove-btn" onclick="removePlayerFromPosition(${positionIndex}); hideAllMenus();">
-                        Quitar de Posición
-                    </button>
-                </div>
-            `;
-
-            document.body.appendChild(menu);
-            setTimeout(() => menu.classList.add('show'), 10);
+            // Esta función ha sido desactivada para simplificar la interfaz
         }
+        */
 
         function selectPlayerForPosition(player, positionIndex) {
             assignPlayerToPosition(player, positionIndex);
@@ -5864,16 +5854,37 @@
         }
 
         function setupPositionEvents(positionSlot, positionIndex) {
-            // Event listeners para posición vacía
+            // Event listeners para sistema click-click
             positionSlot.addEventListener('click', (e) => {
                 e.stopPropagation();
-                showPlayerSelectionMenu(positionIndex, e);
+                
+                if (fieldPositions[positionIndex].player) {
+                    // Si hay jugadora en la posición, permitir removerla
+                    const player = fieldPositions[positionIndex].player;
+                    if (confirm(`¿Quitar a ${player.name} de esta posición?`)) {
+                        removePlayerFromPosition(positionIndex);
+                    }
+                } else {
+                    // Posición vacía - verificar si hay jugadora seleccionada
+                    if (window.selectedPlayerForFormation) {
+                        assignPlayerToPosition(window.selectedPlayerForFormation, positionIndex);
+                        // Limpiar selección
+                        window.selectedPlayerForFormation = null;
+                        document.querySelectorAll('.player-item.selected').forEach(item => {
+                            item.classList.remove('selected');
+                            item.style.borderColor = 'transparent';
+                            item.style.background = 'white';
+                        });
+                    } else {
+                        showToast('Primero selecciona una jugadora de la lista', 'warning');
+                    }
+                }
             });
             
+            // Eventos touch para móviles
             positionSlot.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                showPlayerSelectionMenu(positionIndex, e);
             });
         }
 
