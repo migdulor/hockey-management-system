@@ -1133,6 +1133,36 @@
             }
         }
             /* =============================
+               RESPONSIVE FORMACIONES MEJORADO
+            ============================= */
+            @media (max-width: 480px) {
+                .player-on-field {
+                    width: 12px;
+                    height: 12px;
+                    font-size: 0.22rem;
+                    margin: 2px;
+                }
+                .field-position-slot {
+                    width: 15px;
+                    height: 15px;
+                    margin: 4px;
+                }
+                .player-avatar {
+                    width: 18px !important;
+                    height: 18px !important;
+                }
+                .player-avatar-small {
+                    width: 12px !important;
+                    height: 12px !important;
+                }
+                .field-3d, .formation-field-grid {
+                    display: grid !important;
+                    grid-template-columns: repeat(4, 1fr) !important;
+                    gap: 12px !important;
+                    min-height: 200px !important;
+                }
+            }
+            /* =============================
                RESPONSIVE FORMACIONES
             ============================= */
             @media (max-width: 900px) {
