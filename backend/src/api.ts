@@ -973,7 +973,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(500).json({
               success: false,
               message: 'Error al obtener jugadores del equipo',
-              error: playersError.message
+              error: playersError instanceof Error ? playersError.message : String(playersError)
             });
           }
         }
