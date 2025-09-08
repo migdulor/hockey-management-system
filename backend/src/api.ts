@@ -1035,6 +1035,54 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Players management endpoints
+    // GET /api/players/unassigned - Listar jugadoras sin equipo
+    if (path === '/players/unassigned' && method === 'GET') {
+      try {
+        // Jugadoras que no tienen ninguna relación activa en team_players
+        const result = await sql`
+          SELECT * FROM players p
+          WHERE NOT EXISTS (
+            SELECT 1 FROM team_players tp
+            WHERE tp.player_id = p.id AND tp.is_active = true
+          )
+        `;
+        return res.status(200).json({
+          success: true,
+          players: result.rows
+        });
+      } catch (error) {
+        console.error('Error al obtener jugadoras sin equipo:', error);
+        return res.status(500).json({ success: false, error: 'Error interno al consultar jugadoras sin equipo' });
+      }
+    }
+
+    // DELETE /api/players/:id/full - Eliminar jugadora solo si no tiene relaciones
+    if (path.match(/^\/players\/[^\/]+\/full$/) && method === 'DELETE') {
+      const playerId = path.split('/')[2];
+      try {
+        // Verificar si la jugadora tiene relaciones activas en team_players
+        const teamPlayerResult = await sql`
+          SELECT COUNT(*) FROM team_players WHERE player_id = ${playerId} AND is_active = true
+        `;
+        const teamPlayerCount = parseInt(teamPlayerResult.rows[0].count, 10);
+        if (teamPlayerCount > 0) {
+          return res.status(400).json({
+            success: false,
+            message: 'No se puede eliminar la jugadora porque tiene registros relacionados en equipos.'
+          });
+        }
+        // Aquí puedes agregar más verificaciones si tienes otras tablas relacionadas
+        // Si no tiene relaciones, eliminar de players
+        await sql`DELETE FROM players WHERE id = ${playerId}`;
+        return res.status(200).json({
+          success: true,
+          message: 'Jugadora eliminada completamente.'
+        });
+      } catch (error) {
+        console.error('Error al eliminar jugadora:', error);
+        return res.status(500).json({ success: false, error: 'Error interno al eliminar jugadora' });
+      }
+    }
     if (path.startsWith('/players')) {
       console.log('🎯 Players endpoint accessed:', { path, method, url: req.url });
       
