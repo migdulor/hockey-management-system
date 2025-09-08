@@ -1343,6 +1343,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // DELETE /api/players/{playerId}?team_id=xxx - Remove player from team
         if (path.match(/^\/players\/[^\/]+$/) && method === 'DELETE') {
+          console.log('🎯 DELETE ENDPOINT REACHED!', { path, method });
+          
           const playerId = path.split('/')[2];
           
           // Extraer team_id de los query parameters de manera más robusta
@@ -1365,6 +1367,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             });
           }
 
+          // PRUEBA TEMPORAL: Devolver éxito sin hacer nada en la base de datos
+          console.log('✅ TEMPORAL: Devolviendo éxito sin eliminar');
+          return res.status(200).json({
+            success: true,
+            message: 'Jugador eliminado (modo prueba temporal)'
+          });
+
+          /*
           if (!process.env.POSTGRES_URL) {
             return res.status(200).json({
               success: true,
@@ -1407,6 +1417,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               message: 'Error interno del servidor al eliminar jugador'
             });
           }
+          */
         }
 
       } catch (error) {
