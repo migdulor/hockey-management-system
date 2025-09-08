@@ -253,6 +253,7 @@
             <button class="tab active" onclick="showTab('users')">👥 Usuarios</button>
             <button class="tab" onclick="showTab('create')">➕ Crear Usuario</button>
             <button class="tab" onclick="showTab('stats')">📊 Estadísticas</button>
+            <button class="tab" onclick="showTab('unassigned')">🏃‍♀️ Jugadoras sin equipo</button>
         </div>
 
         <div id="message" class="message"></div>
@@ -320,6 +321,14 @@
                 Cargando estadísticas...
             </div>
         </div>
+
+        <!-- Tab: Jugadoras sin equipo -->
+        <div id="unassigned-tab" class="tab-content">
+            <div style="margin-bottom:20px;">
+                <button class="btn btn-secondary" onclick="fetchUnassignedPlayers()">Actualizar listado</button>
+            </div>
+            <div id="unassignedPlayers"></div>
+        </div>
     </div>
 
     <script>
@@ -373,14 +382,13 @@
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            
             // Mostrar tab seleccionada
             document.getElementById(tabName + '-tab').classList.add('active');
             event.target.classList.add('active');
-            
             // Cargar contenido según la tab
             if (tabName === 'users') loadUsers();
             if (tabName === 'stats') loadStats();
+            if (tabName === 'unassigned') fetchUnassignedPlayers();
         }
 
         // Mostrar mensaje
@@ -699,6 +707,69 @@
             } catch (error) {
                 showMessage(`Error de conexión: ${error.message}`, 'error');
             }
+        }
+
+        // Consultar jugadoras sin equipo
+        async function fetchUnassignedPlayers() {
+          const response = await fetch('/api/players/unassigned', {
+            headers: getAuthHeaders()
+          });
+          const data = await response.json();
+          const container = document.getElementById('unassignedPlayers');
+          container.innerHTML = '';
+          if (data.success) {
+            if (data.players.length === 0) {
+              container.innerHTML = '<p>No hay jugadoras sin equipo.</p>';
+              return;
+            }
+            data.players.forEach(player => {
+              container.innerHTML += `
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                  <span>${player.name}</span>
+                  <button class="btn btn-danger btn-sm" onclick="deletePlayerFull('${player.id}')">Eliminar</button>
+                  <button class="btn btn-primary btn-sm" onclick="assignPlayerToTeamPrompt('${player.id}', '${player.name}')">Asignar a equipo</button>
+                </div>
+              `;
+            });
+          } else {
+            alert('Error al consultar jugadoras sin equipo');
+          }
+        }
+
+        // Eliminar jugadora (completamente)
+        async function deletePlayerFull(playerId) {
+          if (!confirm('¿Seguro que quieres eliminar esta jugadora de la base de datos?')) return;
+          const response = await fetch(`/api/players/${playerId}/full`, { method: 'DELETE', headers: getAuthHeaders() });
+          const data = await response.json();
+          if (data.success) {
+            alert('Jugadora eliminada correctamente');
+            fetchUnassignedPlayers();
+          } else {
+            alert(data.message || 'No se pudo eliminar la jugadora');
+          }
+        }
+
+        // Asignar jugadora a equipo (prompt)
+        function assignPlayerToTeamPrompt(playerId, playerName) {
+          const teamId = prompt(`Asignar a qué equipo la jugadora "${playerName}"? Ingresa el ID del equipo:`);
+          if (!teamId) return;
+          assignPlayerToTeam(playerId, teamId);
+        }
+
+        // Asignar jugadora a equipo
+        async function assignPlayerToTeam(playerId, teamId) {
+          const response = await fetch(`/api/teams/${teamId}/players`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ playerId })
+          });
+          const data = await response.json();
+          if (data.success) {
+            alert('Jugadora asignada al equipo correctamente');
+            fetchUnassignedPlayers();
+          } else {
+            alert(data.message || 'No se pudo asignar la jugadora');
+          }
         }
 
         // Cargar usuarios al inicio
