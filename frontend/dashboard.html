@@ -3649,11 +3649,7 @@
             }
 
             try {
-                // En desarrollo local, necesitamos especificar el puerto del backend
-                const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                const baseUrl = isLocalDev ? 'http://localhost:3001' : '';
-                const url = `${baseUrl}/api/players/${playerId}?team_id=${window.currentTeamId}`;
-                
+                const url = `/api/players/${playerId}?team_id=${window.currentTeamId}`;
                 console.log('🌐 URL de eliminación:', url);
                 
                 const response = await fetch(url, {

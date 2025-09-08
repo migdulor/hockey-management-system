@@ -1340,13 +1340,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // DELETE /api/players/{playerId}?team_id=xxx - Remove player from team
         if (path.match(/^\/players\/[^\/]+$/) && method === 'DELETE') {
           const playerId = path.split('/')[2];
-          const teamId = req.url?.split('team_id=')[1]?.split('&')[0];
+          
+          // Extraer team_id de los query parameters de manera más robusta
+          const url = new URL(req.url!, `http://${req.headers.host}`);
+          const teamId = url.searchParams.get('team_id');
 
           console.log('🗑️ DELETE player request:', { 
             path, 
             playerId, 
             teamId, 
-            fullUrl: req.url 
+            fullUrl: req.url,
+            searchParams: Array.from(url.searchParams.entries())
           });
 
           if (!playerId || !teamId) {
