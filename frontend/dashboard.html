@@ -3642,17 +3642,28 @@
 
         // Remove player from team
         async function removePlayerFromTeam(playerId, playerName) {
+            console.log('🗑️ Intentando eliminar jugador:', { playerId, playerName, teamId: window.currentTeamId });
+            
             if (!confirm(`¿Estás seguro de que deseas eliminar a "${playerName}" del equipo?`)) {
                 return;
             }
 
             try {
-                const response = await fetch(`/api/players/${playerId}?team_id=${window.currentTeamId}`, {
+                // En desarrollo local, necesitamos especificar el puerto del backend
+                const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const baseUrl = isLocalDev ? 'http://localhost:3001' : '';
+                const url = `${baseUrl}/api/players/${playerId}?team_id=${window.currentTeamId}`;
+                
+                console.log('🌐 URL de eliminación:', url);
+                
+                const response = await fetch(url, {
                     method: 'DELETE',
                     headers: getAuthHeaders()
                 });
                 
+                console.log('📡 Response status:', response.status);
                 const data = await response.json();
+                console.log('📦 Response data:', data);
                 
                 if (data.success) {
                     showMessage(`${playerName} eliminado del equipo exitosamente`, 'success');
@@ -3661,6 +3672,7 @@
                     showMessage(`Error: ${data.message || data.error}`, 'error');
                 }
             } catch (error) {
+                console.error('❌ Error de conexión:', error);
                 showMessage(`Error de conexión: ${error.message}`, 'error');
             }
         }

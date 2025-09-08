@@ -1342,7 +1342,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const playerId = path.split('/')[2];
           const teamId = req.url?.split('team_id=')[1]?.split('&')[0];
 
+          console.log('🗑️ DELETE player request:', { 
+            path, 
+            playerId, 
+            teamId, 
+            fullUrl: req.url 
+          });
+
           if (!playerId || !teamId) {
+            console.log('❌ Missing parameters:', { playerId, teamId });
             return res.status(400).json({
               success: false,
               message: 'Player ID y team_id son requeridos'
@@ -1357,6 +1365,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
 
           try {
+            console.log('🔍 Ejecutando query con:', { playerId, teamId });
+            
             // Marcar como inactivo en team_players (no eliminar completamente)
             const removePlayerQuery = await sql`
               UPDATE team_players 
@@ -1364,6 +1374,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               WHERE player_id = ${playerId} AND team_id = ${teamId}
               RETURNING *
             `;
+
+            console.log('📊 Query result:', {
+              rowCount: removePlayerQuery.rows.length,
+              rows: removePlayerQuery.rows
+            });
 
             if (removePlayerQuery.rows.length === 0) {
               return res.status(404).json({
@@ -1378,7 +1393,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             });
 
           } catch (error) {
-            console.error('Error removing player:', error);
+            console.error('💥 Error removing player:', error);
             return res.status(500).json({
               success: false,
               message: 'Error interno del servidor al eliminar jugador'
