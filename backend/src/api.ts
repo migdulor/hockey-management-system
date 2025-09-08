@@ -1036,8 +1036,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Players management endpoints
     if (path.startsWith('/players')) {
+      console.log('🎯 Players endpoint accessed:', { path, method, url: req.url });
+      
       const authHeader = req.headers.authorization;
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        console.log('❌ No auth header in players endpoint');
         return res.status(401).json({
           success: false,
           message: 'Token de autorización requerido'
@@ -1047,6 +1050,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const token = authHeader.substring(7);
       try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+        console.log('✅ Token verified for players endpoint:', { userId: decoded.userId });
 
         // GET /api/players?team_id=xxx - List players for team
         if (path.startsWith('/players') && method === 'GET') {
