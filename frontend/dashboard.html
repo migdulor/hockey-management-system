@@ -1534,7 +1534,7 @@
 
         .player-nickname {
             font-weight: bold;
-            font-size: 16px;
+            font-size: 12px;
             color: white;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
             background: rgba(0,0,0,0.8);
@@ -1545,7 +1545,7 @@
         }
 
         .player-number {
-            font-size: 16px;
+            font-size: 12px;
             color: #FFD700;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
             font-weight: bold;
@@ -6209,15 +6209,15 @@
             const nickname = player.nickname || player.name.split(' ')[0];
             const jerseyNumber = player.jersey_number || '?';
             
-            // Usar generatePlayerImageHTML que tiene mejor lógica de fallback
-            const playerImageHTML = generatePlayerImageHTML(player, '70px', true);
-            
+            // Usar generatePlayerImageHTML con tamaño reducido y overlays siempre visibles
+            const playerImageHTML = generatePlayerImageHTML(player, '50px', true);
+
             return `
-                <div class="player-field-container" style="display: flex; flex-direction: column; align-items: center; gap: 3px;">
+                <div class="player-field-container" style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
                     ${playerImageHTML}
                     <div class="player-info" style="text-align: center;">
-                        <span class="player-nickname">${nickname}</span>
-                        <span class="player-number">#${jerseyNumber}</span>
+                        <span class="player-nickname" style="font-size: 0.85rem; font-weight: 600; color: #222;">${nickname}</span>
+                        <span class="player-number" style="font-size: 0.8rem; color: #007bff; font-weight: 500;">#${jerseyNumber}</span>
                     </div>
                     ${showRemoveButton ? `<button class="remove-player-btn" onclick="event.stopPropagation(); removePlayerFromPosition(${positionIndex})" style="position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer;">×</button>` : ''}
                 </div>
