@@ -1132,6 +1132,47 @@
                 box-shadow: 0 6px 20px rgba(0,0,0,0.4);
             }
         }
+            /* =============================
+               RESPONSIVE FORMACIONES
+            ============================= */
+            @media (max-width: 900px) {
+                .player-on-field {
+                    width: 28px;
+                    height: 28px;
+                    font-size: 0.6rem;
+                }
+                .field-position-slot {
+                    width: 35px;
+                    height: 35px;
+                }
+                .player-avatar {
+                    width: 45px !important;
+                    height: 45px !important;
+                }
+                .player-avatar-small {
+                    width: 28px !important;
+                    height: 28px !important;
+                }
+            }
+            @media (max-width: 600px) {
+                .player-on-field {
+                    width: 22px;
+                    height: 22px;
+                    font-size: 0.5rem;
+                }
+                .field-position-slot {
+                    width: 25px;
+                    height: 25px;
+                }
+                .player-avatar {
+                    width: 32px !important;
+                    height: 32px !important;
+                }
+                .player-avatar-small {
+                    width: 20px !important;
+                    height: 20px !important;
+                }
+            }
 
         /* Indicadores de roles en el campo */
         .field-position-slot[data-role="goalkeeper"] {
