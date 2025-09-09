@@ -5689,13 +5689,12 @@
                         </div>
                     </div>
                 `;
-            });
+            //});
                     <div style="text-align: center; width: 100%;">
                         <div style="font-weight: 700; font-size: 0.95rem; color: #222; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${nickname}</div>
                         <div style="font-size: 0.8rem; color: #666; font-weight: 500; margin-bottom: 2px;">${position}</div>
                     </div>
-                `;
-
+                
                 // Hover effects
                 playerDiv.addEventListener('mouseenter', function() {
                     this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.13)';
@@ -6290,41 +6289,39 @@
                 pos.element.style.background = 'rgba(255,255,255,0.1)';
             });
             
-            substitutePlayers.forEach(player => {
-                player.isSubstitute = false;
-            });
-            substitutePlayers = [];
-            
-            renderAvailablePlayers();
-            updateFormationStats();
-            updateSubstitutesDisplay();
-        }
-
-        // Actualizar display de suplentes
-        function updateSubstitutesDisplay() {
-            const container = document.getElementById('substitutes-area');
-            const countElement = document.getElementById('substitutes-count');
-            
-            if (substitutePlayers.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px; font-size: 0.8rem;">Click en suplentes para volver a disponibles</div>';
-            } else {
-                container.innerHTML = '';
-                substitutePlayers.forEach(player => {
-                    const subDiv = document.createElement('div');
-                    subDiv.className = 'substitute-item';
-                    subDiv.style.cssText = `
-                        display: flex;
-                        align-items: center;
-                        gap: 8px;
-                        padding: 8px;
-                        margin: 4px 0;
-                        background: white;
-                        border-radius: 6px;
-                        cursor: pointer;
-                        transition: all 0.2s ease;
-                        border: 1px solid #dee2e6;
-                    `;
-                    
+            players.forEach(player => {
+                const attendance = attendanceMap[player.id];
+                const status = attendance ? attendance.status : 'ausente';
+                const excuse = attendance ? attendance.excuse_reason || '' : '';
+                html += `
+                    <div class="attendance-player-row" style="display: flex; flex-wrap: wrap; align-items: center; padding: 15px; border: 1px solid #ddd; border-radius: 6px; background: #fafafa; gap: 10px;">
+                        <div style="flex: 0 0 160px; max-width: 160px; min-width: 80px; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1rem;">
+                            ${player.nickname}
+                        </div>
+                        <div style="flex: 1 1 220px; min-width: 180px; display: flex; gap: 10px; align-items: center; justify-content: flex-start;">
+                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                <input type="radio" name="status_${player.id}" value="presente" ${status === 'presente' ? 'checked' : ''}>
+                                <span style="color: #4CAF50; font-weight: bold;">✅ P</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                <input type="radio" name="status_${player.id}" value="tarde" ${status === 'tarde' ? 'checked' : ''}>
+                                <span style="color: #FF9800; font-weight: bold;">⏰ T</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                <input type="radio" name="status_${player.id}" value="ausente" ${status === 'ausente' ? 'checked' : ''}>
+                                <span style="color: #f44336; font-weight: bold;">❌ A</span>
+                            </label>
+                        </div>
+                        <div style="flex: 0 0 150px; max-width: 150px; min-width: 100px;">
+                            <input type="text" id="excuse_${player.id}" value="${excuse}" placeholder="Motivo (opcional)"
+                                   style="width: 100%; min-width: 80px; padding: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
+                        </div>
+                    </div>
+                `;
+            //});
+            html += '</div></div>';
+            return html;
+        
                     const positionColor = getPositionColor(player.main_position || player.position);
                     const playerImage = getPlayerImage(player);
                     const nickname = player.nickname || player.name.split(' ')[0];
@@ -6368,7 +6365,7 @@
                     
                     container.appendChild(subDiv);
                 });
-            }
+            
             
             countElement.textContent = substitutePlayers.length;
         }
