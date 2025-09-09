@@ -5647,115 +5647,107 @@
 
             // Filtrar jugadoras: no asignadas, no en suplentes
             const availablePlayers = formationPlayers.filter(player => {
-                // No debe estar asignada a una posición en el campo
                 const isInField = fieldPositions.some(pos => pos.player && pos.player.id === player.id);
-                // No debe estar en la lista de suplentes
                 const isInSubstitutes = substitutePlayers.some(sub => sub.id === player.id);
-                // No debe tener la marca de asignada
                 return !player.assigned && !isInField && !isInSubstitutes;
             });
-            
+
             if (availablePlayers.length === 0) {
                 container.innerHTML = '<div style="text-align: center; padding: 15px; color: #666; font-size: 0.85rem;">Todas las jugadoras están asignadas</div>';
                 return;
             }
 
+            // Crear grid container
+            const grid = document.createElement('div');
+            grid.className = 'player-grid-list';
+            grid.style.cssText = `
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 12px;
+                padding: 8px 0;
+            `;
+
             availablePlayers.forEach(player => {
-                const playerDiv = document.createElement('div');
-                playerDiv.className = 'player-item';
-                playerDiv.draggable = true;
-                playerDiv.dataset.playerId = player.id;
-                
                 const positionColor = getPositionColor(player.main_position || player.position);
                 const playerName = player.name || `${player.first_name || ''} ${player.last_name || ''}`.trim();
-                
-                playerDiv.style.cssText = `
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    padding: 12px 15px;
-                    margin-bottom: 8px;
-                    background: white;
-                    border-radius: 10px;
-                    cursor: grab;
-                    transition: all 0.2s ease;
-                    border: 2px solid transparent;
-                    box-shadow: 0 3px 12px rgba(0,0,0,0.1);
-                    min-height: 65px;
-                `;
-                
                 const playerImage = getPlayerImage(player);
                 const nickname = player.nickname || player.name.split(' ')[0];
                 const jerseyNumber = player.jersey_number || '?';
-                
+                const position = player.main_position || player.position || 'Sin posición';
+
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'player-item-grid';
+                playerDiv.style.cssText = `
+                    background: white;
+                    border-radius: 10px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                    border: 2px solid transparent;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    padding: 10px 8px;
+                    cursor: grab;
+                    transition: box-shadow 0.2s, border-color 0.2s;
+                    min-width: 0;
+                `;
+
                 playerDiv.innerHTML = `
-                    <div style="position: relative; flex-shrink: 0;">
-                        <img src="${playerImage}" alt="${playerName}" 
-                             style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 3px solid ${positionColor}; box-shadow: 0 3px 10px rgba(0,0,0,0.2);"
-                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM0ZWNkYzQiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTggMzJDOCAyNi40NzcyIDEyLjQ3NzIgMjIgMTggMjJDMjMuNTIyOCAyMiAyOCAyNi40NzcyIDI4IDMySChaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4='">
-                        <div style="position: absolute; bottom: -3px; right: -3px; width: 24px; height: 24px; border-radius: 50%; background: ${positionColor}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.75rem; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+                    <div style="position: relative; margin-bottom: 6px;">
+                        <img src="${playerImage}" alt="${playerName}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid ${positionColor}; box-shadow: 0 2px 8px rgba(0,0,0,0.12);">
+                        <div style="position: absolute; bottom: -6px; right: -6px; width: 22px; height: 22px; border-radius: 50%; background: ${positionColor}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.8rem; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.18);">
                             ${jerseyNumber}
                         </div>
                     </div>
-                    <div style="flex: 1; min-width: 0;">
-                        <div style="font-weight: 700; font-size: 1rem; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #333; margin-bottom: 2px;">${nickname}</div>
-                        <div style="font-size: 0.8rem; color: #666; line-height: 1; font-weight: 500;">${player.main_position || player.position || 'Sin posición'}</div>
+                    <div style="text-align: center; width: 100%;">
+                        <div style="font-weight: 700; font-size: 0.95rem; color: #222; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${nickname}</div>
+                        <div style="font-size: 0.8rem; color: #666; font-weight: 500; margin-bottom: 2px;">${position}</div>
                     </div>
                 `;
 
                 // Hover effects
                 playerDiv.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-2px)';
-                    this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.15)';
+                    this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.13)';
                     this.style.borderColor = positionColor;
                 });
-
                 playerDiv.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                    this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                    this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
                     this.style.borderColor = 'transparent';
                 });
 
-                // Eventos drag and drop
+                // Drag and click events (igual que antes)
+                playerDiv.draggable = true;
+                playerDiv.dataset.playerId = player.id;
                 playerDiv.addEventListener('dragstart', function(e) {
                     e.dataTransfer.setData('text/plain', player.id);
                     e.dataTransfer.setData('player-data', JSON.stringify(player));
                     this.style.cursor = 'grabbing';
                     this.style.opacity = '0.7';
                 });
-
                 playerDiv.addEventListener('dragend', function(e) {
                     this.style.cursor = 'grab';
                     this.style.opacity = '1';
                 });
-
-                // NUEVO: Sistema click-click para seleccionar jugadora
                 playerDiv.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    
-                    // Limpiar selección anterior
-                    const previousSelected = document.querySelector('.player-item.selected');
+                    const previousSelected = document.querySelector('.player-item-grid.selected');
                     if (previousSelected) {
                         previousSelected.classList.remove('selected');
                         previousSelected.style.borderColor = 'transparent';
                         previousSelected.style.backgroundColor = 'white';
                     }
-                    
-                    // Seleccionar esta jugadora
                     selectedPlayerForFormation = player;
                     this.classList.add('selected');
                     this.style.borderColor = positionColor;
                     this.style.backgroundColor = '#f8f9fa';
-                    
-                    // Mostrar mensaje informativo
                     showToast(`${nickname} seleccionada. Ahora haz clic en una posición del campo para asignarla.`, 'info');
-                    
                     console.log('Jugadora seleccionada:', player.name);
                 });
 
-                container.appendChild(playerDiv);
+                grid.appendChild(playerDiv);
             });
+
+            container.appendChild(grid);
         }
 
         // Función centralizada para actualizar todas las visualizaciones
