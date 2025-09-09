@@ -5690,24 +5690,7 @@
                     </div>
                 `;
             //});
-                    <div style="text-align: center; width: 100%;">
-                        <div style="font-weight: 700; font-size: 0.95rem; color: #222; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${nickname}</div>
-                        <div style="font-size: 0.8rem; color: #666; font-weight: 500; margin-bottom: 2px;">${position}</div>
-                    </div>
-                
-                // Hover effects
-                playerDiv.addEventListener('mouseenter', function() {
-                    this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.13)';
-                    this.style.borderColor = positionColor;
-                });
-                playerDiv.addEventListener('mouseleave', function() {
-                    this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
-                    this.style.borderColor = 'transparent';
-                });
-
-                // Drag and click events (igual que antes)
-                playerDiv.draggable = true;
-                playerDiv.dataset.playerId = player.id;
+            // ...resto del código JS...
                 playerDiv.addEventListener('dragstart', function(e) {
                     e.dataTransfer.setData('text/plain', player.id);
                     e.dataTransfer.setData('player-data', JSON.stringify(player));
