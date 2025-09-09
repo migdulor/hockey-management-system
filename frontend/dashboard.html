@@ -3281,39 +3281,34 @@
                 `;
             }
 
-            let html = '<div class="players-grid">';
-            
+            let html = '<div class="players-list-compact" style="display: flex; flex-direction: column; gap: 6px;">';
+
             players.forEach(player => {
                 html += `
-                    <div class="player-card">
-                        <div class="player-photo-container" style="text-align: center; margin-bottom: 10px;">
-                            ${generatePlayerImageHTML(player)}
+                    <div class="player-list-item" style="display: flex; align-items: center; background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); padding: 8px 10px; min-width: 0;">
+                        <div style="position: relative; margin-right: 12px;">
+                            <div style="width: 38px; height: 38px; border-radius: 50%; overflow: hidden; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                                ${generatePlayerImageHTML(player, '38px', false)}
+                            </div>
                         </div>
-                        <div class="player-header">
-                            <h4>${player.name}</h4>
-                            ${player.nickname ? `<span class="player-nickname">"${player.nickname}"</span>` : ''}
+                        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+                            <span style="font-weight: 700; font-size: 1rem; color: #222; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${player.nickname || '-'}</span>
+                            <span style="font-size: 0.85rem; color: #666; font-weight: 500;">${player.position || 'Sin posición'}</span>
                         </div>
-                        <div class="player-info">
-                            ${player.jersey_number ? `<span class="jersey-number">#${player.jersey_number}</span>` : '<span class="jersey-number">Sin #</span>'}
-                            <span class="player-position">${player.position || 'Sin posición'}</span>
-                        </div>
-                        <div class="player-actions">
-                            <button class="btn btn-sm btn-warning" onclick="editPlayer('${player.id}', '${player.name}', '${player.nickname || ''}', '${player.birth_date && player.birth_date !== 'null' ? player.birth_date : ''}', '${player.position || ''}', '${player.jersey_number || ''}')" title="Editar jugador">
-                                ✏️ Editar
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="removePlayerFromTeam('${player.id}', '${player.name}')" title="Eliminar del equipo">
-                                🗑️ Eliminar
-                            </button>
+                        <div style="margin-left: 16px; font-size: 0.95rem; color: #007bff; font-weight: bold; min-width: 32px; text-align: right;">${player.jersey_number ? `#${player.jersey_number}` : ''}</div>
+                        <div style="margin-left: 10px; display: flex; gap: 4px;">
+                            <button class="btn btn-sm btn-warning" onclick="editPlayer('${player.id}', '${player.name}', '${player.nickname || ''}', '${player.birth_date && player.birth_date !== 'null' ? player.birth_date : ''}', '${player.position || ''}', '${player.jersey_number || ''}')" title="Editar jugador">✏️</button>
+                            <button class="btn btn-sm btn-danger" onclick="removePlayerFromTeam('${player.id}', '${player.name}')" title="Eliminar del equipo">🗑️</button>
                         </div>
                     </div>
                 `;
             });
-            
+
             html += '</div>';
-            
+
             // Botón para agregar más jugadores
             html += `
-                <div style="text-align: center; margin-top: 30px;">
+                <div style="text-align: center; margin-top: 24px;">
                     <button class="btn btn-primary" onclick="showCreatePlayerModal()" style="margin-right: 10px;">
                         ➕ Agregar ${genderTextSingular}
                     </button>
@@ -3322,7 +3317,7 @@
                     </button>
                 </div>
             `;
-            
+
             return html;
         }
 
@@ -4057,19 +4052,19 @@
                         </div>
                         
                         <div style="display: flex; gap: 15px; align-items: center;">
-                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
                                 <input type="radio" name="status_${player.id}" value="presente" ${status === 'presente' ? 'checked' : ''}>
-                                <span style="color: #4CAF50; font-weight: bold;">✅ Presente</span>
+                                <span style="color: #4CAF50; font-weight: bold;">✅ P</span>
                             </label>
                             
-                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
                                 <input type="radio" name="status_${player.id}" value="tarde" ${status === 'tarde' ? 'checked' : ''}>
-                                <span style="color: #FF9800; font-weight: bold;">⏰ Tarde</span>
+                                <span style="color: #FF9800; font-weight: bold;">⏰ T</span>
                             </label>
                             
-                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
                                 <input type="radio" name="status_${player.id}" value="ausente" ${status === 'ausente' ? 'checked' : ''}>
-                                <span style="color: #f44336; font-weight: bold;">❌ Ausente</span>
+                                <span style="color: #f44336; font-weight: bold;">❌ A</span>
                             </label>
                             
                             <input type="text" id="excuse_${player.id}" value="${excuse}" placeholder="Motivo (opcional)"
