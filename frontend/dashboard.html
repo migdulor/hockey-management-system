@@ -5660,37 +5660,54 @@
                 padding: 8px 0;
             `;
 
-            players.forEach(player => {
-                const attendance = attendanceMap[player.id];
-                const status = attendance ? attendance.status : 'ausente';
-                const excuse = attendance ? attendance.excuse_reason || '' : '';
-                html += `
-                    <div class="attendance-player-row" style="display: flex; flex-wrap: wrap; align-items: center; padding: 15px; border: 1px solid #ddd; border-radius: 6px; background: #fafafa; gap: 10px;">
-                        <div style="flex: 0 0 160px; max-width: 160px; min-width: 80px; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1rem;">
-                            ${player.nickname}
-                        </div>
-                        <div style="flex: 1 1 220px; min-width: 180px; display: flex; gap: 10px; align-items: center; justify-content: flex-start;">
-                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                                <input type="radio" name="status_${player.id}" value="presente" ${status === 'presente' ? 'checked' : ''}>
-                                <span style="color: #4CAF50; font-weight: bold;">✅ P</span>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                                <input type="radio" name="status_${player.id}" value="tarde" ${status === 'tarde' ? 'checked' : ''}>
-                                <span style="color: #FF9800; font-weight: bold;">⏰ T</span>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                                <input type="radio" name="status_${player.id}" value="ausente" ${status === 'ausente' ? 'checked' : ''}>
-                                <span style="color: #f44336; font-weight: bold;">❌ A</span>
-                            </label>
-                        </div>
-                        <div style="flex: 0 0 150px; max-width: 150px; min-width: 100px;">
-                            <input type="text" id="excuse_${player.id}" value="${excuse}" placeholder="Motivo (opcional)"
-                                   style="width: 100%; min-width: 80px; padding: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
-                        </div>
+            availablePlayers.forEach(player => {
+                const nickname = player.nickname || player.name.split(' ')[0];
+                const position = player.main_position || player.position || 'Sin posición';
+                const positionColor = getPositionColor(position);
+                
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'player-item-grid';
+                playerDiv.style.cssText = `
+                    background: white;
+                    border: 2px solid transparent;
+                    border-radius: 12px;
+                    padding: 12px 8px;
+                    text-align: center;
+                    cursor: grab;
+                    user-select: none;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                    min-height: 140px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: space-between;
+                    position: relative;
+                `;
+                
+                playerDiv.innerHTML = `
+                    <div style="margin-bottom: 8px;">
+                        ${generatePlayerImageHTML(player, '50px', false)}
+                    </div>
+                    <div style="text-align: center; width: 100%;">
+                        <div style="font-weight: 700; font-size: 0.95rem; color: #222; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${nickname}</div>
+                        <div style="font-size: 0.8rem; color: #666; font-weight: 500; margin-bottom: 2px;">${position}</div>
                     </div>
                 `;
-            //});
-            // ...resto del código JS...
+
+                // Hover effects
+                playerDiv.addEventListener('mouseenter', function() {
+                    this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.13)';
+                    this.style.borderColor = positionColor;
+                });
+                playerDiv.addEventListener('mouseleave', function() {
+                    this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+                    this.style.borderColor = 'transparent';
+                });
+
+                // Drag and click events (igual que antes)
+                playerDiv.draggable = true;
+                playerDiv.dataset.playerId = player.id;
                 playerDiv.addEventListener('dragstart', function(e) {
                     e.dataTransfer.setData('text/plain', player.id);
                     e.dataTransfer.setData('player-data', JSON.stringify(player));
@@ -6272,43 +6289,46 @@
                 pos.element.style.background = 'rgba(255,255,255,0.1)';
             });
             
-            players.forEach(player => {
-                const attendance = attendanceMap[player.id];
-                const status = attendance ? attendance.status : 'ausente';
-                const excuse = attendance ? attendance.excuse_reason || '' : '';
-                html += `
-                    <div class="attendance-player-row" style="display: flex; flex-wrap: wrap; align-items: center; padding: 15px; border: 1px solid #ddd; border-radius: 6px; background: #fafafa; gap: 10px;">
-                        <div style="flex: 0 0 160px; max-width: 160px; min-width: 80px; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1rem;">
-                            ${player.nickname}
-                        </div>
-                        <div style="flex: 1 1 220px; min-width: 180px; display: flex; gap: 10px; align-items: center; justify-content: flex-start;">
-                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                                <input type="radio" name="status_${player.id}" value="presente" ${status === 'presente' ? 'checked' : ''}>
-                                <span style="color: #4CAF50; font-weight: bold;">✅ P</span>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                                <input type="radio" name="status_${player.id}" value="tarde" ${status === 'tarde' ? 'checked' : ''}>
-                                <span style="color: #FF9800; font-weight: bold;">⏰ T</span>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                                <input type="radio" name="status_${player.id}" value="ausente" ${status === 'ausente' ? 'checked' : ''}>
-                                <span style="color: #f44336; font-weight: bold;">❌ A</span>
-                            </label>
-                        </div>
-                        <div style="flex: 0 0 150px; max-width: 150px; min-width: 100px;">
-                            <input type="text" id="excuse_${player.id}" value="${excuse}" placeholder="Motivo (opcional)"
-                                   style="width: 100%; min-width: 80px; padding: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
-                        </div>
-                    </div>
-                `;
-            //});
-            html += '</div></div>';
-            return html;
-        
+            substitutePlayers.forEach(player => {
+                player.isSubstitute = false;
+            });
+            substitutePlayers = [];
+            
+            renderAvailablePlayers();
+            updateSubstitutesDisplay();
+            updateFormationStats();
+            showToast('Formación limpiada', 'info');
+        }
+
+        // Actualizar visualización de suplentes
+        function updateSubstitutesDisplay() {
+            const container = document.getElementById('substitutes-players');
+            const countElement = document.getElementById('substitutes-count');
+            
+            container.innerHTML = '';
+            
+            if (substitutePlayers.length > 0) {
+                substitutePlayers.forEach(player => {
                     const positionColor = getPositionColor(player.main_position || player.position);
                     const playerImage = getPlayerImage(player);
                     const nickname = player.nickname || player.name.split(' ')[0];
                     const jerseyNumber = player.jersey_number || '?';
+                    
+                    const subDiv = document.createElement('div');
+                    subDiv.className = 'substitute-player';
+                    subDiv.style.cssText = `
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        padding: 8px 12px;
+                        margin-bottom: 6px;
+                        background: white;
+                        border: 1px solid #dee2e6;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        user-select: none;
+                    `;
                     
                     subDiv.innerHTML = `
                         <div class="player-avatar-small" style="border-color: ${positionColor};">
@@ -6348,7 +6368,7 @@
                     
                     container.appendChild(subDiv);
                 });
-            
+            }
             
             countElement.textContent = substitutePlayers.length;
         }
